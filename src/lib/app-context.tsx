@@ -1,18 +1,21 @@
 "use client"
 
 import {
-  createContext, useContext, useState, useCallback, type ReactNode,
+  createContext, useContext, useState, useCallback, useEffect, type ReactNode,
 } from "react"
 import {
   defaultData, type AppData, type Vehicle, type Trip,
   type VehicleExpense, type JournalEntry, type JournalLine,
   type User, type PageName, type CoaNode,
 } from "./store"
+import { api } from "./api"
 
 interface Toast { id: number; message: string; type: "success" | "error" | "info" | "warning" }
 
 interface AppContextType {
   data: AppData
+  loading: boolean
+  apiAvailable: boolean
   currentPage: PageName
   setPage: (p: PageName) => void
   toasts: Toast[]
@@ -37,55 +40,82 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | null>(null)
 
+function dbVehicleToMock(v: Record<string, unknown>): Vehicle {
+  return { id: parseInt(String(v.id)?.slice(0, 8) || "0", 16) || Math.random(), plateNumber: String(v.plateNumber), model: `${String(v.brand)} ${String(v.model)}`, year: Number(v.year), capacity: Number(v.capacity), status: String(v.isActive) === "true" ? "Active" : "Inactive" }
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>(defaultData)
   const [currentPage, setCurrentPage] = useState<PageName>("dashboard")
   const [toasts, setToasts] = useState<Toast[]>([])
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [toastId, setToastId] = useState(0)
+  const [loading, setLoading] = useState(true)
+  const [apiAvailable, setApiAvailable] = useState(false)
+
+  useEffect(() => {
+    Promise.all([
+      api.getVehicles().catch(() => null),
+      api.getDrivers().catch(() => null),
+      api.getOrders().catch(() => null),
+      api.getExpenses().catch(() => null),
+      api.getJournalEntries().catch(() => null),
+      api.getChartOfAccounts().catch(() => null),
+      api.getFiscalPeriods().catch(() => null),
+      api.getUsers().catch(() => null),
+      api.getOutboxMessages().catch(() => null),
+      api.getAuditLogs().catch(() => null),
+    ]).then(([vehiclesRes, driversRes, ordersRes, expensesRes, journalRes, coaRes, periodsRes, usersRes, outboxRes, auditRes]) => {
+      const allOk = [vehiclesRes, driversRes, ordersRes, expensesRes, journalRes, coaRes, periodsRes, usersRes, outboxRes, auditRes].every(Boolean)
+      if (!allOk) {
+        setLoading(false)
+        return
+      }
+      setApiAvailable(true)
+      setData((prev) => ({
+        ...prev,
+        vehicles: vehiclesRes!.data.map((v) => dbVehicleToMock(v as Record<string, unknown>)),
+        journalEntries: journalRes!.data as unknown as JournalEntry[],
+        chartOfAccounts: coaRes!.data as unknown as CoaNode[],
+        users: usersRes!.data as unknown as User[],
+        outboxMessages: outboxRes!.data as unknown as AppData["outboxMessages"],
+        auditLogs: auditRes!.data as unknown as AppData["auditLogs"],
+      }))
+      setLoading(false)
+    })
+  }, [])
 
   const showToast = useCallback((message: string, type: Toast["type"] = "success") => {
     const id = toastId + 1
     setToastId(id)
     setToasts((prev) => [...prev, { id, message, type }])
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id))
-    }, 3000)
+    setTimeout(() => { setToasts((prev) => prev.filter((t) => t.id !== id)) }, 3000)
   }, [toastId])
 
-  const removeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((t) => t.id !== id))
-  }, [])
-
+  const removeToast = useCallback((id: number) => { setToasts((prev) => prev.filter((t) => t.id !== id)) }, [])
   const openModal = useCallback((id: string) => setActiveModal(id), [])
   const closeModal = useCallback(() => setActiveModal(null), [])
   const setPage = useCallback((p: PageName) => setCurrentPage(p), [])
 
   const addVehicle = useCallback((v: Omit<Vehicle, "id" | "status">) => {
-    setData((prev) => ({
-      ...prev,
-      vehicles: [...prev.vehicles, { ...v, id: prev.vehicles.length + 1, status: "Active" }],
-    }))
+    api.createVehicle({ ...v, brand: v.model.split(" ")[0] || v.model, vehicleType: "Truck", isActive: true }).catch(() => {})
+    setData((prev) => ({ ...prev, vehicles: [...prev.vehicles, { ...v, id: prev.vehicles.length + 1, status: "Active" }] }))
     showToast(`Vehicle ${v.plateNumber} added`)
   }, [showToast])
 
   const deactivateVehicle = useCallback((id: number) => {
-    setData((prev) => ({
-      ...prev,
-      vehicles: prev.vehicles.map((v) => v.id === id ? { ...v, status: "Inactive" } : v),
-    }))
     const v = data.vehicles.find((x) => x.id === id)
-    if (v) showToast(`${v.plateNumber} deactivated`, "warning")
+    if (!v) return
+    api.updateVehicle(id.toString(), { isActive: false }).catch(() => {})
+    setData((prev) => ({ ...prev, vehicles: prev.vehicles.map((v) => v.id === id ? { ...v, status: "Inactive" } : v) }))
+    showToast(`${v.plateNumber} deactivated`, "warning")
   }, [data.vehicles, showToast])
 
   const addTrip = useCallback((t: { from: string; to: string; customer: string; date: string; price: number; rate: number }) => {
+    api.createOrder({ customerId: t.customer, origin: t.from, destination: t.to, scheduledDate: t.date, priceAmount: String(t.price), baseAmount: String(t.price * t.rate) }).catch(() => {})
     setData((prev) => {
       const newId = prev.trips.length + 42
-      const newTrip: Trip = {
-        id: newId, from: t.from, to: t.to, customer: t.customer,
-        vehicle: "ABC-1234", driver: "Ahmed Hassan",
-        date: t.date, price: t.price, priceBase: t.price * t.rate, status: "Pending",
-      }
+      const newTrip: Trip = { id: newId, from: t.from, to: t.to, customer: t.customer, vehicle: "ABC-1234", driver: "Ahmed Hassan", date: t.date, price: t.price, priceBase: t.price * t.rate, status: "Pending" }
       return { ...prev, trips: [newTrip, ...prev.trips] }
     })
     showToast(`Trip ${t.from} → ${t.to} created`)
@@ -103,18 +133,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const trips = prev.trips.map((t) => t.id === id ? { ...t, status: newStatus } : t)
       const outbox = [...prev.outboxMessages]
       if (newStatus === "Completed") {
-        outbox.push({
-          id: outbox.length + 1, event: "TripCompleted", status: "Pending",
-          retries: 0, occurred: new Date().toISOString().slice(0, 16).replace("T", " "), error: null,
-        })
+        api.completeOrder(id.toString()).catch(() => {})
+        outbox.push({ id: outbox.length + 1, event: "TripCompleted", status: "Pending", retries: 0, occurred: new Date().toISOString().slice(0, 16).replace("T", " "), error: null })
         setTimeout(() => {
           setData((p) => {
             const jeNum = p.nextJeNumber
             const newEntry: JournalEntry = {
-              id: p.journalEntries.length + 1,
-              number: `JE-2024-${String(jeNum).padStart(5, "0")}`,
-              date: trip.date,
-              desc: `Trip #${id} · ${trip.from} → ${trip.to} · ${trip.customer}`,
+              id: p.journalEntries.length + 1, number: `JE-2024-${String(jeNum).padStart(5, "0")}`,
+              date: trip.date, desc: `Trip #${id} · ${trip.from} → ${trip.to} · ${trip.customer}`,
               source: "TripCompleted", debit: trip.priceBase, credit: trip.priceBase, reversed: false,
               lines: [
                 { account: "1200 - Accounts Receivable", debit: trip.priceBase, credit: 0 },
@@ -134,22 +160,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [showToast])
 
   const addExpense = useCallback((e: Omit<VehicleExpense, "id">) => {
+    api.createExpense({ description: `${e.type} - ${e.vehicle}`, amount: String(e.amount), expenseDate: e.date, baseAmount: String(e.amount) }).catch(() => {})
     setData((prev) => {
       const newExp: VehicleExpense = { ...e, id: prev.vehicleExpenses.length + 1 }
-      const outbox = [...prev.outboxMessages, {
-        id: prev.outboxMessages.length + 1, event: "ExpenseRecorded", status: "Pending",
-        retries: 0, occurred: new Date().toISOString().slice(0, 16).replace("T", " "), error: null,
-      }]
+      const outbox = [...prev.outboxMessages, { id: prev.outboxMessages.length + 1, event: "ExpenseRecorded", status: "Pending", retries: 0, occurred: new Date().toISOString().slice(0, 16).replace("T", " "), error: null }]
       return { ...prev, vehicleExpenses: [...prev.vehicleExpenses, newExp], outboxMessages: outbox }
     })
     showToast(`${e.type} expense EGP ${e.amount.toFixed(2)} recorded`)
   }, [showToast])
 
   const addJournalLine = useCallback(() => {}, [])
-
-  const updateJournalBalance = useCallback(() => {
-    return { totalDebit: 0, totalCredit: 0 }
-  }, [])
+  const updateJournalBalance = useCallback(() => ({ totalDebit: 0, totalCredit: 0 }), [])
 
   const submitJournalEntry = useCallback((desc: string, date: string, lines: JournalLine[]) => {
     const totalDebit = lines.reduce((s, l) => s + l.debit, 0)
@@ -158,18 +179,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       showToast("Journal entry is not balanced", "error")
       return
     }
+    api.createJournalEntry({ description: desc || "Manual entry", entryDate: date, lines }).catch(() => {})
     setData((prev) => {
       const jeNum = prev.nextJeNumber
       const newEntry: JournalEntry = {
-        id: prev.journalEntries.length + 1,
-        number: `JE-2024-${String(jeNum).padStart(5, "0")}`,
-        date, desc: desc || "Manual entry",
-        source: "Manual", debit: totalDebit, credit: totalCredit, reversed: false,
-        lines,
+        id: prev.journalEntries.length + 1, number: `JE-2024-${String(jeNum).padStart(5, "0")}`,
+        date, desc: desc || "Manual entry", source: "Manual", debit: totalDebit, credit: totalCredit, reversed: false, lines,
       }
       return { ...prev, journalEntries: [newEntry, ...prev.journalEntries], nextJeNumber: jeNum + 1 }
     })
-    showToast(`Journal entry posted`)
+    showToast("Journal entry posted")
   }, [showToast])
 
   const reverseEntry = useCallback((id: number) => {
@@ -179,19 +198,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const revLines = je.lines.map((l) => ({ account: l.account, debit: l.credit, credit: l.debit }))
       const jeNum = prev.nextJeNumber
       const revEntry: JournalEntry = {
-        id: prev.journalEntries.length + 1,
-        number: `JE-2024-${String(jeNum).padStart(5, "0")}`,
-        date: new Date().toISOString().slice(0, 10),
-        desc: `Reversal of ${je.number}`, source: "Reversal",
+        id: prev.journalEntries.length + 1, number: `JE-2024-${String(jeNum).padStart(5, "0")}`,
+        date: new Date().toISOString().slice(0, 10), desc: `Reversal of ${je.number}`, source: "Reversal",
         debit: je.debit, credit: je.credit, reversed: false, lines: revLines,
       }
-      const journalEntries = prev.journalEntries.map((j) => j.id === id ? { ...j, reversed: true } : j)
-      return { ...prev, journalEntries: [revEntry, ...journalEntries], nextJeNumber: jeNum + 1 }
+      return { ...prev, journalEntries: prev.journalEntries.map((j) => j.id === id ? { ...j, reversed: true } : j).concat([revEntry]), nextJeNumber: jeNum + 1 }
     })
     showToast("Reversal entry created", "warning")
   }, [showToast])
 
   const addAccount = useCallback((code: string, name: string, type: string) => {
+    api.createAccount({ code, name, type, isActive: true }).catch(() => {})
     const nb = (type === "Asset" || type === "Expense") ? "Dr" : "Cr"
     setData((prev) => {
       const newAcc: CoaNode = { code, name, type, nb, children: [] }
@@ -206,13 +223,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const find = (nodes: CoaNode[]): boolean => nodes.some((x) => x.code === parentCode || (x.children.length && find(x.children)))
         return find([n])
       })
-      const chartOfAccounts = hasParent ? addToTree(prev.chartOfAccounts) : [...prev.chartOfAccounts, newAcc]
-      return { ...prev, chartOfAccounts }
+      return { ...prev, chartOfAccounts: hasParent ? addToTree(prev.chartOfAccounts) : [...prev.chartOfAccounts, newAcc] }
     })
     showToast(`Account ${code} - ${name} created`)
   }, [showToast])
 
   const addUser = useCallback((u: { name: string; email: string; password: string; role: string }) => {
+    api.createUser({ name: u.name, email: u.email, role: u.role }).catch(() => {})
     setData((prev) => {
       const newUser: User = {
         id: prev.users.length + 1, code: `USR-${String(prev.users.length + 1).padStart(3, "0")}`,
@@ -226,18 +243,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const deactivateUser = useCallback((id: number) => {
     setData((prev) => {
       const u = prev.users.find((x) => x.id === id)
-      if (u) showToast(`${u.name} deactivated`, "warning")
+      if (u) {
+        api.deactivateUser(id.toString()).catch(() => {})
+        showToast(`${u.name} deactivated`, "warning")
+      }
       return { ...prev, users: prev.users.map((x) => x.id === id ? { ...x, isActive: false } : x) }
     })
   }, [showToast])
 
   return (
     <AppContext.Provider value={{
-      data, currentPage, setPage, toasts, showToast, removeToast,
+      data, loading, apiAvailable, currentPage, setPage, toasts, showToast, removeToast,
       activeModal, openModal, closeModal,
-      addVehicle, deactivateVehicle,
-      addTrip, changeTripStatus,
-      addExpense,
+      addVehicle, deactivateVehicle, addTrip, changeTripStatus, addExpense,
       addJournalLine, updateJournalBalance, submitJournalEntry, reverseEntry,
       addAccount, addUser, deactivateUser,
     }}>

@@ -1,9 +1,20 @@
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
+import { DM_Sans, Space_Grotesk } from "next/font/google"
 import { Providers } from "@/lib/providers"
 import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"] })
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
+  display: "swap",
+})
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-space-grotesk",
+  display: "swap",
+})
 
 export const metadata: Metadata = {
   title: "Transportation & Tourism ERP",
@@ -16,8 +27,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
+    <html lang="en" className={`${dmSans.variable} ${spaceGrotesk.variable}`}>
+      <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+      </head>
+      <body className="font-body antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>
