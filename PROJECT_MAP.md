@@ -29,6 +29,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 
 | Layer | File | Purpose |
 |-------|------|---------|
+| Arabic strings | `src/lib/ar.ts` | All Arabic translations organized by component section |
 | State + Types | `src/lib/store.ts` | All TypeScript interfaces, mock data arrays, helper utilities |
 | Context | `src/lib/app-context.tsx` | `AppProvider` + `useApp()` hook — holds all data + CRUD actions |
 | Layout | `src/components/layout/Sidebar.tsx` | Sidebar nav with 3 sections (Main, Finance, System) |
@@ -91,6 +92,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Fonts (next/font) | ✅ | `src/app/layout.tsx` | DM Sans + Space Grotesk via next/font |
 | Tailwind font config | ✅ | `tailwind.config.ts` | font-display + font-body CSS variables |
 | Font Awesome CDN | ⚠️ | `src/app/layout.tsx` | Still CDN — not installed as npm dep |
+| Arabic UI translation | ✅ | `ar.ts` + all dashboard components + modals + layout | All user-facing strings in Arabic; `ar-EG` date/number locale; left-to-right layout |
 | BetterAuth client | ✅ | `src/lib/auth/client.ts` | createAuthClient export |
 
 ---
@@ -103,7 +105,7 @@ Items not yet implemented or not wired:
 |------|------|-------|
 | Auth guard / role enforcement | Security | SPA has no role-based UI filtering |
 | Outbox worker auto-start | Worker | Not wired to server lifecycle |
-| i18n / RTL | UX | Not started |
+| RTL layout | UX | LTR kept — Arabic business software convention |
 | Dark mode toggle | UX | Not wired (`next-themes` installed) |
 | Font Awesome npm | Config | Loaded from CDN — not installed as npm dep |
 
@@ -114,8 +116,8 @@ Items not yet implemented or not wired:
 1. ✅ Fleet backend wiring: driverId FK, isActive history, toggle/history API, JOINs, enriched returns
 2. ✅ Fleet frontend wiring: detail pane, history table, active toggle, driver assignment in add modal, Add/Edit Driver modal, Edit Vehicle modal, independent data loading
 3. ✅ Vehicle Types CRUD: backend API (GET/POST/PUT/DELETE), frontend Types tab, add/edit modals, vehicle forms load types from DB
-3. Add role-based UI filtering using `session.user.role`
-4. Wire outbox worker to start on server init
-5. Install Font Awesome as npm dependency (remove CDN)
-6. Seed more realistic data (journal entries, AR/AP, outbox messages)
-7. 🚧 `feat/backend-frontend-wiring` — merge PR after branch review
+4. ✅ Arabic UI: all dashboard pages, modals, layout, shared components translated; `ar.ts` with comprehensive translations; `ar-EG` locale
+5. Add role-based UI filtering using `session.user.role`
+6. Wire outbox worker to start on server init
+7. Install Font Awesome as npm dependency (remove CDN)
+8. Seed more realistic data (journal entries, AR/AP, outbox messages)
