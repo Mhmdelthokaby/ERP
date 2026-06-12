@@ -20,6 +20,8 @@ import {
   EditVehicleModal,
   AddDriverModal,
   EditDriverModal,
+  AddVehicleTypeModal,
+  EditVehicleTypeModal,
   AddTripModal,
   AddExpenseModal,
   AddJournalModal,
@@ -79,6 +81,8 @@ function DashboardInner() {
       <EditVehicleModal />
       <AddDriverModal />
       <EditDriverModal />
+      <AddVehicleTypeModal />
+      <EditVehicleTypeModal />
       <AddTripModal />
       <AddExpenseModal />
       <AddJournalModal />

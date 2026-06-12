@@ -27,6 +27,14 @@ export const api = {
   getVehicleHistory: (id: string) =>
     request<{ data: JsonValue[] }>(`/api/fleet/vehicles/${id}/history`),
 
+  getVehicleTypes: () => request<{ data: JsonValue[] }>("/api/fleet/vehicle-types"),
+  createVehicleType: (body: Record<string, unknown>) =>
+    request<{ data: JsonValue }>("/api/fleet/vehicle-types", { method: "POST", body: JSON.stringify(body) }),
+  updateVehicleType: (id: string, body: Record<string, unknown>) =>
+    request<{ data: JsonValue }>(`/api/fleet/vehicle-types/${id}`, { method: "PUT", body: JSON.stringify(body) }),
+  deleteVehicleType: (id: string) =>
+    request<{ data: JsonValue }>(`/api/fleet/vehicle-types/${id}`, { method: "DELETE" }),
+
   getDrivers: () => request<{ data: JsonValue[] }>("/api/fleet/drivers"),
   createDriver: (body: Record<string, unknown>) =>
     request<{ data: JsonValue }>("/api/fleet/drivers", { method: "POST", body: JSON.stringify(body) }),

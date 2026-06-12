@@ -5,8 +5,8 @@ import { useApp } from "@/lib/app-context"
 import { StatusBadge } from "@/components/shared"
 
 export function FleetPage() {
-  const { data, openModal, toggleVehicleActive, fetchVehicleHistory, deleteDriver, setEditingVehicle, setEditingDriver } = useApp()
-  const [fleetTab, setFleetTab] = useState<"vehicles" | "drivers">("vehicles")
+  const { data, openModal, toggleVehicleActive, fetchVehicleHistory, deleteDriver, deleteVehicleType, setEditingVehicle, setEditingDriver, setEditingVehicleType } = useApp()
+  const [fleetTab, setFleetTab] = useState<"vehicles" | "drivers" | "types">("vehicles")
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null)
   const [historyLoading, setHistoryLoading] = useState(false)
 
@@ -33,12 +33,16 @@ export function FleetPage() {
             className={`tab-btn text-sm px-4 py-1.5 rounded-md ${fleetTab === "drivers" ? "active" : "text-muted"}`}
             onClick={() => { setFleetTab("drivers"); setSelectedVehicleId(null) }}
           >Drivers</button>
+          <button
+            className={`tab-btn text-sm px-4 py-1.5 rounded-md ${fleetTab === "types" ? "active" : "text-muted"}`}
+            onClick={() => { setFleetTab("types"); setSelectedVehicleId(null) }}
+          >Types</button>
         </div>
         <button
           className="btn-primary px-4 py-2 rounded-lg text-sm flex items-center gap-2"
-          onClick={() => openModal(fleetTab === "vehicles" ? "addVehicleModal" : "addDriverModal")}
+          onClick={() => openModal(fleetTab === "vehicles" ? "addVehicleModal" : fleetTab === "drivers" ? "addDriverModal" : "addVehicleTypeModal")}
         >
-          <i className="fa-solid fa-plus text-xs"></i> Add {fleetTab === "vehicles" ? "Vehicle" : "Driver"}
+          <i className="fa-solid fa-plus text-xs"></i> Add {fleetTab === "vehicles" ? "Vehicle" : fleetTab === "drivers" ? "Driver" : "Type"}
         </button>
       </div>
 
@@ -135,6 +139,30 @@ export function FleetPage() {
                   <td className="p-4 text-right">
                     <button className="text-muted hover:text-accent transition-colors mr-2" title="Edit" onClick={() => { setEditingDriver(d); openModal("editDriverModal") }}><i className="fa-solid fa-pen-to-square text-xs"></i></button>
                     <button className="text-muted hover:text-accent transition-colors mr-2" title="Delete" onClick={() => deleteDriver(d.id)}><i className="fa-solid fa-trash-can text-xs"></i></button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {fleetTab === "types" && (
+        <div className="bg-card border border-border rounded-xl overflow-hidden">
+          <table className="w-full text-sm">
+            <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
+              <th className="text-left p-4 font-medium">Code</th><th className="text-left p-4 font-medium">Name</th><th className="text-left p-4 font-medium">Model</th><th className="text-left p-4 font-medium">Model Code</th><th className="text-right p-4 font-medium">Actions</th>
+            </tr></thead>
+            <tbody>
+              {data.vehicleTypes.map((vt) => (
+                <tr key={vt.id} className="data-row border-b border-border/50">
+                  <td className="p-4 font-mono text-xs text-muted">{vt.code}</td>
+                  <td className="p-4 text-fg font-medium">{vt.name}</td>
+                  <td className="p-4 text-muted">{vt.model}</td>
+                  <td className="p-4 text-muted font-mono text-xs">{vt.modelCode}</td>
+                  <td className="p-4 text-right">
+                    <button className="text-muted hover:text-accent transition-colors mr-2" title="Edit" onClick={() => { setEditingVehicleType(vt); openModal("editVehicleTypeModal") }}><i className="fa-solid fa-pen-to-square text-xs"></i></button>
+                    <button className="text-muted hover:text-accent transition-colors mr-2" title="Delete" onClick={() => deleteVehicleType(vt.id)}><i className="fa-solid fa-trash-can text-xs"></i></button>
                   </td>
                 </tr>
               ))}
