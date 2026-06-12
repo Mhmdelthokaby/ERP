@@ -1,4 +1,8 @@
-import type { Config } from "drizzle-kit"
+import { config } from "dotenv";
+
+config({ path: ".env.local" });
+
+import type { Config } from "drizzle-kit";
 
 export default {
   schema: "./src/db/schema/index.ts",
@@ -7,4 +11,4 @@ export default {
   dbCredentials: {
     url: process.env.DATABASE_URL!,
   },
-} satisfies Config
+} satisfies Config;
