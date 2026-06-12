@@ -25,7 +25,7 @@
 
 ## SPA ARCHITECTURE
 
-The entire dashboard is a single client component (`page.tsx`) using state-based page switching via React Context, matching the original HTML SPA behavior. No page reloads — all navigation is instant.
+The entire dashboard is a single client component (`page.tsx`) serving as the root route (`/`), using state-based page switching via React Context. No page reloads — all navigation is instant. Unauthenticated users are redirected to `/login` by the middleware and the `useSession()` guard.
 
 | Layer | File | Purpose |
 |-------|------|---------|
@@ -43,7 +43,7 @@ The entire dashboard is a single client component (`page.tsx`) using state-based
 | Expenses | `src/components/dashboard/ExpensesPage.tsx` | Canvas pie chart, trend bar chart, 3-tab tables |
 | Accounting | `src/components/dashboard/AccountingPage.tsx` | CoA recursive tree, journal table with reverse, periods, cost centers |
 | AR/AP | `src/components/dashboard/ArApPage.tsx` | 4-tab layout (AR invoices, payments, AP invoices, payments) |
-| Reports | `src/components/dashboard/ReportsPage.tsx` | Trial balance table, income statement, balance sheet grid |
+| Reports | `src/components/dashboard/ReportsPage.tsx` | Trial balance, income statement, balance sheet grid |
 | Settings | `src/components/dashboard/SettingsPage.tsx` | Users CRUD, outbox messages, audit log |
 | Modals | `src/components/modals/ModalForms.tsx` | AddVehicle, AddTrip, AddExpense, AddJournal, AddAccount, AddUser form modals |
 | Entry | `src/app/(dashboard)/page.tsx` | Wraps AppProvider → Sidebar + Header + current page + modals + toasts |
@@ -56,10 +56,11 @@ The entire dashboard is a single client component (`page.tsx`) using state-based
 |---------|--------|---------|-------|
 | Auth – BetterAuth config | ✅ | `src/lib/auth/index.ts` | Drizzle adapter, email+password, role field, experimental joins |
 | Auth – API route | ✅ | `src/app/api/auth/[...all]` | BetterAuth API handler |
-| Auth – Login page | ✅ | `src/app/(auth)/login/page.tsx` | BetterAuth client form w/ redirect |
+| Auth – Login page | ✅ | `src/app/(auth)/login/page.tsx` | BetterAuth client form → redirects to `/` (dashboard) |
 | Auth – Register page | ✅ | `src/app/(auth)/register/page.tsx` | BetterAuth client form w/ redirect |
 | Auth – Middleware guard | ✅ | `src/middleware.ts` | BetterAuth cookie-based route protection |
 | Auth – Session check | ✅ | `src/app/(dashboard)/page.tsx` | useSession() → spinner/redirect |
+| Root route | ✅ | `src/app/(dashboard)/page.tsx` | `/` serves the SPA dashboard (landing page removed) |
 | SPA Dashboard | ✅ | `page.tsx + all components` | Fully functional with mock data |
 | Dashboard KPIs + charts | ✅ | `DashboardHome.tsx` | 4 KPIs, bar chart, canvas pie chart |
 | Fleet CRUD | ✅ | `FleetPage.tsx + AddVehicleModal` | Add + deactivate vehicles |
@@ -111,7 +112,7 @@ Items not yet implemented or not wired:
 
 ## NEXT ACTIONS
 
-1. Fix login: verify experimental joins actually enable account lookup (DB adapter logs show "falling back to regular query")
+1. ✅ Login redirects to dashboard SPA at `/` (landing page `src/app/page.tsx` removed)
 2. Add role-based UI filtering using `session.user.role`
 3. Wire outbox worker to start on server init
 4. Install Font Awesome as npm dependency (remove CDN)
