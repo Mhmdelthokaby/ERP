@@ -10,7 +10,7 @@
 [Auth] → [Dashboard SPA] → [Module Selection]
    └─ login/register          ├─ DashboardHome (KPIs, charts, recent trips)
                                ├─ LegsPage (route legs table + toggle)
-                               ├─ FleetPage (vehicles + drivers tables)
+                               ├─ FleetPage (vehicles + types tables, drivers in LegsPage)
                               ├─ TripsPage (operations orders + workflow)
                               ├─ ExpensesPage (pie chart, trend, expenses tables, currencies)
                               ├─ AccountingPage (CoA tree, journal, periods, cost centers)
@@ -33,15 +33,15 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Arabic strings | `src/lib/ar.ts` | All Arabic translations organized by component section |
 | State + Types | `src/lib/store.ts` | All TypeScript interfaces, mock data arrays, helper utilities |
 | Context | `src/lib/app-context.tsx` | `AppProvider` + `useApp()` hook — holds all data + CRUD actions |
-| Layout | `src/components/layout/Sidebar.tsx` | Sidebar nav with 4 sections (Main has legs, fleet, etc.; Finance; System) |
+| Layout | `src/components/layout/Sidebar.tsx` | Sidebar nav with 3 sections (Main, Finance, System) |
 | Layout | `src/components/layout/Header.tsx` | Header with sidebar toggle, title/breadcrumb, search, notifications, date |
 | Shared | `src/components/shared/StatusBadge.tsx` | StatusBadge, RoleBadge, SourceBadge |
 | Shared | `src/components/shared/KpiCard.tsx` | KPI card with icon, label, value, children |
 | Shared | `src/components/shared/ToastContainer.tsx` | Toast notifications with auto-dismiss |
 | Shared | `src/components/shared/Modal.tsx` | Reusable modal overlay + content |
 | Dashboard | `src/components/dashboard/DashboardHome.tsx` | 4 KPIs, revenue vs expenses chart, fleet status bars, recent trips/invoices |
-| Legs | `src/components/dashboard/LegsPage.tsx` | Route legs table with active toggle + confirmation modal |
-| Fleet | `src/components/dashboard/FleetPage.tsx` | Vehicles + drivers + types tabs, detail pane, history table, active toggle |
+| Legs | `src/components/dashboard/LegsPage.tsx` | Drivers/operators table (6 cols), full detail pane (10 fields + linked vehicle link), active toggle with confirmation modal, add/edit via modal, auto-close sidebar on detail open / close detail on sidebar open |
+| Fleet | `src/components/dashboard/FleetPage.tsx` | Vehicles + types tabs, detail pane, history table, active toggle (drivers moved to LegsPage) |
 | Trips | `src/components/dashboard/TripsPage.tsx` | Status/date filters, workflow widget, start/cancel/complete actions |
 | Expenses | `src/components/dashboard/ExpensesPage.tsx` | Canvas pie chart, trend bar chart, 3-tab tables |
 | Accounting | `src/components/dashboard/AccountingPage.tsx` | CoA recursive tree, journal table with reverse, periods, cost centers |
@@ -49,7 +49,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Reports | `src/components/dashboard/ReportsPage.tsx` | Trial balance, income statement, balance sheet grid |
 | Settings | `src/components/dashboard/SettingsPage.tsx` | Users CRUD, outbox messages, audit log |
 | Modals | `src/components/modals/ModalForms.tsx` | AddVehicle (+ driver + type selects), EditVehicle, AddDriver, EditDriver, AddVehicleType, EditVehicleType, AddTrip, AddExpense, AddJournal, AddAccount, AddUser form modals |
-| Entry | `src/app/(dashboard)/page.tsx` | Wraps AppProvider → Sidebar + Header + current page + modals + toasts |
+| Entry | `src/app/(dashboard)/page.tsx` | Wraps AppProvider → Sidebar + Header + current page (with cross-page vehicle navigation via pendingVehicleView) + modals + toasts |
 
 ---
 
@@ -67,7 +67,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | SPA Dashboard | ✅ | `page.tsx + all components` | Fully functional with mock data |
 | Dashboard KPIs + charts | ✅ | `DashboardHome.tsx` | 4 KPIs, bar chart, canvas pie chart |
 | Fleet CRUD | ✅ | `FleetPage.tsx + ModalForms.tsx + DashboardHome` | Vehicles CRUD (+ type select from DB); Drivers CRUD; Vehicle Types CRUD (name/code/model/modelCode); detail pane + history; edit modals |
-| Legs CRUD | ✅ | `LegsPage.tsx` | Route legs table, active/inactive toggle with confirmation modal |
+| Legs CRUD | ✅ | `LegsPage.tsx + app-context.tsx + drivers toggle API` | Drivers/operators table from DB, full detail pane (all DB fields + linked vehicle link to FleetPage), add/edit modals with all fields (incl. insuranceNumber, salary, hireDate), active toggle with confirmation modal, auto-close sidebar |
 | Operations workflow | ✅ | `TripsPage.tsx + AddTripModal` | Status transitions, outbox + journal simulation |
 | Expenses | ✅ | `ExpensesPage.tsx + AddExpenseModal` | Pie chart, trend, CRUD |
 | Accounting – CoA | ✅ | `AccountingPage.tsx + AddAccountModal` | Recursive tree, add account |
@@ -80,14 +80,14 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Settings – Outbox | ✅ | `SettingsPage.tsx` | Outbox messages table |
 | Settings – Audit Log | ✅ | `SettingsPage.tsx` | Audit log table |
 | Toast notifications | ✅ | `ToastContainer.tsx + context` | 4 types with auto-dismiss |
-| Modals | ✅ | `ModalForms.tsx + Modal.tsx` | 6 form modals with validation |
+| Modals | ✅ | `ModalForms.tsx + Modal.tsx` | 8 form modals — add/edit Driver (all fields), add/edit Vehicle (with type/driver selects), add VehicleType, edit VehicleType, add Trip, add Expense, add Journal, add Account, add User |
 | DB – PostgreSQL | ✅ | localhost:5432 | PostgreSQL 17 running, `erp_db` created |
 | DB – Drizzle schema | ✅ | `src/db/schema/index.ts` | 21 tables: added vehicle_types, vehicle_history; overhauled vehicles/drivers |
 | DB – Drizzle relations | ✅ | `src/db/relations.ts` | All relations: auth, vehicle→type, vehicle→history, driver→orders |
 | DB – Connection | ✅ | `src/db/index.ts` | Drizzle + postgres driver wired |
 | DB – Migrations | ✅ | `src/db/migrations/` | Generated + applied (0000_mysterious_kingpin, 0001_sweet_vargas) |
 | DB – Seed script | ✅ | `src/db/seed.ts` | Vehicle types, vehicles (new fields), drivers (fullName/nationalId/grade/salary/hireDate), customers, routes, orders, expenses, CoA, periods |
-| API routes (CRUD + fleet) | ✅ | `src/app/api/*` | 26 typed endpoints — vehicles with JOINs (type + driver), toggle, history; vehicle-types CRUD |
+| API routes (CRUD + fleet) | ✅ | `src/app/api/*` | 27 typed endpoints — vehicles with JOINs (type + driver), toggle, history; vehicle-types CRUD; drivers toggle |
 | API client | ✅ | `src/lib/api.ts` | Typed fetch client, all endpoints |
 | Context → API wiring | ✅ | `src/lib/app-context.tsx` | Fetches API on mount, falls back to mock |
 | Services (Outbox) | ⚠️ | `src/services/*` | Exists but not wired to real outbox table |
@@ -107,6 +107,7 @@ Items not yet implemented or not wired:
 | Item | Type | Notes |
 |------|------|-------|
 | Auth guard / role enforcement | Security | SPA has no role-based UI filtering |
+| Cross-page vehicle view | UX | `pendingVehicleView` in context; LegsPage → FleetPage navigation works but FleetPage doesn't auto-scroll/highlight the target vehicle row |
 | Outbox worker auto-start | Worker | Not wired to server lifecycle |
 | RTL layout | UX | LTR kept — Arabic business software convention |
 | Dark mode toggle | UX | Not wired (`next-themes` installed) |

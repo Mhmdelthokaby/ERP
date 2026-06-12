@@ -10,7 +10,8 @@ export interface Vehicle {
 
 export interface Driver {
   id: number; code: string; fullName: string; phone: string; nationalId: string
-  licenseGrade: string; isActive: boolean
+  licenseGrade: string; isActive: boolean; dbId?: string
+  insuranceNumber?: string; salary?: string; hireDate?: string
 }
 
 export interface VehicleHistoryEntry {

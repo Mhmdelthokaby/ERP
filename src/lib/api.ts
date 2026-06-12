@@ -42,6 +42,8 @@ export const api = {
     request<{ data: JsonValue }>(`/api/fleet/drivers/${id}`, { method: "PUT", body: JSON.stringify(body) }),
   deleteDriver: (id: string) =>
     request<{ data: JsonValue }>(`/api/fleet/drivers/${id}`, { method: "DELETE" }),
+  toggleDriverActive: (id: string, code?: string) =>
+    request<{ data: JsonValue }>(`/api/fleet/drivers/${id}/toggle${code ? `?code=${encodeURIComponent(code)}` : ""}`, { method: "PATCH" }),
 
   getOrders: () => request<{ data: JsonValue[] }>("/api/operations/orders"),
   createOrder: (body: Record<string, unknown>) =>
