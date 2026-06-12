@@ -4,7 +4,7 @@ import {
   createContext, useContext, useState, useCallback, useEffect, type ReactNode,
 } from "react"
 import {
-  defaultData, type AppData, type Vehicle, type Driver, type Trip,
+  defaultData, type AppData, type Vehicle, type VehicleType, type Driver, type Trip,
   type VehicleExpense, type JournalEntry, type JournalLine,
   type User, type PageName, type CoaNode, type VehicleHistoryEntry,
 } from "./store"
@@ -26,8 +26,13 @@ interface AppContextType {
   closeModal: () => void
   editingVehicle: Vehicle | null
   editingDriver: Driver | null
+  editingVehicleType: VehicleType | null
   setEditingVehicle: (v: Vehicle | null) => void
   setEditingDriver: (d: Driver | null) => void
+  setEditingVehicleType: (vt: VehicleType | null) => void
+  addVehicleType: (vt: Omit<VehicleType, "id">) => void
+  updateVehicleType: (id: number, vt: Partial<VehicleType>) => void
+  deleteVehicleType: (id: number) => void
   addVehicle: (v: Omit<Vehicle, "id" | "status">) => void
   updateVehicle: (id: number, v: Partial<Vehicle>) => void
   toggleVehicleActive: (id: number) => void
@@ -61,6 +66,7 @@ function dbVehicleToMock(v: Record<string, unknown>): Vehicle {
     capacity: Number(v.capacity) || 0,
     status: String(v.isActive) === "true" ? "Active" : "Inactive",
     vehicleType: String(v.vehicleTypeName || ""),
+    vehicleTypeId: v.vehicleTypeId ? parseInt(String(v.vehicleTypeId).slice(0, 8), 16) || null : null,
     driverId: v.driverId ? parseInt(String(v.driverId).slice(0, 8), 16) || null : null,
     driverName: String(v.driverName || ""),
   }
@@ -93,6 +99,17 @@ function dbHistoryToMock(h: Record<string, unknown>): VehicleHistoryEntry {
   }
 }
 
+function dbVehicleTypeToMock(vt: Record<string, unknown>): VehicleType {
+  const rawId = String(vt.id ?? "")
+  return {
+    id: parseInt(rawId.slice(0, 8), 16) || Math.random(),
+    name: String(vt.name || ""),
+    code: String(vt.code || ""),
+    model: String(vt.model || ""),
+    modelCode: String(vt.modelCode || ""),
+  }
+}
+
 export function AppProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>(defaultData)
   const [currentPage, setCurrentPage] = useState<PageName>("dashboard")
@@ -103,6 +120,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [apiAvailable, setApiAvailable] = useState(false)
 
   useEffect(() => {
+    api.getVehicleTypes().then((res) => {
+      setData((prev) => ({ ...prev, vehicleTypes: res.data.map((vt) => dbVehicleTypeToMock(vt as Record<string, unknown>)) }))
+    }).catch(() => {})
     api.getVehicles().then((res) => {
       setData((prev) => ({ ...prev, vehicles: res.data.map((v) => dbVehicleToMock(v as Record<string, unknown>)) }))
     }).catch(() => {})
@@ -150,6 +170,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setPage = useCallback((p: PageName) => setCurrentPage(p), [])
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null)
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null)
+  const [editingVehicleType, setEditingVehicleType] = useState<VehicleType | null>(null)
 
   const addVehicle = useCallback((v: Omit<Vehicle, "id" | "status">) => {
     api.createVehicle({ ...v, brand: v.model.split(" ")[0] || v.model, isActive: true }).then((res) => {
@@ -230,6 +251,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
     })
     showToast(`Driver ${d.fullName} deleted`, "warning")
   }, [data.drivers, showToast])
+
+  const addVehicleType = useCallback((vt: Omit<VehicleType, "id">) => {
+    api.createVehicleType(vt).then((res) => {
+      const mapped = dbVehicleTypeToMock(res.data as Record<string, unknown>)
+      setData((prev) => ({ ...prev, vehicleTypes: [...prev.vehicleTypes, mapped] }))
+    }).catch(() => {
+      setData((prev) => ({ ...prev, vehicleTypes: [...prev.vehicleTypes, { ...vt, id: prev.vehicleTypes.length + 1 }] }))
+    })
+    showToast(`Vehicle type ${vt.name} added`)
+  }, [showToast])
+
+  const updateVehicleType = useCallback((id: number, updates: Partial<VehicleType>) => {
+    const vt = data.vehicleTypes.find((x) => x.id === id)
+    if (!vt) return
+    api.updateVehicleType(String(vt.id), updates).then((res) => {
+      const mapped = dbVehicleTypeToMock(res.data as Record<string, unknown>)
+      setData((prev) => ({ ...prev, vehicleTypes: prev.vehicleTypes.map((x) => x.id === id ? mapped : x) }))
+    }).catch(() => {
+      setData((prev) => ({ ...prev, vehicleTypes: prev.vehicleTypes.map((x) => x.id === id ? { ...x, ...updates } : x) }))
+    })
+    showToast(`Vehicle type ${vt.name} updated`)
+  }, [data.vehicleTypes, showToast])
+
+  const deleteVehicleType = useCallback((id: number) => {
+    const vt = data.vehicleTypes.find((x) => x.id === id)
+    if (!vt) return
+    api.deleteVehicleType(String(vt.id)).then(() => {
+      setData((prev) => ({ ...prev, vehicleTypes: prev.vehicleTypes.filter((x) => x.id !== id) }))
+    }).catch(() => {
+      setData((prev) => ({ ...prev, vehicleTypes: prev.vehicleTypes.filter((x) => x.id !== id) }))
+    })
+    showToast(`Vehicle type ${vt.name} deleted`, "warning")
+  }, [data.vehicleTypes, showToast])
 
   const fetchVehicleHistory = useCallback(async (id: number) => {
     const v = data.vehicles.find((x) => x.id === id)
@@ -387,7 +441,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     <AppContext.Provider value={{
       data, loading, apiAvailable, currentPage, setPage, toasts, showToast, removeToast,
       activeModal, openModal, closeModal,
-      editingVehicle, editingDriver, setEditingVehicle, setEditingDriver,
+      editingVehicle, editingDriver, editingVehicleType, setEditingVehicle, setEditingDriver, setEditingVehicleType,
+      addVehicleType, updateVehicleType, deleteVehicleType,
       addVehicle, updateVehicle, toggleVehicleActive, deactivateVehicle,
       addDriver, updateDriver, deleteDriver, fetchVehicleHistory,
       addTrip, changeTripStatus, addExpense,

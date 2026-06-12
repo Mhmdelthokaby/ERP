@@ -1,7 +1,11 @@
+export interface VehicleType {
+  id: number; name: string; code: string; model: string; modelCode: string
+}
+
 export interface Vehicle {
   id: number; code: string; plateNumber: string; model: string; year: number
   capacity: number; status: string; vehicleType: string
-  driverId: number | null; driverName: string
+  vehicleTypeId: number | null; driverId: number | null; driverName: string
 }
 
 export interface Driver {
@@ -80,6 +84,7 @@ export interface CostCenter {
 }
 
 export interface AppData {
+  vehicleTypes: VehicleType[]
   vehicles: Vehicle[]
   drivers: Driver[]
   vehicleHistory: Record<number, VehicleHistoryEntry[]>
@@ -97,13 +102,18 @@ export interface AppData {
 }
 
 export const defaultData: AppData = {
+  vehicleTypes: [
+    { id: 1, name: 'Bus', code: 'BUS', model: 'Hiace/Sprinter', modelCode: 'HS' },
+    { id: 2, name: 'Van', code: 'VAN', model: 'L300/Transit', modelCode: 'LT' },
+    { id: 3, name: 'Truck', code: 'TRK', model: 'Actros/FH', modelCode: 'AF' },
+  ],
   vehicles: [
-    { id: 1, code: 'VHC-001', plateNumber: 'ABC-1234', model: 'Toyota Hiace', year: 2022, capacity: 20, status: 'Active', vehicleType: 'Bus', driverId: null, driverName: '' },
-    { id: 2, code: 'VHC-002', plateNumber: 'XYZ-5678', model: 'Mercedes Sprinter', year: 2021, capacity: 25, status: 'Active', vehicleType: 'Bus', driverId: null, driverName: '' },
-    { id: 3, code: 'VHC-003', plateNumber: 'DEF-9012', model: 'Mitsubishi L300', year: 2020, capacity: 18, status: 'Maintenance', vehicleType: 'Van', driverId: null, driverName: '' },
-    { id: 4, code: 'VHC-004', plateNumber: 'GHI-3456', model: 'Nissan Urvan', year: 2023, capacity: 22, status: 'Active', vehicleType: 'Bus', driverId: null, driverName: '' },
-    { id: 5, code: 'VHC-005', plateNumber: 'JKL-7890', model: 'Ford Transit', year: 2019, capacity: 20, status: 'Active', vehicleType: 'Van', driverId: null, driverName: '' },
-    { id: 6, code: 'VHC-006', plateNumber: 'MNO-2345', model: 'Iveco Daily', year: 2023, capacity: 24, status: 'Inactive', vehicleType: 'Truck', driverId: null, driverName: '' },
+    { id: 1, code: 'VHC-001', plateNumber: 'ABC-1234', model: 'Toyota Hiace', year: 2022, capacity: 20, status: 'Active', vehicleType: 'Bus', vehicleTypeId: 1, driverId: null, driverName: '' },
+    { id: 2, code: 'VHC-002', plateNumber: 'XYZ-5678', model: 'Mercedes Sprinter', year: 2021, capacity: 25, status: 'Active', vehicleType: 'Bus', vehicleTypeId: 1, driverId: null, driverName: '' },
+    { id: 3, code: 'VHC-003', plateNumber: 'DEF-9012', model: 'Mitsubishi L300', year: 2020, capacity: 18, status: 'Maintenance', vehicleType: 'Van', vehicleTypeId: 2, driverId: null, driverName: '' },
+    { id: 4, code: 'VHC-004', plateNumber: 'GHI-3456', model: 'Nissan Urvan', year: 2023, capacity: 22, status: 'Active', vehicleType: 'Bus', vehicleTypeId: 1, driverId: null, driverName: '' },
+    { id: 5, code: 'VHC-005', plateNumber: 'JKL-7890', model: 'Ford Transit', year: 2019, capacity: 20, status: 'Active', vehicleType: 'Van', vehicleTypeId: 2, driverId: null, driverName: '' },
+    { id: 6, code: 'VHC-006', plateNumber: 'MNO-2345', model: 'Iveco Daily', year: 2023, capacity: 24, status: 'Inactive', vehicleType: 'Truck', vehicleTypeId: 3, driverId: null, driverName: '' },
   ],
   vehicleHistory: {},
   drivers: [
