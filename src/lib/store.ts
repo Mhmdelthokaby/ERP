@@ -241,16 +241,16 @@ export const costCenters: CostCenter[] = [
 export type PageName = 'dashboard' | 'fleet' | 'trips' | 'expenses' | 'accounting' | 'arap' | 'reports' | 'settings'
 
 export const pageTitles: Record<PageName, [string, string]> = {
-  dashboard: ['Dashboard', '/ Overview'],
-  fleet: ['Fleet Management', '/ Vehicles & Drivers'],
-  trips: ['Operations', '/ Trip Orders'],
-  expenses: ['Expenses', '/ Vehicle & Trip Costs'],
-  accounting: ['Accounting', '/ Ledger & CoA'],
-  arap: ['AR / AP', '/ Invoices & Payments'],
-  reports: ['Financial Reports', '/ Statements & Analysis'],
-  settings: ['Settings', '/ System Configuration'],
+  dashboard: ['لوحة القيادة', '/ نظرة عامة'],
+  fleet: ['إدارة الأسطول', '/ المركبات والسائقين'],
+  trips: ['العمليات', '/ أوامر التشغيل'],
+  expenses: ['المصروفات', '/ مصروفات المركبات والرحلات'],
+  accounting: ['المحاسبة', '/ الأستاذ ودليل الحسابات'],
+  arap: ['قبض / دفع', '/ الفواتير والمدفوعات'],
+  reports: ['التقارير المالية', '/ البيانات والتحليل'],
+  settings: ['الإعدادات', '/ تكوين النظام'],
 }
 
 export function fmt(n: number): string {
-  return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
+  return new Intl.NumberFormat('ar-EG', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n)
 }

@@ -3,6 +3,9 @@
 import { useState } from "react"
 import { useApp } from "@/lib/app-context"
 import { Modal } from "@/components/shared"
+import { ar } from "@/lib/ar"
+const m = ar.fleetModals
+const mod = ar.modals
 
 export function AddVehicleModal() {
   const { addVehicle, closeModal, data } = useApp()
@@ -29,36 +32,36 @@ export function AddVehicleModal() {
   }
 
   return (
-    <Modal title="Add Vehicle" id="addVehicleModal">
+    <Modal title={m.addVehicle} id="addVehicleModal">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Code</label><input type="text" placeholder="VHC-010" value={code} onChange={(e) => setCode(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">Plate Number</label><input type="text" placeholder="ABC-1234" value={plate} onChange={(e) => setPlate(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.code}</label><input type="text" placeholder="VHC-010" value={code} onChange={(e) => setCode(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.plateNumber}</label><input type="text" placeholder="ABC-1234" value={plate} onChange={(e) => setPlate(e.target.value)} /></div>
         </div>
-        <div><label className="text-xs text-muted mb-1 block">Model</label><input type="text" placeholder="Toyota Hiace" value={model} onChange={(e) => setModel(e.target.value)} /></div>
+        <div><label className="text-xs text-muted mb-1 block">{m.model}</label><input type="text" placeholder="Toyota Hiace" value={model} onChange={(e) => setModel(e.target.value)} /></div>
         <div className="grid grid-cols-3 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Year</label><input type="number" placeholder="2024" value={year} onChange={(e) => setYear(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">Capacity (tons)</label><input type="number" placeholder="20" value={capacity} onChange={(e) => setCapacity(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">Type</label>
+          <div><label className="text-xs text-muted mb-1 block">{m.year}</label><input type="number" placeholder="2024" value={year} onChange={(e) => setYear(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.capacity}</label><input type="number" placeholder="20" value={capacity} onChange={(e) => setCapacity(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.type}</label>
             <select value={vehicleTypeId} onChange={(e) => setVehicleTypeId(e.target.value)}>
-              <option value="">— Select Type —</option>
+              <option value="">{m.selectType}</option>
               {data.vehicleTypes.map((t) => (
                 <option key={t.id} value={t.id}>{t.name} ({t.code})</option>
               ))}
             </select>
           </div>
         </div>
-        <div><label className="text-xs text-muted mb-1 block">Assign Driver (optional)</label>
+        <div><label className="text-xs text-muted mb-1 block">{m.assignDriver}</label>
           <select value={driverId} onChange={(e) => setDriverId(e.target.value)}>
-            <option value="">— No Driver —</option>
+            <option value="">{m.selectDriver}</option>
             {data.drivers.filter((d) => d.isActive).map((d) => (
               <option key={d.id} value={d.id}>{d.fullName} ({d.code})</option>
             ))}
           </select>
         </div>
         <div className="flex gap-3 pt-2">
-          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Add Vehicle</button>
-          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>Cancel</button>
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.add}</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{m.cancel}</button>
         </div>
       </div>
     </Modal>
@@ -81,24 +84,24 @@ export function AddDriverModal() {
   }
 
   return (
-    <Modal title="Add Driver" id="addDriverModal">
+    <Modal title={m.addDriver} id="addDriverModal">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Code</label><input type="text" placeholder="DRV-010" value={code} onChange={(e) => setCode(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">Full Name</label><input type="text" placeholder="Ahmed Hassan" value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.code}</label><input type="text" placeholder="DRV-010" value={code} onChange={(e) => setCode(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.fullName}</label><input type="text" placeholder="Ahmed Hassan" value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Phone</label><input type="text" placeholder="01012345678" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">National ID</label><input type="text" placeholder="29801012345678" value={nationalId} onChange={(e) => setNationalId(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.phone}</label><input type="text" placeholder="01012345678" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.nationalId}</label><input type="text" placeholder="29801012345678" value={nationalId} onChange={(e) => setNationalId(e.target.value)} /></div>
         </div>
-        <div><label className="text-xs text-muted mb-1 block">License Grade</label>
+        <div><label className="text-xs text-muted mb-1 block">{m.licenseGrade}</label>
           <select value={licenseGrade} onChange={(e) => setLicenseGrade(e.target.value)}>
             <option>A</option><option>B</option><option>C</option>
           </select>
         </div>
         <div className="flex gap-3 pt-2">
-          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Add Driver</button>
-          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>Cancel</button>
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.add}</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{m.cancel}</button>
         </div>
       </div>
     </Modal>
@@ -131,36 +134,36 @@ export function EditVehicleModal() {
   }
 
   return (
-    <Modal title="Edit Vehicle" id="editVehicleModal">
+    <Modal title={m.editVehicle} id="editVehicleModal">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Code</label><input type="text" value={code} onChange={(e) => setCode(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">Plate Number</label><input type="text" value={plate} onChange={(e) => setPlate(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.code}</label><input type="text" value={code} onChange={(e) => setCode(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.plateNumber}</label><input type="text" value={plate} onChange={(e) => setPlate(e.target.value)} /></div>
         </div>
-        <div><label className="text-xs text-muted mb-1 block">Model</label><input type="text" value={model} onChange={(e) => setModel(e.target.value)} /></div>
+        <div><label className="text-xs text-muted mb-1 block">{m.model}</label><input type="text" value={model} onChange={(e) => setModel(e.target.value)} /></div>
         <div className="grid grid-cols-3 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Year</label><input type="number" value={year} onChange={(e) => setYear(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">Capacity (tons)</label><input type="number" value={capacity} onChange={(e) => setCapacity(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">Type</label>
+          <div><label className="text-xs text-muted mb-1 block">{m.year}</label><input type="number" value={year} onChange={(e) => setYear(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.capacity}</label><input type="number" value={capacity} onChange={(e) => setCapacity(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.type}</label>
             <select value={vehicleTypeId} onChange={(e) => setVehicleTypeId(e.target.value)}>
-              <option value="">— Select Type —</option>
+              <option value="">{m.selectType}</option>
               {data.vehicleTypes.map((t) => (
                 <option key={t.id} value={t.id}>{t.name} ({t.code})</option>
               ))}
             </select>
           </div>
         </div>
-        <div><label className="text-xs text-muted mb-1 block">Assign Driver (optional)</label>
+        <div><label className="text-xs text-muted mb-1 block">{m.assignDriver}</label>
           <select value={driverId} onChange={(e) => setDriverId(e.target.value)}>
-            <option value="">— No Driver —</option>
+            <option value="">{m.selectDriver}</option>
             {data.drivers.filter((d) => d.isActive).map((d) => (
               <option key={d.id} value={d.id}>{d.fullName} ({d.code})</option>
             ))}
           </select>
         </div>
         <div className="flex gap-3 pt-2">
-          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Save Changes</button>
-          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={() => { setEditingVehicle(null); closeModal() }}>Cancel</button>
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.save}</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{m.cancel}</button>
         </div>
       </div>
     </Modal>
@@ -184,24 +187,24 @@ export function EditDriverModal() {
   }
 
   return (
-    <Modal title="Edit Driver" id="editDriverModal">
+    <Modal title={m.editDriver} id="editDriverModal">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Code</label><input type="text" value={code} onChange={(e) => setCode(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">Full Name</label><input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.code}</label><input type="text" value={code} onChange={(e) => setCode(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.fullName}</label><input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Phone</label><input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">National ID</label><input type="text" value={nationalId} onChange={(e) => setNationalId(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.phone}</label><input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.nationalId}</label><input type="text" value={nationalId} onChange={(e) => setNationalId(e.target.value)} /></div>
         </div>
-        <div><label className="text-xs text-muted mb-1 block">License Grade</label>
+        <div><label className="text-xs text-muted mb-1 block">{m.licenseGrade}</label>
           <select value={licenseGrade} onChange={(e) => setLicenseGrade(e.target.value)}>
             <option>A</option><option>B</option><option>C</option>
           </select>
         </div>
         <div className="flex gap-3 pt-2">
-          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Save Changes</button>
-          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={() => { setEditingDriver(null); closeModal() }}>Cancel</button>
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.save}</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{m.cancel}</button>
         </div>
       </div>
     </Modal>
@@ -225,23 +228,23 @@ export function AddTripModal() {
   }
 
   return (
-    <Modal title="New Operation Order" id="addTripModal">
+    <Modal title={mod.newOrder} id="addTripModal">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Customer</label>
+          <div><label className="text-xs text-muted mb-1 block">{mod.customer}</label>
             <select value={customer} onChange={(e) => setCustomer(e.target.value)}>
               <option>ABC Transport Corp</option><option>Gulf Logistics</option><option>Nile Tourism</option><option>Delta Cargo</option>
             </select>
           </div>
-          <div><label className="text-xs text-muted mb-1 block">Trip Date</label><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{mod.tripDate}</label><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">From</label><input type="text" placeholder="Cairo" value={from} onChange={(e) => setFrom(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">To</label><input type="text" placeholder="Alexandria" value={to} onChange={(e) => setTo(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{mod.from}</label><input type="text" placeholder="Cairo" value={from} onChange={(e) => setFrom(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{mod.to}</label><input type="text" placeholder="Alexandria" value={to} onChange={(e) => setTo(e.target.value)} /></div>
         </div>
         <div className="grid grid-cols-3 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Sale Price</label><input type="number" placeholder="50000" value={price} onChange={(e) => setPrice(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">Currency</label>
+          <div><label className="text-xs text-muted mb-1 block">{mod.salePrice}</label><input type="number" placeholder="50000" value={price} onChange={(e) => setPrice(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{mod.currency}</label>
             <select onChange={(e) => {
               const opt = e.target.selectedOptions[0]
               setRate(opt.dataset.rate || "1")
@@ -249,11 +252,11 @@ export function AddTripModal() {
               <option value="1" data-rate="1">EGP</option><option value="2" data-rate="31">USD</option><option value="3" data-rate="34">EUR</option>
             </select>
           </div>
-          <div><label className="text-xs text-muted mb-1 block">Exchange Rate</label><input type="number" value={rate} onChange={(e) => setRate(e.target.value)} step="0.01" /></div>
+          <div><label className="text-xs text-muted mb-1 block">{mod.exchangeRate}</label><input type="number" value={rate} onChange={(e) => setRate(e.target.value)} step="0.01" /></div>
         </div>
         <div className="flex gap-3 pt-2">
-          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Create Order</button>
-          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>Cancel</button>
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{mod.createOrder}</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{mod.cancel}</button>
         </div>
       </div>
     </Modal>
@@ -277,33 +280,33 @@ export function AddExpenseModal() {
   }
 
   return (
-    <Modal title="Record Vehicle Expense" id="addExpenseModal">
+    <Modal title={mod.recordExpense} id="addExpenseModal">
       <div className="space-y-4">
-        <div><label className="text-xs text-muted mb-1 block">Vehicle</label>
+        <div><label className="text-xs text-muted mb-1 block">{mod.vehicle}</label>
           <select value={vehicle} onChange={(e) => setVehicle(e.target.value)}>
             <option>ABC-1234 (Mercedes Actros)</option><option>XYZ-5678 (Volvo FH)</option><option>DEF-9012 (MAN TGX)</option>
           </select>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Expense Type</label>
+          <div><label className="text-xs text-muted mb-1 block">{mod.expenseType}</label>
             <select value={type} onChange={(e) => setType(e.target.value)}>
-              <option>Fuel</option><option>Maintenance</option><option>Tires</option><option>Oil</option><option>Tolls</option><option>Other</option>
+              <option value="Fuel">{mod.fuel}</option><option value="Maintenance">{mod.maintenance}</option><option value="Tires">{mod.tires}</option><option value="Oil">{mod.oil}</option><option value="Tolls">{mod.tolls}</option><option value="Other">{mod.otherExpense}</option>
             </select>
           </div>
-          <div><label className="text-xs text-muted mb-1 block">Payment Method</label>
+          <div><label className="text-xs text-muted mb-1 block">{mod.paymentMethod}</label>
             <select value={method} onChange={(e) => setMethod(e.target.value)}>
-              <option>Cash</option><option>Bank</option>
+              <option value="Cash">{mod.cash}</option><option value="Bank">{mod.bank}</option>
             </select>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Amount</label><input type="number" placeholder="3500" value={amount} onChange={(e) => setAmount(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">Date</label><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{mod.amount}</label><input type="number" placeholder="3500" value={amount} onChange={(e) => setAmount(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{mod.date}</label><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
         </div>
-        <div><label className="text-xs text-muted mb-1 block">Notes</label><textarea rows={2} placeholder="Optional notes..." value={notes} onChange={(e) => setNotes(e.target.value)}></textarea></div>
+        <div><label className="text-xs text-muted mb-1 block">{mod.notes}</label><textarea rows={2} placeholder="Optional notes..." value={notes} onChange={(e) => setNotes(e.target.value)}></textarea></div>
         <div className="flex gap-3 pt-2">
-          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Record Expense</button>
-          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>Cancel</button>
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{mod.recordExpense}</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{mod.cancel}</button>
         </div>
       </div>
     </Modal>
@@ -344,19 +347,19 @@ export function AddJournalModal() {
   }
 
   return (
-    <Modal title="Manual Journal Entry" id="addJournalModal" width="w-[600px]">
+    <Modal title={mod.manualJournal} id="addJournalModal" width="w-[600px]">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Entry Date</label><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">Fiscal Period</label>
+          <div><label className="text-xs text-muted mb-1 block">{mod.entryDate}</label><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{mod.fiscalPeriod}</label>
             <select><option value="3">Mar 2024 (Normal)</option><option value="4">Apr 2024 (Normal)</option></select>
           </div>
         </div>
-        <div><label className="text-xs text-muted mb-1 block">Description</label><input type="text" placeholder="Manual adjustment..." value={desc} onChange={(e) => setDesc(e.target.value)} /></div>
+        <div><label className="text-xs text-muted mb-1 block">{mod.description}</label><input type="text" placeholder="Manual adjustment..." value={desc} onChange={(e) => setDesc(e.target.value)} /></div>
         <div>
           <div className="flex items-center justify-between mb-2">
-            <label className="text-xs text-muted font-medium">Lines</label>
-            <button className="text-xs text-accent hover:underline" onClick={addLine}>+ Add Line</button>
+            <label className="text-xs text-muted font-medium">{mod.lines}</label>
+            <button className="text-xs text-accent hover:underline" onClick={addLine}>{mod.addLine}</button>
           </div>
           <div className="space-y-2">
             {lines.map((l, i) => (
@@ -380,22 +383,22 @@ export function AddJournalModal() {
                 </div>
                 <div className="col-span-2">
                   {lines.length > 2 && (
-                    <button className="text-danger text-xs hover:underline" onClick={() => removeLine(i)}>Remove</button>
+                    <button className="text-danger text-xs hover:underline" onClick={() => removeLine(i)}>{mod.remove}</button>
                   )}
                 </div>
               </div>
             ))}
           </div>
           <div className="flex justify-between mt-3 pt-2 border-t border-border text-xs">
-            <span className="text-muted">Balance:</span>
+            <span className="text-muted">{mod.balance}</span>
             <span className={`font-mono font-bold ${balanced ? "text-success" : "text-danger"}`}>
-              {balanced ? `${totalDebit.toFixed(2)} (Balanced)` : `${Math.abs(totalDebit - totalCredit).toFixed(2)} (Unbalanced)`}
+              {balanced ? `${totalDebit.toFixed(2)} (${mod.balanced})` : `${Math.abs(totalDebit - totalCredit).toFixed(2)} (${mod.unbalanced})`}
             </span>
           </div>
         </div>
         <div className="flex gap-3 pt-2">
-          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Post Entry</button>
-          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>Cancel</button>
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{mod.postEntry}</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{mod.cancel}</button>
         </div>
       </div>
     </Modal>
@@ -407,7 +410,6 @@ export function AddAccountModal() {
   const [code, setCode] = useState("")
   const [name, setName] = useState("")
   const [type, setType] = useState("Asset")
-  const nb = (type === "Asset" || type === "Expense") ? "Debit" : "Credit"
 
   const handleSubmit = () => {
     if (!code || !name) return
@@ -417,22 +419,22 @@ export function AddAccountModal() {
   }
 
   return (
-    <Modal title="New Account" id="addAccountModal">
+    <Modal title={mod.newAccount} id="addAccountModal">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Code</label><input type="text" placeholder="5900" value={code} onChange={(e) => setCode(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">Type</label>
+          <div><label className="text-xs text-muted mb-1 block">{mod.code}</label><input type="text" placeholder="5900" value={code} onChange={(e) => setCode(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{mod.type}</label>
             <select value={type} onChange={(e) => setType(e.target.value)}>
-              <option value="Asset">Asset</option><option value="Liability">Liability</option>
-              <option value="Equity">Equity</option><option value="Revenue">Revenue</option><option value="Expense">Expense</option>
+              <option value="Asset">{mod.asset}</option><option value="Liability">{mod.liability}</option>
+              <option value="Equity">{mod.equity}</option><option value="Revenue">{mod.revenue}</option><option value="Expense">{mod.expense}</option>
             </select>
           </div>
         </div>
-        <div><label className="text-xs text-muted mb-1 block">Name</label><input type="text" placeholder="Other Expenses" value={name} onChange={(e) => setName(e.target.value)} /></div>
-        <div><label className="text-xs text-muted mb-1 block">Normal Balance</label><input type="text" value={nb} readOnly className="!bg-surface" /></div>
+        <div><label className="text-xs text-muted mb-1 block">{mod.name}</label><input type="text" placeholder="Other Expenses" value={name} onChange={(e) => setName(e.target.value)} /></div>
+        <div><label className="text-xs text-muted mb-1 block">{mod.normalBalance}</label><input type="text" value={type === "Asset" || type === "Expense" ? mod.debit : mod.credit} readOnly className="!bg-surface" /></div>
         <div className="flex gap-3 pt-2">
-          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Create Account</button>
-          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>Cancel</button>
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{mod.createAccount}</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{mod.cancel}</button>
         </div>
       </div>
     </Modal>
@@ -454,19 +456,24 @@ export function AddUserModal() {
   }
 
   return (
-    <Modal title="Create User" id="addUserModal">
+    <Modal title={mod.createUser} id="addUserModal">
       <div className="space-y-4">
-        <div><label className="text-xs text-muted mb-1 block">Full Name</label><input type="text" placeholder="Ahmed Mohamed" value={name} onChange={(e) => setName(e.target.value)} /></div>
-        <div><label className="text-xs text-muted mb-1 block">Email</label><input type="email" placeholder="ahmed@company.com" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
-        <div><label className="text-xs text-muted mb-1 block">Password</label><input type="password" placeholder="Min 8 characters" value={pass} onChange={(e) => setPass(e.target.value)} /></div>
-        <div><label className="text-xs text-muted mb-1 block">Role</label>
-          <select value={role} onChange={(e) => setRole(e.target.value)}>
-            <option>Admin</option><option>Accountant</option><option>Operator</option><option>Viewer</option>
-          </select>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">{mod.name}</label><input type="text" value={name} onChange={(e) => setName(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{mod.email}</label><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} /></div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">{mod.password}</label><input type="password" value={pass} onChange={(e) => setPass(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{mod.role}</label>
+            <select value={role} onChange={(e) => setRole(e.target.value)}>
+              <option value="Admin">{ar.statusBadge.admin}</option><option value="Accountant">{ar.statusBadge.accountant}</option>
+              <option value="Operator">{ar.statusBadge.operator}</option><option value="Viewer">{ar.statusBadge.viewer}</option>
+            </select>
+          </div>
         </div>
         <div className="flex gap-3 pt-2">
-          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Create User</button>
-          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>Cancel</button>
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{mod.createUser}</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{mod.cancel}</button>
         </div>
       </div>
     </Modal>
@@ -488,17 +495,17 @@ export function AddVehicleTypeModal() {
   }
 
   return (
-    <Modal title="Add Vehicle Type" id="addVehicleTypeModal">
+    <Modal title={m.addType} id="addVehicleTypeModal">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Name</label><input type="text" placeholder="Bus" value={name} onChange={(e) => setName(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">Code</label><input type="text" placeholder="BUS" value={code} onChange={(e) => setCode(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.name}</label><input type="text" placeholder="Bus" value={name} onChange={(e) => setName(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.code}</label><input type="text" placeholder="BUS" value={code} onChange={(e) => setCode(e.target.value)} /></div>
         </div>
-        <div><label className="text-xs text-muted mb-1 block">Model</label><input type="text" placeholder="Hiace/Sprinter" value={model} onChange={(e) => setModel(e.target.value)} /></div>
-        <div><label className="text-xs text-muted mb-1 block">Model Code</label><input type="text" placeholder="HS" value={modelCode} onChange={(e) => setModelCode(e.target.value)} /></div>
+        <div><label className="text-xs text-muted mb-1 block">{m.model}</label><input type="text" placeholder="Hiace/Sprinter" value={model} onChange={(e) => setModel(e.target.value)} /></div>
+        <div><label className="text-xs text-muted mb-1 block">{m.modelCode}</label><input type="text" placeholder="HS" value={modelCode} onChange={(e) => setModelCode(e.target.value)} /></div>
         <div className="flex gap-3 pt-2">
-          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Add Type</button>
-          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>Cancel</button>
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.add}</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{m.cancel}</button>
         </div>
       </div>
     </Modal>
@@ -521,17 +528,17 @@ export function EditVehicleTypeModal() {
   }
 
   return (
-    <Modal title="Edit Vehicle Type" id="editVehicleTypeModal">
+    <Modal title={m.editType} id="editVehicleTypeModal">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">Name</label><input type="text" value={name} onChange={(e) => setName(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">Code</label><input type="text" value={code} onChange={(e) => setCode(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.name}</label><input type="text" value={name} onChange={(e) => setName(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.code}</label><input type="text" value={code} onChange={(e) => setCode(e.target.value)} /></div>
         </div>
-        <div><label className="text-xs text-muted mb-1 block">Model</label><input type="text" value={model} onChange={(e) => setModel(e.target.value)} /></div>
-        <div><label className="text-xs text-muted mb-1 block">Model Code</label><input type="text" value={modelCode} onChange={(e) => setModelCode(e.target.value)} /></div>
+        <div><label className="text-xs text-muted mb-1 block">{m.model}</label><input type="text" value={model} onChange={(e) => setModel(e.target.value)} /></div>
+        <div><label className="text-xs text-muted mb-1 block">{m.modelCode}</label><input type="text" value={modelCode} onChange={(e) => setModelCode(e.target.value)} /></div>
         <div className="flex gap-3 pt-2">
-          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Save Changes</button>
-          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={() => { setEditingVehicleType(null); closeModal() }}>Cancel</button>
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.save}</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={() => { setEditingVehicleType(null); closeModal() }}>{m.cancel}</button>
         </div>
       </div>
     </Modal>

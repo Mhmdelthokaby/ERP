@@ -4,16 +4,18 @@ import { useState } from "react"
 import { useApp } from "@/lib/app-context"
 import { fmt } from "@/lib/store"
 import { StatusBadge } from "@/components/shared"
+import { ar } from "@/lib/ar"
 
 export function ArApPage() {
   const { data } = useApp()
   const [arapTab, setArapTab] = useState<"ar-inv" | "ar-pay" | "ap-inv" | "ap-pay">("ar-inv")
+  const a = ar.arAp
 
   const tabs = [
-    { key: "ar-inv" as const, label: "Customer Invoices" },
-    { key: "ar-pay" as const, label: "Customer Payments" },
-    { key: "ap-inv" as const, label: "Supplier Invoices" },
-    { key: "ap-pay" as const, label: "Supplier Payments" },
+    { key: "ar-inv" as const, label: a.customerInvoices },
+    { key: "ar-pay" as const, label: a.customerPayments },
+    { key: "ap-inv" as const, label: a.supplierInvoices },
+    { key: "ap-pay" as const, label: a.supplierPayments },
   ]
 
   return (
@@ -32,7 +34,7 @@ export function ArApPage() {
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-              <th className="text-left p-4 font-medium">Invoice #</th><th className="text-left p-4 font-medium">Customer</th><th className="text-left p-4 font-medium">Date</th><th className="text-left p-4 font-medium">Due Date</th><th className="text-right p-4 font-medium">Total</th><th className="text-right p-4 font-medium">Paid</th><th className="text-left p-4 font-medium">Status</th>
+              <th className="text-left p-4 font-medium">{a.invoiceNo}</th><th className="text-left p-4 font-medium">{a.customer}</th><th className="text-left p-4 font-medium">{a.date}</th><th className="text-left p-4 font-medium">{a.dueDate}</th><th className="text-right p-4 font-medium">{a.total}</th><th className="text-right p-4 font-medium">{a.paid}</th><th className="text-left p-4 font-medium">{a.status}</th>
             </tr></thead>
             <tbody>
               {data.arInvoices.map((inv) => (
@@ -54,7 +56,7 @@ export function ArApPage() {
       {arapTab === "ar-pay" && (
         <div className="bg-card border border-border rounded-xl p-8 text-center text-muted">
           <i className="fa-solid fa-money-bill-transfer text-2xl mb-2 text-borderLight"></i>
-          <p className="text-sm">Customer payment records will appear here</p>
+          <p className="text-sm">{a.noRecords}</p>
         </div>
       )}
 
@@ -62,7 +64,7 @@ export function ArApPage() {
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-              <th className="text-left p-4 font-medium">Invoice #</th><th className="text-left p-4 font-medium">Supplier</th><th className="text-left p-4 font-medium">Date</th><th className="text-right p-4 font-medium">Total</th><th className="text-right p-4 font-medium">Paid</th><th className="text-left p-4 font-medium">Status</th>
+              <th className="text-left p-4 font-medium">{a.invoiceNo}</th><th className="text-left p-4 font-medium">{a.supplier}</th><th className="text-left p-4 font-medium">{a.date}</th><th className="text-right p-4 font-medium">{a.total}</th><th className="text-right p-4 font-medium">{a.paid}</th><th className="text-left p-4 font-medium">{a.status}</th>
             </tr></thead>
             <tbody>
               {data.apInvoices.map((inv) => (
@@ -83,7 +85,7 @@ export function ArApPage() {
       {arapTab === "ap-pay" && (
         <div className="bg-card border border-border rounded-xl p-8 text-center text-muted">
           <i className="fa-solid fa-money-bill-transfer text-2xl mb-2 text-borderLight"></i>
-          <p className="text-sm">Supplier payment records will appear here</p>
+          <p className="text-sm">{a.noRecords}</p>
         </div>
       )}
     </div>

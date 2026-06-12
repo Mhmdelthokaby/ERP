@@ -18,6 +18,8 @@ interface AppContextType {
   apiAvailable: boolean
   currentPage: PageName
   setPage: (p: PageName) => void
+  sidebarOpen: boolean
+  toggleSidebar: () => void
   toasts: Toast[]
   showToast: (message: string, type?: Toast["type"]) => void
   removeToast: (id: number) => void
@@ -113,6 +115,8 @@ function dbVehicleTypeToMock(vt: Record<string, unknown>): VehicleType {
 export function AppProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>(defaultData)
   const [currentPage, setCurrentPage] = useState<PageName>("dashboard")
+  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const toggleSidebar = useCallback(() => setSidebarOpen((prev) => !prev), [])
   const [toasts, setToasts] = useState<Toast[]>([])
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [toastId, setToastId] = useState(0)
@@ -439,7 +443,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   return (
     <AppContext.Provider value={{
-      data, loading, apiAvailable, currentPage, setPage, toasts, showToast, removeToast,
+      data, loading, apiAvailable, currentPage, setPage, sidebarOpen, toggleSidebar, toasts, showToast, removeToast,
       activeModal, openModal, closeModal,
       editingVehicle, editingDriver, editingVehicleType, setEditingVehicle, setEditingDriver, setEditingVehicleType,
       addVehicleType, updateVehicleType, deleteVehicleType,
