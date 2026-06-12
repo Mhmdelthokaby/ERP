@@ -15,6 +15,7 @@ import { AccountingPage } from "@/components/dashboard/AccountingPage"
 import { ArApPage } from "@/components/dashboard/ArApPage"
 import { ReportsPage } from "@/components/dashboard/ReportsPage"
 import { SettingsPage } from "@/components/dashboard/SettingsPage"
+import { LegsPage } from "@/components/dashboard/LegsPage"
 import {
   AddVehicleModal,
   EditVehicleModal,
@@ -60,6 +61,7 @@ function DashboardInner() {
     arap: <ArApPage />,
     reports: <ReportsPage />,
     settings: <SettingsPage />,
+    legs: <LegsPage />,
   }
 
   return (

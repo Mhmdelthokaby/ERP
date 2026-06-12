@@ -1,16 +1,24 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
 import { StatusBadge } from "@/components/shared"
 import { ar } from "@/lib/ar"
 const f = ar.fleet
 
 export function FleetPage() {
-  const { data, openModal, toggleVehicleActive, fetchVehicleHistory, deleteDriver, deleteVehicleType, setEditingVehicle, setEditingDriver, setEditingVehicleType } = useApp()
-  const [fleetTab, setFleetTab] = useState<"vehicles" | "drivers" | "types">("vehicles")
+  const { data, openModal, toggleVehicleActive, fetchVehicleHistory, deleteVehicleType, setEditingVehicle, setEditingVehicleType, pendingVehicleView, setPendingVehicleView } = useApp()
+  const [fleetTab, setFleetTab] = useState<"vehicles" | "types">("vehicles")
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null)
   const [historyLoading, setHistoryLoading] = useState(false)
+
+  useEffect(() => {
+    if (pendingVehicleView != null) {
+      setSelectedVehicleId(pendingVehicleView)
+      setFleetTab("vehicles")
+      setPendingVehicleView(null)
+    }
+  }, [pendingVehicleView])
 
   const selectedVehicle = selectedVehicleId != null ? data.vehicles.find((v) => v.id === selectedVehicleId) : null
   const history = selectedVehicleId != null ? data.vehicleHistory[selectedVehicleId] || [] : []
@@ -32,19 +40,15 @@ export function FleetPage() {
             onClick={() => { setFleetTab("vehicles"); setSelectedVehicleId(null) }}
           >{f.vehicles}</button>
           <button
-            className={`tab-btn text-sm px-4 py-1.5 rounded-md ${fleetTab === "drivers" ? "active" : "text-muted"}`}
-            onClick={() => { setFleetTab("drivers"); setSelectedVehicleId(null) }}
-          >{f.drivers}</button>
-          <button
             className={`tab-btn text-sm px-4 py-1.5 rounded-md ${fleetTab === "types" ? "active" : "text-muted"}`}
             onClick={() => { setFleetTab("types"); setSelectedVehicleId(null) }}
           >{f.types}</button>
         </div>
         <button
           className="btn-primary px-4 py-2 rounded-lg text-sm flex items-center gap-2"
-          onClick={() => openModal(fleetTab === "vehicles" ? "addVehicleModal" : fleetTab === "drivers" ? "addDriverModal" : "addVehicleTypeModal")}
+          onClick={() => openModal(fleetTab === "vehicles" ? "addVehicleModal" : "addVehicleTypeModal")}
         >
-          <i className="fa-solid fa-plus text-xs"></i> {fleetTab === "vehicles" ? f.addVehicle : fleetTab === "drivers" ? f.addDriver : f.addType}
+          <i className="fa-solid fa-plus text-xs"></i> {fleetTab === "vehicles" ? f.addVehicle : f.addType}
         </button>
       </div>
 
@@ -120,32 +124,6 @@ export function FleetPage() {
               </div>
             </div>
           )}
-        </div>
-      )}
-
-      {fleetTab === "drivers" && (
-        <div className="bg-card border border-border rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
-            <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-              <th className="text-left p-4 font-medium">{f.code}</th><th className="text-left p-4 font-medium">{f.fullName}</th><th className="text-left p-4 font-medium">{f.phone}</th><th className="text-left p-4 font-medium">{f.nationalId}</th><th className="text-left p-4 font-medium">{f.licenseGrade}</th><th className="text-left p-4 font-medium">{f.status}</th><th className="text-right p-4 font-medium">{f.actions}</th>
-            </tr></thead>
-            <tbody>
-              {data.drivers.map((d) => (
-                <tr key={d.id} className="data-row border-b border-border/50">
-                  <td className="p-4 font-mono text-xs text-muted">{d.code}</td>
-                  <td className="p-4 text-fg font-medium">{d.fullName}</td>
-                  <td className="p-4 text-muted font-mono text-xs">{d.phone}</td>
-                  <td className="p-4 text-muted font-mono text-xs">{d.nationalId}</td>
-                  <td className="p-4 text-muted font-mono text-xs">{d.licenseGrade}</td>
-                  <td className="p-4">{d.isActive ? <StatusBadge status="Active" /> : <StatusBadge status="Inactive" />}</td>
-                  <td className="p-4 text-right">
-                    <button className="text-muted hover:text-accent transition-colors mr-2" title={f.edit} onClick={() => { setEditingDriver(d); openModal("editDriverModal") }}><i className="fa-solid fa-pen-to-square text-xs"></i></button>
-                    <button className="text-muted hover:text-accent transition-colors mr-2" title={f.delete} onClick={() => deleteDriver(d.id)}><i className="fa-solid fa-trash-can text-xs"></i></button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
         </div>
       )}
 

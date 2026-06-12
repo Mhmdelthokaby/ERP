@@ -75,11 +75,14 @@ export function AddDriverModal() {
   const [phone, setPhone] = useState("")
   const [nationalId, setNationalId] = useState("")
   const [licenseGrade, setLicenseGrade] = useState("A")
+  const [insuranceNumber, setInsuranceNumber] = useState("")
+  const [salary, setSalary] = useState("")
+  const [hireDate, setHireDate] = useState("")
 
   const handleSubmit = () => {
     if (!code || !fullName || !phone) return
-    addDriver({ code, fullName, phone, nationalId, licenseGrade, isActive: true })
-    setCode(""); setFullName(""); setPhone(""); setNationalId(""); setLicenseGrade("A")
+    addDriver({ code, fullName, phone, nationalId, licenseGrade, insuranceNumber: insuranceNumber || undefined, salary: salary || undefined, hireDate: hireDate || undefined, isActive: true })
+    setCode(""); setFullName(""); setPhone(""); setNationalId(""); setLicenseGrade("A"); setInsuranceNumber(""); setSalary(""); setHireDate("")
     closeModal()
   }
 
@@ -94,11 +97,16 @@ export function AddDriverModal() {
           <div><label className="text-xs text-muted mb-1 block">{m.phone}</label><input type="text" placeholder="01012345678" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
           <div><label className="text-xs text-muted mb-1 block">{m.nationalId}</label><input type="text" placeholder="29801012345678" value={nationalId} onChange={(e) => setNationalId(e.target.value)} /></div>
         </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">{m.insuranceNumber}</label><input type="text" placeholder="INS-001" value={insuranceNumber} onChange={(e) => setInsuranceNumber(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.salary}</label><input type="text" placeholder="5000" value={salary} onChange={(e) => setSalary(e.target.value)} /></div>
+        </div>
         <div><label className="text-xs text-muted mb-1 block">{m.licenseGrade}</label>
           <select value={licenseGrade} onChange={(e) => setLicenseGrade(e.target.value)}>
             <option>A</option><option>B</option><option>C</option>
           </select>
         </div>
+        <div><label className="text-xs text-muted mb-1 block">{m.hireDate}</label><input type="date" value={hireDate} onChange={(e) => setHireDate(e.target.value)} /></div>
         <div className="flex gap-3 pt-2">
           <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.add}</button>
           <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{m.cancel}</button>
@@ -177,12 +185,15 @@ export function EditDriverModal() {
   const [phone, setPhone] = useState(editingDriver?.phone ?? "")
   const [nationalId, setNationalId] = useState(editingDriver?.nationalId ?? "")
   const [licenseGrade, setLicenseGrade] = useState(editingDriver?.licenseGrade ?? "A")
+  const [insuranceNumber, setInsuranceNumber] = useState(editingDriver?.insuranceNumber ?? "")
+  const [salary, setSalary] = useState(editingDriver?.salary ?? "")
+  const [hireDate, setHireDate] = useState(editingDriver?.hireDate ?? "")
 
   if (!editingDriver) return null
 
   const handleSubmit = () => {
     if (!code || !fullName || !phone) return
-    updateDriver(editingDriver.id, { code, fullName, phone, nationalId, licenseGrade })
+    updateDriver(editingDriver.id, { code, fullName, phone, nationalId, licenseGrade, insuranceNumber: insuranceNumber || undefined, salary: salary || undefined, hireDate: hireDate || undefined })
     setEditingDriver(null); closeModal()
   }
 
@@ -197,11 +208,16 @@ export function EditDriverModal() {
           <div><label className="text-xs text-muted mb-1 block">{m.phone}</label><input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
           <div><label className="text-xs text-muted mb-1 block">{m.nationalId}</label><input type="text" value={nationalId} onChange={(e) => setNationalId(e.target.value)} /></div>
         </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">{m.insuranceNumber}</label><input type="text" value={insuranceNumber} onChange={(e) => setInsuranceNumber(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.salary}</label><input type="text" value={salary} onChange={(e) => setSalary(e.target.value)} /></div>
+        </div>
         <div><label className="text-xs text-muted mb-1 block">{m.licenseGrade}</label>
           <select value={licenseGrade} onChange={(e) => setLicenseGrade(e.target.value)}>
             <option>A</option><option>B</option><option>C</option>
           </select>
         </div>
+        <div><label className="text-xs text-muted mb-1 block">{m.hireDate}</label><input type="date" value={hireDate} onChange={(e) => setHireDate(e.target.value)} /></div>
         <div className="flex gap-3 pt-2">
           <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.save}</button>
           <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{m.cancel}</button>

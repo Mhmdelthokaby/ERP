@@ -6,7 +6,7 @@ import {
 import {
   defaultData, type AppData, type Vehicle, type VehicleType, type Driver, type Trip,
   type VehicleExpense, type JournalEntry, type JournalLine,
-  type User, type PageName, type CoaNode, type VehicleHistoryEntry,
+  type User, type PageName, type CoaNode, type VehicleHistoryEntry, type Leg,
 } from "./store"
 import { api } from "./api"
 
@@ -53,6 +53,10 @@ interface AppContextType {
   addAccount: (code: string, name: string, type: string) => void
   addUser: (u: { name: string; email: string; password: string; role: string }) => void
   deactivateUser: (id: number) => void
+  toggleLegActive: (id: number) => void
+  toggleDriverActive: (id: number) => void
+  pendingVehicleView: number | null
+  setPendingVehicleView: (id: number | null) => void
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -78,11 +82,15 @@ function dbDriverToMock(d: Record<string, unknown>): Driver {
   const rawId = String(d.id ?? "")
   return {
     id: parseInt(rawId.slice(0, 8), 16) || Math.random(),
+    dbId: rawId,
     code: String(d.code || ""),
     fullName: String(d.fullName || ""),
     phone: String(d.phone || ""),
     nationalId: String(d.nationalId || ""),
     licenseGrade: String(d.licenseGrade || ""),
+    insuranceNumber: d.insuranceNumber ? String(d.insuranceNumber) : undefined,
+    salary: d.salary ? String(d.salary) : undefined,
+    hireDate: d.hireDate ? String(d.hireDate) : undefined,
     isActive: String(d.isActive) === "true",
   }
 }
@@ -119,6 +127,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const toggleSidebar = useCallback(() => setSidebarOpen((prev) => !prev), [])
   const [toasts, setToasts] = useState<Toast[]>([])
   const [activeModal, setActiveModal] = useState<string | null>(null)
+  const [pendingVehicleView, setPendingVehicleView] = useState<number | null>(null)
   const [toastId, setToastId] = useState(0)
   const [loading, setLoading] = useState(true)
   const [apiAvailable, setApiAvailable] = useState(false)
@@ -236,7 +245,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateDriver = useCallback((id: number, updates: Partial<Driver>) => {
     const d = data.drivers.find((x) => x.id === id)
     if (!d) return
-    api.updateDriver(String(d.id), updates).then((res) => {
+    api.updateDriver(d.dbId ?? String(d.id), updates).then((res) => {
       const mapped = dbDriverToMock(res.data as Record<string, unknown>)
       setData((prev) => ({ ...prev, drivers: prev.drivers.map((x) => x.id === id ? mapped : x) }))
     }).catch(() => {
@@ -248,7 +257,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const deleteDriver = useCallback((id: number) => {
     const d = data.drivers.find((x) => x.id === id)
     if (!d) return
-    api.deleteDriver(String(d.id)).then(() => {
+    api.deleteDriver(d.dbId ?? String(d.id)).then(() => {
       setData((prev) => ({ ...prev, drivers: prev.drivers.filter((x) => x.id !== id) }))
     }).catch(() => {
       setData((prev) => ({ ...prev, drivers: prev.drivers.filter((x) => x.id !== id) }))
@@ -430,6 +439,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
     showToast(`User ${u.name} created as ${u.role}`)
   }, [showToast])
 
+  const toggleLegActive = useCallback((id: number) => {
+    setData((prev) => ({
+      ...prev, legs: prev.legs.map((l) => l.id === id ? { ...l, isActive: !l.isActive } : l),
+    }))
+  }, [])
+
+  const toggleDriverActive = useCallback((id: number) => {
+    const d = data.drivers.find((x) => x.id === id)
+    if (!d) return
+    api.toggleDriverActive(d.dbId ?? String(d.id), d.code).then((res) => {
+      const mapped = dbDriverToMock(res.data as Record<string, unknown>)
+      setData((prev) => ({ ...prev, drivers: prev.drivers.map((x) => x.id === id ? mapped : x) }))
+    }).catch(() => {
+      setData((prev) => ({ ...prev, drivers: prev.drivers.map((x) => x.id === id ? { ...x, isActive: !x.isActive } : x) }))
+    })
+    showToast(`${d.fullName} toggled`)
+  }, [data.drivers, showToast])
+
   const deactivateUser = useCallback((id: number) => {
     setData((prev) => {
       const u = prev.users.find((x) => x.id === id)
@@ -451,7 +478,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addDriver, updateDriver, deleteDriver, fetchVehicleHistory,
       addTrip, changeTripStatus, addExpense,
       addJournalLine, updateJournalBalance, submitJournalEntry, reverseEntry,
-      addAccount, addUser, deactivateUser,
+      addAccount, addUser, deactivateUser, toggleLegActive, toggleDriverActive,
+      pendingVehicleView, setPendingVehicleView,
     }}>
       {children}
     </AppContext.Provider>
