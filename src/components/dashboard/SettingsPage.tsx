@@ -3,10 +3,13 @@
 import { useState } from "react"
 import { useApp } from "@/lib/app-context"
 import { RoleBadge, StatusBadge } from "@/components/shared"
+import { ar } from "@/lib/ar"
 
 export function SettingsPage() {
   const { data, openModal } = useApp()
   const [settTab, setSettTab] = useState<"users" | "outbox" | "audit">("users")
+  const s = ar.settings
+  const b = ar.statusBadge
 
   return (
     <div>
@@ -17,7 +20,7 @@ export function SettingsPage() {
             className={`tab-btn text-sm px-4 py-1.5 rounded-md ${settTab === tab ? "active" : "text-muted"}`}
             onClick={() => setSettTab(tab)}
           >
-            {tab === "users" ? "Users" : tab === "outbox" ? "Outbox Messages" : "Audit Log"}
+            {tab === "users" ? s.users : tab === "outbox" ? s.outbox : s.auditLog}
           </button>
         ))}
       </div>
@@ -26,13 +29,13 @@ export function SettingsPage() {
         <div>
           <div className="flex justify-end mb-4">
             <button className="btn-primary px-3 py-1.5 rounded-lg text-xs flex items-center gap-2" onClick={() => openModal("addUserModal")}>
-              <i className="fa-solid fa-user-plus text-[0.6rem]"></i> Create User
+              <i className="fa-solid fa-user-plus text-[0.6rem]"></i> {s.createUser}
             </button>
           </div>
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-                <th className="text-left p-4 font-medium">Code</th><th className="text-left p-4 font-medium">Name</th><th className="text-left p-4 font-medium">Email</th><th className="text-left p-4 font-medium">Role</th><th className="text-left p-4 font-medium">Last Login</th><th className="text-left p-4 font-medium">Status</th><th className="text-right p-4 font-medium">Actions</th>
+                <th className="text-left p-4 font-medium">{s.code}</th><th className="text-left p-4 font-medium">{s.name}</th><th className="text-left p-4 font-medium">{s.email}</th><th className="text-left p-4 font-medium">{s.role}</th><th className="text-left p-4 font-medium">{s.lastLogin}</th><th className="text-left p-4 font-medium">{s.status}</th><th className="text-right p-4 font-medium">{s.action}</th>
               </tr></thead>
               <tbody>
                 {data.users.map((u) => (
@@ -41,11 +44,11 @@ export function SettingsPage() {
                     <td className="p-4 text-fg font-medium">{u.name}</td>
                     <td className="p-4 text-muted text-xs">{u.email}</td>
                     <td className="p-4"><RoleBadge role={u.role} /></td>
-                    <td className="p-4 text-muted text-xs">{u.lastLogin || "Never"}</td>
-                    <td className="p-4">{u.isActive ? <StatusBadge status="Active" /> : <StatusBadge status="Inactive" />}</td>
+                    <td className="p-4 text-muted text-xs">{u.lastLogin || s.never}</td>
+                    <td className="p-4">{u.isActive ? <StatusBadge status={b.active} /> : <StatusBadge status={b.inactive} />}</td>
                     <td className="p-4 text-right">
-                      <button className="text-muted hover:text-accent transition-colors mr-2" title="Change Role"><i className="fa-solid fa-user-pen text-xs"></i></button>
-                      {u.isActive && <button className="text-muted hover:text-danger transition-colors" title="Deactivate"><i className="fa-solid fa-ban text-xs"></i></button>}
+                      <button className="text-muted hover:text-accent transition-colors mr-2" title={s.changeRole}><i className="fa-solid fa-user-pen text-xs"></i></button>
+                      {u.isActive && <button className="text-muted hover:text-danger transition-colors" title={s.deactivate}><i className="fa-solid fa-ban text-xs"></i></button>}
                     </td>
                   </tr>
                 ))}
@@ -59,7 +62,7 @@ export function SettingsPage() {
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-              <th className="text-left p-4 font-medium">ID</th><th className="text-left p-4 font-medium">Event Type</th><th className="text-left p-4 font-medium">Status</th><th className="text-left p-4 font-medium">Retries</th><th className="text-left p-4 font-medium">Occurred</th><th className="text-left p-4 font-medium">Error</th>
+              <th className="text-left p-4 font-medium">{s.id}</th><th className="text-left p-4 font-medium">{s.eventType}</th><th className="text-left p-4 font-medium">{s.status}</th><th className="text-left p-4 font-medium">{s.retries}</th><th className="text-left p-4 font-medium">{s.occurred}</th><th className="text-left p-4 font-medium">{s.error}</th>
             </tr></thead>
             <tbody>
               {data.outboxMessages.map((m) => (
@@ -81,7 +84,7 @@ export function SettingsPage() {
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-              <th className="text-left p-4 font-medium">Timestamp</th><th className="text-left p-4 font-medium">User</th><th className="text-left p-4 font-medium">Table</th><th className="text-left p-4 font-medium">Action</th><th className="text-left p-4 font-medium">Details</th>
+              <th className="text-left p-4 font-medium">{s.timestamp}</th><th className="text-left p-4 font-medium">{s.user}</th><th className="text-left p-4 font-medium">{s.table}</th><th className="text-left p-4 font-medium">{s.action}</th><th className="text-left p-4 font-medium">{s.details}</th>
             </tr></thead>
             <tbody>
               {data.auditLogs.map((l, i) => (

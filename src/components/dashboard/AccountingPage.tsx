@@ -4,6 +4,9 @@ import { useState } from "react"
 import { useApp } from "@/lib/app-context"
 import { fmt, periods, costCenters } from "@/lib/store"
 import { StatusBadge, SourceBadge } from "@/components/shared"
+import { ar } from "@/lib/ar"
+const a = ar.accounting
+const sb = ar.statusBadge
 
 interface CoaNodeType { code: string; name: string; type: string; nb: string; children: CoaNodeType[] }
 
@@ -44,7 +47,7 @@ export function AccountingPage() {
             className={`tab-btn text-sm px-4 py-1.5 rounded-md ${accTab === tab ? "active" : "text-muted"}`}
             onClick={() => setAccTab(tab)}
           >
-            {tab === "coa" ? "Chart of Accounts" : tab === "journal" ? "Journal Entries" : tab === "periods" ? "Fiscal Periods" : "Cost Centers"}
+            {tab === "coa" ? a.chartOfAccounts : tab === "journal" ? a.journalEntries : tab === "periods" ? a.fiscalPeriods : a.costCenters}
           </button>
         ))}
       </div>
@@ -52,9 +55,9 @@ export function AccountingPage() {
       {accTab === "coa" && (
         <div className="bg-card border border-border rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-semibold text-fg text-sm">Chart of Accounts</h3>
+            <h3 className="font-display font-semibold text-fg text-sm">{a.chartOfAccounts}</h3>
             <button className="btn-primary px-3 py-1.5 rounded-lg text-xs flex items-center gap-2" onClick={() => openModal("addAccountModal")}>
-              <i className="fa-solid fa-plus text-[0.6rem]"></i> New Account
+              <i className="fa-solid fa-plus text-[0.6rem]"></i> {a.newAccount}
             </button>
           </div>
           <div className="text-sm space-y-1">
@@ -70,22 +73,22 @@ export function AccountingPage() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex gap-2">
               <select className="!w-auto text-sm !py-1.5 !px-3" value={journalFilter} onChange={(e) => setJournalFilter(e.target.value)}>
-                <option value="">All Sources</option>
-                <option value="Manual">Manual</option>
-                <option value="TripCompleted">Trip Completed</option>
-                <option value="PaymentReceived">Payment Received</option>
-                <option value="ExpenseRecorded">Expense Recorded</option>
-                <option value="Reversal">Reversal</option>
+                <option value="">{a.allSources}</option>
+                <option value="Manual">{a.manual}</option>
+                <option value="TripCompleted">{a.tripCompleted}</option>
+                <option value="PaymentReceived">{a.paymentReceived}</option>
+                <option value="ExpenseRecorded">{a.expenseRecorded}</option>
+                <option value="Reversal">{a.reversal}</option>
               </select>
             </div>
             <button className="btn-primary px-3 py-1.5 rounded-lg text-xs flex items-center gap-2" onClick={() => openModal("addJournalModal")}>
-              <i className="fa-solid fa-plus text-[0.6rem]"></i> Manual Entry
+              <i className="fa-solid fa-plus text-[0.6rem]"></i> {a.manualEntry}
             </button>
           </div>
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-                <th className="text-left p-4 font-medium">Number</th><th className="text-left p-4 font-medium">Date</th><th className="text-left p-4 font-medium">Description</th><th className="text-left p-4 font-medium">Source</th><th className="text-right p-4 font-medium">Debit</th><th className="text-right p-4 font-medium">Credit</th><th className="text-center p-4 font-medium">Status</th><th className="text-right p-4 font-medium">Actions</th>
+                <th className="text-left p-4 font-medium">{a.number}</th><th className="text-left p-4 font-medium">{a.date}</th><th className="text-left p-4 font-medium">{a.description}</th><th className="text-left p-4 font-medium">{a.source}</th><th className="text-right p-4 font-medium">{a.debit}</th><th className="text-right p-4 font-medium">{a.credit}</th><th className="text-center p-4 font-medium">{a.status}</th><th className="text-right p-4 font-medium">{a.actions}</th>
               </tr></thead>
               <tbody>
                 {filteredJournal.map((je) => (
@@ -97,11 +100,11 @@ export function AccountingPage() {
                     <td className="p-4 text-right font-mono text-xs journal-line-debit">{fmt(je.debit)}</td>
                     <td className="p-4 text-right font-mono text-xs journal-line-credit">{fmt(je.credit)}</td>
                     <td className="p-4 text-center">
-                      {je.source === "Reversal" ? <span className="text-[0.6rem] text-danger font-medium">REV</span> : <span className="text-[0.6rem] text-success">OK</span>}
+                      {je.source === "Reversal" ? <span className="text-[0.6rem] text-danger font-medium">{sb.reversal}</span> : <span className="text-[0.6rem] text-success">{sb.posted}</span>}
                     </td>
                     <td className="p-4 text-right">
                       {je.source !== "Reversal" && !je.reversed ? (
-                        <button className="text-xs text-danger hover:underline" onClick={(e) => { e.stopPropagation(); reverseEntry(je.id) }}>Reverse</button>
+                        <button className="text-xs text-danger hover:underline" onClick={(e) => { e.stopPropagation(); reverseEntry(je.id) }}>{a.reverse}</button>
                       ) : <span className="text-xs text-muted">—</span>}
                     </td>
                   </tr>
@@ -116,7 +119,7 @@ export function AccountingPage() {
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-              <th className="text-left p-4 font-medium">Period</th><th className="text-left p-4 font-medium">Type</th><th className="text-left p-4 font-medium">Start</th><th className="text-left p-4 font-medium">End</th><th className="text-left p-4 font-medium">Status</th><th className="text-right p-4 font-medium">Actions</th>
+              <th className="text-left p-4 font-medium">{a.period}</th><th className="text-left p-4 font-medium">{a.type}</th><th className="text-left p-4 font-medium">{a.start}</th><th className="text-left p-4 font-medium">{a.end}</th><th className="text-left p-4 font-medium">{a.status}</th><th className="text-right p-4 font-medium">{a.actions}</th>
             </tr></thead>
             <tbody>
               {periods.map((p) => (
@@ -126,10 +129,10 @@ export function AccountingPage() {
                   <td className="p-4 text-muted text-xs">{p.start}</td>
                   <td className="p-4 text-muted text-xs">{p.end}</td>
                   <td className="p-4">
-                    {p.closed ? <span className="status-badge bg-border text-muted">Closed</span> : <span className="status-badge bg-successDim text-success">Open</span>}
+                    {p.closed ? <span className="status-badge bg-border text-muted">{a.closed}</span> : <span className="status-badge bg-successDim text-success">{a.open}</span>}
                   </td>
                   <td className="p-4 text-right">
-                    {!p.closed ? <button className="text-xs text-danger hover:underline">Close</button> : <span className="text-xs text-muted">—</span>}
+                    {!p.closed ? <button className="text-xs text-danger hover:underline">{a.close}</button> : <span className="text-xs text-muted">—</span>}
                   </td>
                 </tr>
               ))}
@@ -142,7 +145,7 @@ export function AccountingPage() {
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-              <th className="text-left p-4 font-medium">Name</th><th className="text-left p-4 font-medium">Type</th><th className="text-left p-4 font-medium">Status</th>
+              <th className="text-left p-4 font-medium">{a.name}</th><th className="text-left p-4 font-medium">{a.type}</th><th className="text-left p-4 font-medium">{a.status}</th>
             </tr></thead>
             <tbody>
               {costCenters.map((c) => (

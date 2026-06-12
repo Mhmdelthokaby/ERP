@@ -2,6 +2,7 @@
 
 import { useApp } from "@/lib/app-context"
 import { pageTitles } from "@/lib/store"
+import { ar } from "@/lib/ar"
 
 export function Header() {
   const { currentPage } = useApp()
@@ -17,7 +18,7 @@ export function Header() {
         <div className="relative">
           <input
             type="text"
-            placeholder="Search..."
+            placeholder={ar.header.search}
             className="w-56 pl-9 py-1.5 text-sm !bg-card !border-border"
           />
           <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-muted text-xs"></i>
@@ -30,7 +31,7 @@ export function Header() {
         </button>
         <div className="w-px h-6 bg-border"></div>
         <div className="text-xs text-muted" id="currentDate">
-          {new Date().toLocaleDateString("en-US", {
+          {new Date().toLocaleDateString("ar-EG", {
             weekday: "short", month: "short", day: "numeric", year: "numeric",
           })}
         </div>

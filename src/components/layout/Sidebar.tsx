@@ -2,29 +2,32 @@
 
 import { useApp } from "@/lib/app-context"
 import type { PageName } from "@/lib/store"
+import { ar } from "@/lib/ar"
+
+const s = ar.sidebar
 
 const navSections: { label: string; items: { page: PageName; icon: string; label: string; badge?: string }[] }[] = [
   {
-    label: "Main",
+    label: s.main,
     items: [
-      { page: "dashboard", icon: "fa-solid fa-grid-2", label: "Dashboard" },
-      { page: "fleet", icon: "fa-solid fa-truck", label: "Fleet" },
-      { page: "trips", icon: "fa-solid fa-route", label: "Operations", badge: "12" },
-      { page: "expenses", icon: "fa-solid fa-receipt", label: "Expenses" },
+      { page: "dashboard", icon: "fa-solid fa-grid-2", label: s.dashboard },
+      { page: "fleet", icon: "fa-solid fa-truck", label: s.fleet },
+      { page: "trips", icon: "fa-solid fa-route", label: s.operations, badge: "12" },
+      { page: "expenses", icon: "fa-solid fa-receipt", label: s.expenses },
     ],
   },
   {
-    label: "Finance",
+    label: s.finance,
     items: [
-      { page: "accounting", icon: "fa-solid fa-book", label: "Accounting" },
-      { page: "arap", icon: "fa-solid fa-file-invoice-dollar", label: "AR / AP" },
-      { page: "reports", icon: "fa-solid fa-chart-pie", label: "Reports" },
+      { page: "accounting", icon: "fa-solid fa-book", label: s.accounting },
+      { page: "arap", icon: "fa-solid fa-file-invoice-dollar", label: s.arAp },
+      { page: "reports", icon: "fa-solid fa-chart-pie", label: s.reports },
     ],
   },
   {
-    label: "System",
+    label: s.system,
     items: [
-      { page: "settings", icon: "fa-solid fa-gear", label: "Settings" },
+      { page: "settings", icon: "fa-solid fa-gear", label: s.settings },
     ],
   },
 ]
@@ -40,8 +43,8 @@ export function Sidebar() {
             <i className="fa-solid fa-truck-fast text-bg text-sm"></i>
           </div>
           <div>
-            <h1 className="font-display font-bold text-fg text-lg leading-tight">TransERP</h1>
-            <p className="text-[0.65rem] text-muted tracking-wider uppercase">Transport & Tourism</p>
+            <h1 className="font-display font-bold text-fg text-lg leading-tight">{s.brand}</h1>
+            <p className="text-[0.65rem] text-muted tracking-wider uppercase">{s.brandSub}</p>
           </div>
         </div>
       </div>
@@ -80,7 +83,7 @@ export function Sidebar() {
             <p className="text-sm font-medium text-fg truncate">Mohamed Emad</p>
             <p className="text-[0.7rem] text-accent font-medium">Admin</p>
           </div>
-          <button className="text-muted hover:text-danger transition-colors" title="Sign Out">
+          <button className="text-muted hover:text-danger transition-colors" title={s.signOut}>
             <i className="fa-solid fa-right-from-bracket text-sm"></i>
           </button>
         </div>

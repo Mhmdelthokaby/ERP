@@ -1,3 +1,6 @@
+import { ar } from "@/lib/ar"
+const a = ar.statusBadge
+
 const statusColors: Record<string, string> = {
   Active: "bg-successDim text-success",
   Inactive: "bg-dangerDim text-danger",
@@ -16,10 +19,28 @@ const statusColors: Record<string, string> = {
   Contractor: "bg-accentGlow text-accent",
 }
 
+const statusLabels: Record<string, string> = {
+  Active: a.active,
+  Inactive: a.inactive,
+  Maintenance: a.maintenance,
+  Pending: a.pending,
+  InProgress: a.inProgress,
+  Completed: a.completed,
+  Cancelled: a.cancelled,
+  Draft: a.draft,
+  Posted: a.posted,
+  PartiallyPaid: a.partiallyPaid,
+  Paid: a.paid,
+  Processed: a.processed,
+  Failed: a.failed,
+  Employee: a.employee,
+  Contractor: a.contractor,
+}
+
 export function StatusBadge({ status }: { status: string }) {
   return (
     <span className={`status-badge ${statusColors[status] || "bg-border text-muted"}`}>
-      {status}
+      {statusLabels[status] || status}
     </span>
   )
 }
@@ -31,8 +52,15 @@ const roleColors: Record<string, string> = {
   Viewer: "bg-border text-muted",
 }
 
+const roleLabels: Record<string, string> = {
+  Admin: a.admin,
+  Accountant: a.accountant,
+  Operator: a.operator,
+  Viewer: a.viewer,
+}
+
 export function RoleBadge({ role }: { role: string }) {
-  return <span className={`status-badge ${roleColors[role]}`}>{role}</span>
+  return <span className={`status-badge ${roleColors[role]}`}>{roleLabels[role] || role}</span>
 }
 
 const sourceColors: Record<string, string> = {
@@ -43,6 +71,14 @@ const sourceColors: Record<string, string> = {
   Reversal: "bg-dangerDim text-danger",
 }
 
+const sourceLabels: Record<string, string> = {
+  Manual: a.manual,
+  TripCompleted: a.tripCompleted,
+  PaymentReceived: a.paymentReceived,
+  ExpenseRecorded: a.expenseRecorded,
+  Reversal: a.reversal,
+}
+
 export function SourceBadge({ source }: { source: string }) {
-  return <span className={`status-badge ${sourceColors[source] || "bg-border text-muted"}`}>{source}</span>
+  return <span className={`status-badge ${sourceColors[source] || "bg-border text-muted"}`}>{sourceLabels[source] || source}</span>
 }

@@ -1,6 +1,9 @@
 "use client"
 
 import { fmt } from "@/lib/store"
+import { ar } from "@/lib/ar"
+
+const r = ar.reports
 
 const accounts = [
   { code: "1100", name: "Cash on Hand", debit: 92500, credit: 6000 },
@@ -29,12 +32,12 @@ export function ReportsPage() {
         <div className="bg-card border border-border rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <i className="fa-solid fa-scale-balanced text-accent text-xs"></i>
-            <h3 className="font-display font-semibold text-fg text-sm">Trial Balance</h3>
-            <span className="ml-auto text-[0.65rem] text-success font-medium bg-successDim px-2 py-0.5 rounded-full">BALANCED</span>
+            <h3 className="font-display font-semibold text-fg text-sm">{r.trialBalance}</h3>
+            <span className="ml-auto text-[0.65rem] text-success font-medium bg-successDim px-2 py-0.5 rounded-full">{r.balanced}</span>
           </div>
           <table className="w-full text-xs">
             <thead><tr className="text-muted uppercase tracking-wider border-b border-border">
-              <th className="text-left pb-2 font-medium">Account</th><th className="text-right pb-2 font-medium">Debit</th><th className="text-right pb-2 font-medium">Credit</th><th className="text-right pb-2 font-medium">Balance</th>
+              <th className="text-left pb-2 font-medium">{r.account}</th><th className="text-right pb-2 font-medium">{r.debit}</th><th className="text-right pb-2 font-medium">{r.credit}</th><th className="text-right pb-2 font-medium">{r.balance}</th>
             </tr></thead>
             <tbody>
               {accounts.map((a) => {
@@ -58,7 +61,7 @@ export function ReportsPage() {
               })}
             </tbody>
             <tfoot><tr className="border-t border-border font-bold text-fg">
-              <td className="pt-2">Total</td>
+              <td className="pt-2">{r.total}</td>
               <td className="text-right pt-2">1,250,000.00</td>
               <td className="text-right pt-2">1,250,000.00</td>
               <td className="text-right pt-2">0.00</td>
@@ -69,7 +72,7 @@ export function ReportsPage() {
         <div className="bg-card border border-border rounded-xl p-5">
           <div className="flex items-center gap-2 mb-4">
             <i className="fa-solid fa-chart-line text-accent text-xs"></i>
-            <h3 className="font-display font-semibold text-fg text-sm">Income Statement</h3>
+            <h3 className="font-display font-semibold text-fg text-sm">{r.incomeStatement}</h3>
           </div>
           <div className="space-y-2">
             {[
@@ -83,7 +86,7 @@ export function ReportsPage() {
             ))}
             <div className="border-t border-border my-2"></div>
             <div className="flex justify-between text-sm font-semibold text-fg">
-              <span>Total Revenue</span><span>980,700.00</span>
+              <span>{r.totalRevenue}</span><span>980,700.00</span>
             </div>
             <div className="border-t border-border my-2"></div>
             {[
@@ -99,11 +102,11 @@ export function ReportsPage() {
             ))}
             <div className="border-t border-border my-2"></div>
             <div className="flex justify-between text-sm font-semibold text-fg">
-              <span>Total Expenses</span><span>312,800.00</span>
+              <span>{r.totalExpenses}</span><span>312,800.00</span>
             </div>
             <div className="border-t-2 border-accent my-2"></div>
             <div className="flex justify-between text-base font-bold">
-              <span className="text-accent">Net Profit</span><span className="text-success">667,900.00</span>
+              <span className="text-accent">{r.netProfit}</span><span className="text-success">667,900.00</span>
             </div>
           </div>
         </div>
@@ -112,11 +115,11 @@ export function ReportsPage() {
       <div className="bg-card border border-border rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <i className="fa-solid fa-building-columns text-accent text-xs"></i>
-          <h3 className="font-display font-semibold text-fg text-sm">Balance Sheet (as of Mar 31, 2024)</h3>
+          <h3 className="font-display font-semibold text-fg text-sm">{r.balanceSheet} (as of Mar 31, 2024)</h3>
         </div>
         <div className="grid grid-cols-2 gap-8">
           <div>
-            <h4 className="text-xs text-accent font-semibold uppercase tracking-wider mb-3">Assets</h4>
+            <h4 className="text-xs text-accent font-semibold uppercase tracking-wider mb-3">{r.assets}</h4>
             <div className="space-y-1.5 text-xs">
               {[
                 ["Cash on Hand", "85,000.00"],
@@ -130,12 +133,12 @@ export function ReportsPage() {
                 </div>
               ))}
               <div className="flex justify-between font-semibold text-fg border-t border-border pt-2">
-                <span>Total Assets</span><span>2,465,000.00</span>
+                <span>{r.totalAssets}</span><span>2,465,000.00</span>
               </div>
             </div>
           </div>
           <div>
-            <h4 className="text-xs text-accent font-semibold uppercase tracking-wider mb-3">Liabilities & Equity</h4>
+            <h4 className="text-xs text-accent font-semibold uppercase tracking-wider mb-3">{r.liabilitiesAndEquity}</h4>
             <div className="space-y-1.5 text-xs">
               {[
                 ["Accounts Payable", "92,000.00"],
@@ -146,7 +149,7 @@ export function ReportsPage() {
                 </div>
               ))}
               <div className="flex justify-between font-semibold text-fg border-t border-border pt-2">
-                <span>Total Liabilities</span><span>127,000.00</span>
+                <span>{r.totalLiabilities}</span><span>127,000.00</span>
               </div>
               <div className="mt-3"></div>
               {[
@@ -158,10 +161,10 @@ export function ReportsPage() {
                 </div>
               ))}
               <div className="flex justify-between font-semibold text-fg border-t border-border pt-2">
-                <span>Total Equity</span><span>2,338,000.00</span>
+                <span>{r.totalEquity}</span><span>2,338,000.00</span>
               </div>
               <div className="flex justify-between font-bold text-accent border-t-2 border-accent pt-2">
-                <span>Total L & E</span><span>2,465,000.00</span>
+                <span>{r.totalLE}</span><span>2,465,000.00</span>
               </div>
             </div>
           </div>

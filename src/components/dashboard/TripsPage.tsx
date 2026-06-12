@@ -4,49 +4,58 @@ import { useState } from "react"
 import { useApp } from "@/lib/app-context"
 import { fmt } from "@/lib/store"
 import { StatusBadge } from "@/components/shared"
+import { ar } from "@/lib/ar"
 
 export function TripsPage() {
   const { data, changeTripStatus, openModal } = useApp()
+  const t = ar.trips
   const [statusFilter, setStatusFilter] = useState("")
   const [dateFilter, setDateFilter] = useState("")
 
-  const filtered = data.trips.filter((t) => {
-    if (statusFilter && t.status !== statusFilter) return false
-    if (dateFilter && t.date !== dateFilter) return false
+  const statusLabel: Record<string, string> = {
+    Pending: ar.statusBadge.pending,
+    InProgress: ar.statusBadge.inProgress,
+    Completed: ar.statusBadge.completed,
+    Cancelled: ar.statusBadge.cancelled,
+  }
+
+  const filtered = data.trips.filter((trip) => {
+    if (statusFilter && trip.status !== statusFilter) return false
+    if (dateFilter && trip.date !== dateFilter) return false
     return true
   })
 
   const counts = { Pending: 0, InProgress: 0, Completed: 0, Cancelled: 0 }
-  data.trips.forEach((t) => { if (t.status in counts) counts[t.status as keyof typeof counts]++ })
+  data.trips.forEach((trip) => { if (trip.status in counts) counts[trip.status as keyof typeof counts]++ })
 
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
         <div className="flex gap-2">
           <select className="!w-auto text-sm !py-1.5 !px-3" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-            <option value="">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="InProgress">In Progress</option>
-            <option value="Completed">Completed</option>
-            <option value="Cancelled">Cancelled</option>
+            <option value="">{t.allStatuses}</option>
+            <option value="Pending">{t.pending}</option>
+            <option value="InProgress">{t.inProgress}</option>
+            <option value="Completed">{t.completed}</option>
+            <option value="Cancelled">{t.cancelled}</option>
           </select>
           <input type="date" className="!w-auto text-sm !py-1.5" value={dateFilter} onChange={(e) => setDateFilter(e.target.value)} />
         </div>
         <button className="btn-primary px-4 py-2 rounded-lg text-sm flex items-center gap-2" onClick={() => openModal("addTripModal")}>
-          <i className="fa-solid fa-plus text-xs"></i> New Trip
+          <i className="fa-solid fa-plus text-xs"></i> {t.newTrip}
         </button>
       </div>
 
       <div className="bg-card border border-border rounded-xl p-5 mb-5">
         <div className="flex items-center gap-2 mb-3">
           <i className="fa-solid fa-diagram-project text-accent text-xs"></i>
-          <h3 className="font-display font-semibold text-fg text-sm">Order Workflow</h3>
+          <h3 className="font-display font-semibold text-fg text-sm">{t.orderWorkflow}</h3>
         </div>
         <div className="flex items-center justify-center gap-3">
           {Object.entries(counts).map(([status, count]) => (
             <div key={status} className="flex items-center gap-3">
               <div className="workflow-node bg-surface border border-border rounded-lg px-5 py-3 text-center">
-                <p className="text-xs text-muted mb-1">{status === "InProgress" ? "In Progress" : status}</p>
+                <p className="text-xs text-muted mb-1">{statusLabel[status]}</p>
                 <p className={`text-lg font-bold ${status === "Completed" ? "text-success" : status === "Cancelled" ? "text-danger" : "text-fg"}`}>
                   {count}
                 </p>
@@ -60,29 +69,29 @@ export function TripsPage() {
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full text-sm">
           <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-            <th className="text-left p-4 font-medium">ID</th><th className="text-left p-4 font-medium">Route</th><th className="text-left p-4 font-medium">Customer</th><th className="text-left p-4 font-medium">Vehicle</th><th className="text-left p-4 font-medium">Date</th><th className="text-right p-4 font-medium">Sale Price</th><th className="text-left p-4 font-medium">Status</th><th className="text-right p-4 font-medium">Actions</th>
+            <th className="text-left p-4 font-medium">{t.id}</th><th className="text-left p-4 font-medium">{t.route}</th><th className="text-left p-4 font-medium">{t.customer}</th><th className="text-left p-4 font-medium">{t.vehicle}</th><th className="text-left p-4 font-medium">{t.date}</th><th className="text-right p-4 font-medium">{t.salePrice}</th><th className="text-left p-4 font-medium">{t.status}</th><th className="text-right p-4 font-medium">{t.actions}</th>
           </tr></thead>
           <tbody>
-            {filtered.map((t) => (
-              <tr key={t.id} className="data-row border-b border-border/50">
-                <td className="p-4 font-mono text-accent text-xs">#{t.id}</td>
-                <td className="p-4 text-fg">{t.from} → {t.to}</td>
-                <td className="p-4 text-muted">{t.customer}</td>
-                <td className="p-4 text-muted font-mono text-xs">{t.vehicle}</td>
-                <td className="p-4 text-muted text-xs">{t.date}</td>
-                <td className="p-4 text-right font-mono">EGP {fmt(t.priceBase)}</td>
-                <td className="p-4"><StatusBadge status={t.status} /></td>
+            {filtered.map((trip) => (
+              <tr key={trip.id} className="data-row border-b border-border/50">
+                <td className="p-4 font-mono text-accent text-xs">#{trip.id}</td>
+                <td className="p-4 text-fg">{trip.from} → {trip.to}</td>
+                <td className="p-4 text-muted">{trip.customer}</td>
+                <td className="p-4 text-muted font-mono text-xs">{trip.vehicle}</td>
+                <td className="p-4 text-muted text-xs">{trip.date}</td>
+                <td className="p-4 text-right font-mono">EGP {fmt(trip.priceBase)}</td>
+                <td className="p-4"><StatusBadge status={trip.status} /></td>
                 <td className="p-4 text-right">
-                  {t.status === "Pending" && (
+                  {trip.status === "Pending" && (
                     <>
-                      <button className="text-xs text-success hover:underline mr-2" onClick={() => changeTripStatus(t.id, "InProgress")}>Start</button>
-                      <button className="text-xs text-danger hover:underline" onClick={() => changeTripStatus(t.id, "Cancelled")}>Cancel</button>
+                      <button className="text-xs text-success hover:underline mr-2" onClick={() => changeTripStatus(trip.id, "InProgress")}>{t.start}</button>
+                      <button className="text-xs text-danger hover:underline" onClick={() => changeTripStatus(trip.id, "Cancelled")}>{t.cancel}</button>
                     </>
                   )}
-                  {t.status === "InProgress" && (
-                    <button className="text-xs text-success hover:underline" onClick={() => changeTripStatus(t.id, "Completed")}>Complete</button>
+                  {trip.status === "InProgress" && (
+                    <button className="text-xs text-success hover:underline" onClick={() => changeTripStatus(trip.id, "Completed")}>{t.complete}</button>
                   )}
-                  {t.status !== "Pending" && t.status !== "InProgress" && <span className="text-xs text-muted">—</span>}
+                  {trip.status !== "Pending" && trip.status !== "InProgress" && <span className="text-xs text-muted">—</span>}
                 </td>
               </tr>
             ))}

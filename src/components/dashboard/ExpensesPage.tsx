@@ -1,9 +1,12 @@
 "use client"
 
+import { ar } from "@/lib/ar"
 import { useState, useRef, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
 import { fmt } from "@/lib/store"
 import { StatusBadge } from "@/components/shared"
+
+const e = ar.expenses
 
 const expenseData = [
   { label: "Fuel", value: 142300, color: "#E8A838" },
@@ -62,24 +65,24 @@ export function ExpensesPage() {
               className={`tab-btn text-sm px-4 py-1.5 rounded-md ${expTab === tab ? "active" : "text-muted"}`}
               onClick={() => setExpTab(tab)}
             >
-              {tab === "vehicle-exp" ? "Vehicle Expenses" : tab === "trip-exp" ? "Trip Expenses" : "Currencies"}
+              {tab === "vehicle-exp" ? e.vehicleExpenses : tab === "trip-exp" ? e.tripExpenses : e.currencies}
             </button>
           ))}
         </div>
         <button className="btn-primary px-4 py-2 rounded-lg text-sm flex items-center gap-2" onClick={() => openModal("addExpenseModal")}>
-          <i className="fa-solid fa-plus text-xs"></i> Record Expense
+          <i className="fa-solid fa-plus text-xs"></i> {e.recordExpense}
         </button>
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-5">
         <div className="bg-card border border-border rounded-xl p-5">
-          <h4 className="text-xs text-muted font-medium mb-3 uppercase tracking-wider">Expense Breakdown</h4>
+          <h4 className="text-xs text-muted font-medium mb-3 uppercase tracking-wider">{e.expenseBreakdown}</h4>
           <div className="flex items-center justify-center">
             <canvas ref={pieCanvas} width="180" height="180"></canvas>
           </div>
         </div>
         <div className="col-span-2 bg-card border border-border rounded-xl p-5">
-          <h4 className="text-xs text-muted font-medium mb-3 uppercase tracking-wider">Monthly Expense Trend</h4>
+          <h4 className="text-xs text-muted font-medium mb-3 uppercase tracking-wider">{e.monthlyTrend}</h4>
           <div className="flex items-end gap-3 h-36">
             {trendData.map((d) => {
               const h = Math.max((d.amount / maxTrend) * 100, 2)
@@ -105,7 +108,7 @@ export function ExpensesPage() {
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-              <th className="text-left p-4 font-medium">Vehicle</th><th className="text-left p-4 font-medium">Type</th><th className="text-left p-4 font-medium">Date</th><th className="text-right p-4 font-medium">Amount</th><th className="text-left p-4 font-medium">Payment</th><th className="text-left p-4 font-medium">Notes</th>
+              <th className="text-left p-4 font-medium">{e.vehicle}</th><th className="text-left p-4 font-medium">{e.type}</th><th className="text-left p-4 font-medium">{e.date}</th><th className="text-right p-4 font-medium">{e.amount}</th><th className="text-left p-4 font-medium">{e.payment}</th><th className="text-left p-4 font-medium">{e.notes}</th>
             </tr></thead>
             <tbody>
               {data.vehicleExpenses.map((e) => (
@@ -126,7 +129,7 @@ export function ExpensesPage() {
       {expTab === "trip-exp" && (
         <div className="bg-card border border-border rounded-xl p-8 text-center text-muted">
           <i className="fa-solid fa-filter text-2xl mb-2 text-borderLight"></i>
-          <p className="text-sm">Select a trip to view its expenses</p>
+          <p className="text-sm">{e.selectTrip}</p>
         </div>
       )}
 
@@ -134,7 +137,7 @@ export function ExpensesPage() {
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-              <th className="text-left p-4 font-medium">Code</th><th className="text-left p-4 font-medium">Name</th><th className="text-left p-4 font-medium">Rate (to Base)</th><th className="text-left p-4 font-medium">Base Currency</th>
+              <th className="text-left p-4 font-medium">{e.code}</th><th className="text-left p-4 font-medium">{e.name}</th><th className="text-left p-4 font-medium">{e.rate}</th><th className="text-left p-4 font-medium">{e.baseCurrency}</th>
             </tr></thead>
             <tbody>
               {data.currencies.map((c) => (
@@ -142,7 +145,7 @@ export function ExpensesPage() {
                   <td className="p-4 font-mono font-semibold text-accent">{c.code}</td>
                   <td className="p-4 text-fg">{c.name}</td>
                   <td className="p-4 font-mono">{c.rate.toFixed(c.isBase ? 0 : 2)}</td>
-                  <td className="p-4">{c.isBase ? <span className="status-badge bg-successDim text-success">Base</span> : "—"}</td>
+                  <td className="p-4">{c.isBase ? <span className="status-badge bg-successDim text-success">{e.baseCurrency}</span> : "—"}</td>
                 </tr>
               ))}
             </tbody>
