@@ -41,7 +41,7 @@ interface AppContextType {
 const AppContext = createContext<AppContextType | null>(null)
 
 function dbVehicleToMock(v: Record<string, unknown>): Vehicle {
-  return { id: parseInt(String(v.id)?.slice(0, 8) || "0", 16) || Math.random(), plateNumber: String(v.plateNumber), model: `${String(v.brand)} ${String(v.model)}`, year: Number(v.year), capacity: Number(v.capacity), status: String(v.isActive) === "true" ? "Active" : "Inactive" }
+  return { id: parseInt(String(v.id)?.slice(0, 8) || "0", 16) || Math.random(), code: String(v.code || ""), plateNumber: String(v.plateNumber), model: `${String(v.brand)} ${String(v.model)}`, year: Number(v.year), capacity: Number(v.capacity), status: String(v.isActive) === "true" ? "Active" : "Inactive", vehicleType: "" }
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -98,7 +98,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setPage = useCallback((p: PageName) => setCurrentPage(p), [])
 
   const addVehicle = useCallback((v: Omit<Vehicle, "id" | "status">) => {
-    api.createVehicle({ ...v, brand: v.model.split(" ")[0] || v.model, vehicleType: "Truck", isActive: true }).catch(() => {})
+    api.createVehicle({ ...v, brand: v.model.split(" ")[0] || v.model, isActive: true }).catch(() => {})
     setData((prev) => ({ ...prev, vehicles: [...prev.vehicles, { ...v, id: prev.vehicles.length + 1, status: "Active" }] }))
     showToast(`Vehicle ${v.plateNumber} added`)
   }, [showToast])

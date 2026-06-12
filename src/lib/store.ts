@@ -1,11 +1,11 @@
 export interface Vehicle {
-  id: number; plateNumber: string; model: string; year: number
-  capacity: number; status: string
+  id: number; code: string; plateNumber: string; model: string; year: number
+  capacity: number; status: string; vehicleType: string
 }
 
 export interface Driver {
-  id: number; name: string; phone: string; licenseNumber: string
-  employmentType: string; isActive: boolean
+  id: number; code: string; fullName: string; phone: string; nationalId: string
+  licenseGrade: string; isActive: boolean
 }
 
 export interface Trip {
@@ -89,18 +89,18 @@ export interface AppData {
 
 export const defaultData: AppData = {
   vehicles: [
-    { id: 1, plateNumber: 'ABC-1234', model: 'Mercedes Actros 1845', year: 2022, capacity: 20, status: 'Active' },
-    { id: 2, plateNumber: 'XYZ-5678', model: 'Volvo FH 500', year: 2021, capacity: 25, status: 'Active' },
-    { id: 3, plateNumber: 'DEF-9012', model: 'MAN TGX 18.500', year: 2020, capacity: 18, status: 'Maintenance' },
-    { id: 4, plateNumber: 'GHI-3456', model: 'Scania R500', year: 2023, capacity: 22, status: 'Active' },
-    { id: 5, plateNumber: 'JKL-7890', model: 'DAF XF 480', year: 2019, capacity: 20, status: 'Active' },
-    { id: 6, plateNumber: 'MNO-2345', model: 'Iveco S-Way 490', year: 2023, capacity: 24, status: 'Inactive' },
+    { id: 1, code: 'VHC-001', plateNumber: 'ABC-1234', model: 'Toyota Hiace', year: 2022, capacity: 20, status: 'Active', vehicleType: 'Bus' },
+    { id: 2, code: 'VHC-002', plateNumber: 'XYZ-5678', model: 'Mercedes Sprinter', year: 2021, capacity: 25, status: 'Active', vehicleType: 'Bus' },
+    { id: 3, code: 'VHC-003', plateNumber: 'DEF-9012', model: 'Mitsubishi L300', year: 2020, capacity: 18, status: 'Maintenance', vehicleType: 'Van' },
+    { id: 4, code: 'VHC-004', plateNumber: 'GHI-3456', model: 'Nissan Urvan', year: 2023, capacity: 22, status: 'Active', vehicleType: 'Bus' },
+    { id: 5, code: 'VHC-005', plateNumber: 'JKL-7890', model: 'Ford Transit', year: 2019, capacity: 20, status: 'Active', vehicleType: 'Van' },
+    { id: 6, code: 'VHC-006', plateNumber: 'MNO-2345', model: 'Iveco Daily', year: 2023, capacity: 24, status: 'Inactive', vehicleType: 'Truck' },
   ],
   drivers: [
-    { id: 1, name: 'Ahmed Hassan', phone: '01012345678', licenseNumber: 'DL-2019-45678', employmentType: 'Employee', isActive: true },
-    { id: 2, name: 'Mohamed Khalil', phone: '01098765432', licenseNumber: 'DL-2018-34567', employmentType: 'Employee', isActive: true },
-    { id: 3, name: 'Sayed Ali', phone: '01155544433', licenseNumber: 'DL-2020-56789', employmentType: 'Contractor', isActive: true },
-    { id: 4, name: 'Walid Ramzi', phone: '01233322211', licenseNumber: 'DL-2017-23456', employmentType: 'Employee', isActive: false },
+    { id: 1, code: 'DRV-001', fullName: 'Ahmed Hassan', phone: '01012345678', nationalId: '29801012345678', licenseGrade: 'A', isActive: true },
+    { id: 2, code: 'DRV-002', fullName: 'Mohamed Khalil', phone: '01098765432', nationalId: '29001012345679', licenseGrade: 'B', isActive: true },
+    { id: 3, code: 'DRV-003', fullName: 'Sayed Ali', phone: '01155544433', nationalId: '29201012345680', licenseGrade: 'A', isActive: true },
+    { id: 4, code: 'DRV-004', fullName: 'Walid Ramzi', phone: '01233322211', nationalId: '28801012345681', licenseGrade: 'C', isActive: false },
   ],
   trips: [
     { id: 42, from: 'Cairo', to: 'Alexandria', customer: 'ABC Transport Corp', vehicle: 'ABC-1234', driver: 'Ahmed Hassan', date: '2024-03-15', price: 50000, priceBase: 50000, status: 'Completed' },

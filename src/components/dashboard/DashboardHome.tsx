@@ -99,7 +99,7 @@ export function DashboardHome() {
             <h4 className="text-xs text-muted mb-3 font-medium">Drivers Available</h4>
             <div className="flex -space-x-2">
               {data.drivers.filter((d) => d.isActive).slice(0, 4).map((d, i) => {
-                const initials = d.name.split(" ").map((n) => n[0]).join("")
+                const initials = d.fullName.split(" ").map((n) => n[0]).join("")
                 const colors = ["bg-info/20 text-info", "bg-success/20 text-success", "bg-accent/20 text-accent", "bg-danger/20 text-danger"]
                 return (
                   <div key={d.id} className={`w-8 h-8 rounded-full ${colors[i]} border-2 border-card flex items-center justify-center text-xs font-bold`}>

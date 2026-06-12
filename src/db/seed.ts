@@ -1,4 +1,6 @@
 import crypto from "crypto"
+import { config } from "dotenv"
+config({ path: ".env.local" })
 import { sql } from "drizzle-orm"
 import postgres from "postgres"
 import { drizzle } from "drizzle-orm/postgres-js"
@@ -8,12 +10,12 @@ import * as relations from "./relations"
 const allSchema = { ...schema, ...relations }
 const client = postgres(process.env.DATABASE_URL!)
 const db = drizzle(client, { schema: allSchema })
-const { users, accounts, sessions, verifications, vehicles, drivers, customers, routesTable, operationOrders, expenseCategories, expenses, chartOfAccounts, fiscalPeriods, journalEntries, journalEntryLines, accountsReceivable, accountsPayable, outboxMessages, auditLogs } = schema
+const { users, accounts, sessions, verifications, vehicles, drivers, vehicleTypes, vehicleHistory, customers, routesTable, operationOrders, expenseCategories, expenses, chartOfAccounts, fiscalPeriods, journalEntries, journalEntryLines, accountsReceivable, accountsPayable, outboxMessages, auditLogs } = schema
 
 const uuid = () => crypto.randomUUID()
 const today = () => new Date().toISOString().slice(0, 10)
 const addMonths = (d: Date, n: number) => { const r = new Date(d); r.setMonth(r.getMonth() + n); return r.toISOString().slice(0, 10) }
-const tables = [auditLogs, outboxMessages, accountsPayable, accountsReceivable, journalEntryLines, journalEntries, expenses, expenseCategories, operationOrders, routesTable, customers, drivers, vehicles, sessions, accounts, verifications, users, chartOfAccounts, fiscalPeriods]
+const tables = [auditLogs, outboxMessages, accountsPayable, accountsReceivable, journalEntryLines, journalEntries, expenses, expenseCategories, operationOrders, routesTable, customers, drivers, vehicles, sessions, accounts, verifications, users, chartOfAccounts, fiscalPeriods, vehicleHistory, vehicleTypes]
 
 async function seed() {
   console.log("Seeding database...")
@@ -46,13 +48,26 @@ async function seed() {
     password: hashedPassword,
   })
 
+  // ── Vehicle Types ──
+  const vtData = [
+    { name: "Bus", code: "BUS", model: "Hiace/Sprinter", modelCode: "HS" },
+    { name: "Van", code: "VAN", model: "L300/Transit", modelCode: "LT" },
+    { name: "Truck", code: "TRK", model: "Actros/FH", modelCode: "AF" },
+  ]
+  const vtIds: Record<string, string> = {}
+  for (const vt of vtData) {
+    const id = uuid()
+    vtIds[vt.code] = id
+    await db.insert(vehicleTypes).values({ id, ...vt })
+  }
+
   // ── Vehicles ──
   const vehicleData = [
-    { plateNumber: "ABC-1234", brand: "Toyota", model: "Hiace", year: 2022, capacity: 14, vehicleType: "Bus" },
-    { plateNumber: "XYZ-5678", brand: "Mercedes", model: "Sprinter", year: 2023, capacity: 20, vehicleType: "Bus" },
-    { plateNumber: "DEF-9012", brand: "Mitsubishi", model: "L300", year: 2021, capacity: 8, vehicleType: "Van" },
-    { plateNumber: "GHI-3456", brand: "Nissan", model: "Urvan", year: 2023, capacity: 15, vehicleType: "Bus" },
-    { plateNumber: "JKL-7890", brand: "Ford", model: "Transit", year: 2022, capacity: 12, vehicleType: "Van" },
+    { code: "VHC-001", plateNumber: "ABC-1234", brand: "Toyota", model: "Hiace", year: 2022, capacity: 14, chassisNumber: "CHA-001", engineNumber: "ENG-001", hasGps: true, vehicleTypeId: vtIds["BUS"] },
+    { code: "VHC-002", plateNumber: "XYZ-5678", brand: "Mercedes", model: "Sprinter", year: 2023, capacity: 20, chassisNumber: "CHA-002", engineNumber: "ENG-002", hasGps: true, vehicleTypeId: vtIds["BUS"] },
+    { code: "VHC-003", plateNumber: "DEF-9012", brand: "Mitsubishi", model: "L300", year: 2021, capacity: 8, chassisNumber: "CHA-003", engineNumber: "ENG-003", hasGps: false, vehicleTypeId: vtIds["VAN"] },
+    { code: "VHC-004", plateNumber: "GHI-3456", brand: "Nissan", model: "Urvan", year: 2023, capacity: 15, chassisNumber: "CHA-004", engineNumber: "ENG-004", hasGps: true, vehicleTypeId: vtIds["BUS"] },
+    { code: "VHC-005", plateNumber: "JKL-7890", brand: "Ford", model: "Transit", year: 2022, capacity: 12, chassisNumber: "CHA-005", engineNumber: "ENG-005", hasGps: false, vehicleTypeId: vtIds["VAN"] },
   ]
   const vehicleIds: string[] = []
   for (const v of vehicleData) {
@@ -63,9 +78,9 @@ async function seed() {
 
   // ── Drivers ──
   const driverData = [
-    { firstName: "Ahmed", lastName: "Hassan", licenseNumber: "LIC-001", phone: "+201001234567", email: "ahmed@example.com" },
-    { firstName: "Mohamed", lastName: "Ali", licenseNumber: "LIC-002", phone: "+201001234568", email: "mohamed@example.com" },
-    { firstName: "Khaled", lastName: "Omar", licenseNumber: "LIC-003", phone: "+201001234569", email: "khaled@example.com" },
+    { code: "DRV-001", fullName: "Ahmed Hassan", nationalId: "29801012345678", insuranceNumber: "INS-001", phone: "+201001234567", licenseGrade: "A", salary: "5000", hireDate: "2023-01-15" },
+    { code: "DRV-002", fullName: "Mohamed Ali", nationalId: "29001012345679", insuranceNumber: "INS-002", phone: "+201001234568", licenseGrade: "B", salary: "4500", hireDate: "2023-03-20" },
+    { code: "DRV-003", fullName: "Khaled Omar", nationalId: "29201012345680", insuranceNumber: "INS-003", phone: "+201001234569", licenseGrade: "A", salary: "5200", hireDate: "2022-11-01" },
   ]
   const driverIds: string[] = []
   for (const d of driverData) {
