@@ -6,7 +6,7 @@ import {
 import {
   defaultData, type AppData, type Vehicle, type VehicleType, type Driver, type Trip,
   type VehicleExpense, type JournalEntry, type JournalLine,
-  type User, type PageName, type CoaNode, type VehicleHistoryEntry,
+  type User, type PageName, type CoaNode, type VehicleHistoryEntry, type Leg,
 } from "./store"
 import { api } from "./api"
 
@@ -53,6 +53,7 @@ interface AppContextType {
   addAccount: (code: string, name: string, type: string) => void
   addUser: (u: { name: string; email: string; password: string; role: string }) => void
   deactivateUser: (id: number) => void
+  toggleLegActive: (id: number) => void
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -430,6 +431,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     showToast(`User ${u.name} created as ${u.role}`)
   }, [showToast])
 
+  const toggleLegActive = useCallback((id: number) => {
+    setData((prev) => ({
+      ...prev, legs: prev.legs.map((l) => l.id === id ? { ...l, isActive: !l.isActive } : l),
+    }))
+  }, [])
+
   const deactivateUser = useCallback((id: number) => {
     setData((prev) => {
       const u = prev.users.find((x) => x.id === id)
@@ -451,7 +458,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addDriver, updateDriver, deleteDriver, fetchVehicleHistory,
       addTrip, changeTripStatus, addExpense,
       addJournalLine, updateJournalBalance, submitJournalEntry, reverseEntry,
-      addAccount, addUser, deactivateUser,
+      addAccount, addUser, deactivateUser, toggleLegActive,
     }}>
       {children}
     </AppContext.Provider>

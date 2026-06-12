@@ -11,6 +11,7 @@ const navSections: { label: string; items: { page: PageName; icon: string; label
     label: s.main,
     items: [
       { page: "dashboard", icon: "fa-solid fa-grid-2", label: s.dashboard },
+      { page: "legs", icon: "fa-solid fa-arrows-split-up-and-left", label: s.legs },
       { page: "fleet", icon: "fa-solid fa-truck", label: s.fleet },
       { page: "trips", icon: "fa-solid fa-route", label: s.operations, badge: "12" },
       { page: "expenses", icon: "fa-solid fa-receipt", label: s.expenses },

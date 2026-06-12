@@ -9,7 +9,8 @@
 ```
 [Auth] → [Dashboard SPA] → [Module Selection]
    └─ login/register          ├─ DashboardHome (KPIs, charts, recent trips)
-                              ├─ FleetPage (vehicles + drivers tables)
+                               ├─ LegsPage (route legs table + toggle)
+                               ├─ FleetPage (vehicles + drivers tables)
                               ├─ TripsPage (operations orders + workflow)
                               ├─ ExpensesPage (pie chart, trend, expenses tables, currencies)
                               ├─ AccountingPage (CoA tree, journal, periods, cost centers)
@@ -32,13 +33,14 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Arabic strings | `src/lib/ar.ts` | All Arabic translations organized by component section |
 | State + Types | `src/lib/store.ts` | All TypeScript interfaces, mock data arrays, helper utilities |
 | Context | `src/lib/app-context.tsx` | `AppProvider` + `useApp()` hook — holds all data + CRUD actions |
-| Layout | `src/components/layout/Sidebar.tsx` | Sidebar nav with 3 sections (Main, Finance, System) |
+| Layout | `src/components/layout/Sidebar.tsx` | Sidebar nav with 4 sections (Main has legs, fleet, etc.; Finance; System) |
 | Layout | `src/components/layout/Header.tsx` | Header with sidebar toggle, title/breadcrumb, search, notifications, date |
 | Shared | `src/components/shared/StatusBadge.tsx` | StatusBadge, RoleBadge, SourceBadge |
 | Shared | `src/components/shared/KpiCard.tsx` | KPI card with icon, label, value, children |
 | Shared | `src/components/shared/ToastContainer.tsx` | Toast notifications with auto-dismiss |
 | Shared | `src/components/shared/Modal.tsx` | Reusable modal overlay + content |
 | Dashboard | `src/components/dashboard/DashboardHome.tsx` | 4 KPIs, revenue vs expenses chart, fleet status bars, recent trips/invoices |
+| Legs | `src/components/dashboard/LegsPage.tsx` | Route legs table with active toggle + confirmation modal |
 | Fleet | `src/components/dashboard/FleetPage.tsx` | Vehicles + drivers + types tabs, detail pane, history table, active toggle |
 | Trips | `src/components/dashboard/TripsPage.tsx` | Status/date filters, workflow widget, start/cancel/complete actions |
 | Expenses | `src/components/dashboard/ExpensesPage.tsx` | Canvas pie chart, trend bar chart, 3-tab tables |
@@ -65,6 +67,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | SPA Dashboard | ✅ | `page.tsx + all components` | Fully functional with mock data |
 | Dashboard KPIs + charts | ✅ | `DashboardHome.tsx` | 4 KPIs, bar chart, canvas pie chart |
 | Fleet CRUD | ✅ | `FleetPage.tsx + ModalForms.tsx + DashboardHome` | Vehicles CRUD (+ type select from DB); Drivers CRUD; Vehicle Types CRUD (name/code/model/modelCode); detail pane + history; edit modals |
+| Legs CRUD | ✅ | `LegsPage.tsx` | Route legs table, active/inactive toggle with confirmation modal |
 | Operations workflow | ✅ | `TripsPage.tsx + AddTripModal` | Status transitions, outbox + journal simulation |
 | Expenses | ✅ | `ExpensesPage.tsx + AddExpenseModal` | Pie chart, trend, CRUD |
 | Accounting – CoA | ✅ | `AccountingPage.tsx + AddAccountModal` | Recursive tree, add account |

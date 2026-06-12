@@ -83,6 +83,11 @@ export interface CostCenter {
   name: string; type: string; active: boolean
 }
 
+export interface Leg {
+  id: number; name: string; origin: string; destination: string
+  distanceKm: number; isActive: boolean
+}
+
 export interface AppData {
   vehicleTypes: VehicleType[]
   vehicles: Vehicle[]
@@ -98,6 +103,7 @@ export interface AppData {
   outboxMessages: OutboxMessage[]
   auditLogs: AuditLog[]
   chartOfAccounts: CoaNode[]
+  legs: Leg[]
   nextJeNumber: number
 }
 
@@ -219,6 +225,13 @@ export const defaultData: AppData = {
       { code: '5800', name: 'Administrative Expense', type: 'Expense', nb: 'Dr', children: [] },
     ]},
   ],
+  legs: [
+    { id: 1, name: 'Cairo → Alexandria', origin: 'Cairo', destination: 'Alexandria', distanceKm: 220, isActive: true },
+    { id: 2, name: 'Cairo → Aswan', origin: 'Cairo', destination: 'Aswan', distanceKm: 670, isActive: true },
+    { id: 3, name: 'Cairo → Luxor', origin: 'Cairo', destination: 'Luxor', distanceKm: 500, isActive: true },
+    { id: 4, name: 'Alexandria → Marsa Matruh', origin: 'Alexandria', destination: 'Marsa Matruh', distanceKm: 300, isActive: false },
+    { id: 5, name: 'Giza → Port Said', origin: 'Giza', destination: 'Port Said', distanceKm: 210, isActive: true },
+  ],
   nextJeNumber: 48,
 }
 
@@ -238,7 +251,7 @@ export const costCenters: CostCenter[] = [
   { name: 'Administration', type: 'Admin', active: true },
 ]
 
-export type PageName = 'dashboard' | 'fleet' | 'trips' | 'expenses' | 'accounting' | 'arap' | 'reports' | 'settings'
+export type PageName = 'dashboard' | 'fleet' | 'trips' | 'expenses' | 'accounting' | 'arap' | 'reports' | 'settings' | 'legs'
 
 export const pageTitles: Record<PageName, [string, string]> = {
   dashboard: ['لوحة القيادة', '/ نظرة عامة'],
@@ -249,6 +262,7 @@ export const pageTitles: Record<PageName, [string, string]> = {
   arap: ['قبض / دفع', '/ الفواتير والمدفوعات'],
   reports: ['التقارير المالية', '/ البيانات والتحليل'],
   settings: ['الإعدادات', '/ تكوين النظام'],
+  legs: ['الساقين', '/ إدارة الساقين'],
 }
 
 export function fmt(n: number): string {
