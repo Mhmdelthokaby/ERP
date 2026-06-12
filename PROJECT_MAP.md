@@ -33,7 +33,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | State + Types | `src/lib/store.ts` | All TypeScript interfaces, mock data arrays, helper utilities |
 | Context | `src/lib/app-context.tsx` | `AppProvider` + `useApp()` hook — holds all data + CRUD actions |
 | Layout | `src/components/layout/Sidebar.tsx` | Sidebar nav with 3 sections (Main, Finance, System) |
-| Layout | `src/components/layout/Header.tsx` | Header with title/breadcrumb, search, notifications, date |
+| Layout | `src/components/layout/Header.tsx` | Header with sidebar toggle, title/breadcrumb, search, notifications, date |
 | Shared | `src/components/shared/StatusBadge.tsx` | StatusBadge, RoleBadge, SourceBadge |
 | Shared | `src/components/shared/KpiCard.tsx` | KPI card with icon, label, value, children |
 | Shared | `src/components/shared/ToastContainer.tsx` | Toast notifications with auto-dismiss |

@@ -5,12 +5,15 @@ import { pageTitles } from "@/lib/store"
 import { ar } from "@/lib/ar"
 
 export function Header() {
-  const { currentPage } = useApp()
+  const { currentPage, toggleSidebar } = useApp()
   const [title, breadcrumb] = pageTitles[currentPage]
 
   return (
     <header className="h-14 bg-surface border-b border-border flex items-center justify-between px-6 flex-shrink-0">
       <div className="flex items-center gap-4">
+        <button onClick={toggleSidebar} className="w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center text-muted hover:text-fg hover:border-borderLight transition-all">
+          <i className="fa-solid fa-bars text-sm"></i>
+        </button>
         <h2 className="font-display font-semibold text-fg text-base">{title}</h2>
         <span className="text-xs text-muted">{breadcrumb}</span>
       </div>

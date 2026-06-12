@@ -33,10 +33,10 @@ const navSections: { label: string; items: { page: PageName; icon: string; label
 ]
 
 export function Sidebar() {
-  const { currentPage, setPage } = useApp()
+  const { currentPage, setPage, sidebarOpen } = useApp()
 
   return (
-    <aside className="w-64 bg-surface border-r border-border flex flex-col flex-shrink-0 z-30">
+    <aside className={`${sidebarOpen ? "w-64" : "w-0 overflow-hidden"} bg-surface border-r border-border flex flex-col flex-shrink-0 z-30 transition-all duration-300`}>
       <div className="p-5 border-b border-border">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-accent to-accentDim flex items-center justify-center">
