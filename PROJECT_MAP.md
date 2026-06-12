@@ -38,14 +38,14 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Shared | `src/components/shared/ToastContainer.tsx` | Toast notifications with auto-dismiss |
 | Shared | `src/components/shared/Modal.tsx` | Reusable modal overlay + content |
 | Dashboard | `src/components/dashboard/DashboardHome.tsx` | 4 KPIs, revenue vs expenses chart, fleet status bars, recent trips/invoices |
-| Fleet | `src/components/dashboard/FleetPage.tsx` | Vehicles + drivers tabs, deactivate action |
+| Fleet | `src/components/dashboard/FleetPage.tsx` | Vehicles + drivers tabs, detail pane, history table, active toggle |
 | Trips | `src/components/dashboard/TripsPage.tsx` | Status/date filters, workflow widget, start/cancel/complete actions |
 | Expenses | `src/components/dashboard/ExpensesPage.tsx` | Canvas pie chart, trend bar chart, 3-tab tables |
 | Accounting | `src/components/dashboard/AccountingPage.tsx` | CoA recursive tree, journal table with reverse, periods, cost centers |
 | AR/AP | `src/components/dashboard/ArApPage.tsx` | 4-tab layout (AR invoices, payments, AP invoices, payments) |
 | Reports | `src/components/dashboard/ReportsPage.tsx` | Trial balance, income statement, balance sheet grid |
 | Settings | `src/components/dashboard/SettingsPage.tsx` | Users CRUD, outbox messages, audit log |
-| Modals | `src/components/modals/ModalForms.tsx` | AddVehicle, AddTrip, AddExpense, AddJournal, AddAccount, AddUser form modals |
+| Modals | `src/components/modals/ModalForms.tsx` | AddVehicle (+ driver assignment), EditVehicle, AddDriver, EditDriver, AddTrip, AddExpense, AddJournal, AddAccount, AddUser form modals |
 | Entry | `src/app/(dashboard)/page.tsx` | Wraps AppProvider → Sidebar + Header + current page + modals + toasts |
 
 ---
@@ -63,7 +63,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Root route | ✅ | `src/app/(dashboard)/page.tsx` | `/` serves the SPA dashboard (landing page removed) |
 | SPA Dashboard | ✅ | `page.tsx + all components` | Fully functional with mock data |
 | Dashboard KPIs + charts | ✅ | `DashboardHome.tsx` | 4 KPIs, bar chart, canvas pie chart |
-| Fleet CRUD | ✅ | `FleetPage.tsx + AddVehicleModal + DashboardHome` | Vehicles (code/plate/model/year/capacity/type/status) + drivers (code/fullName/phone/nationalId/grade/status) + deactivate |
+| Fleet CRUD | ✅ | `FleetPage.tsx + ModalForms.tsx + DashboardHome` | Vehicles (code/plate/model/year/capacity/type/status/driver/active toggle); drivers CRUD; detail pane + history; edit modals |
 | Operations workflow | ✅ | `TripsPage.tsx + AddTripModal` | Status transitions, outbox + journal simulation |
 | Expenses | ✅ | `ExpensesPage.tsx + AddExpenseModal` | Pie chart, trend, CRUD |
 | Accounting – CoA | ✅ | `AccountingPage.tsx + AddAccountModal` | Recursive tree, add account |
@@ -81,9 +81,9 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | DB – Drizzle schema | ✅ | `src/db/schema/index.ts` | 21 tables: added vehicle_types, vehicle_history; overhauled vehicles/drivers |
 | DB – Drizzle relations | ✅ | `src/db/relations.ts` | All relations: auth, vehicle→type, vehicle→history, driver→orders |
 | DB – Connection | ✅ | `src/db/index.ts` | Drizzle + postgres driver wired |
-| DB – Migrations | ✅ | `src/db/migrations/` | Generated + applied (0000_mysterious_kingpin) |
+| DB – Migrations | ✅ | `src/db/migrations/` | Generated + applied (0000_mysterious_kingpin, 0001_sweet_vargas) |
 | DB – Seed script | ✅ | `src/db/seed.ts` | Vehicle types, vehicles (new fields), drivers (fullName/nationalId/grade/salary/hireDate), customers, routes, orders, expenses, CoA, periods |
-| API routes (CRUD) | ✅ | `src/app/api/*` | 20 typed endpoints — pass-through bodies (schema-agnostic) |
+| API routes (CRUD + fleet) | ✅ | `src/app/api/*` | 22 typed endpoints — vehicles with JOINs (type + driver), toggle, history |
 | API client | ✅ | `src/lib/api.ts` | Typed fetch client, all endpoints |
 | Context → API wiring | ✅ | `src/lib/app-context.tsx` | Fetches API on mount, falls back to mock |
 | Services (Outbox) | ⚠️ | `src/services/*` | Exists but not wired to real outbox table |
@@ -102,7 +102,6 @@ Items not yet implemented or not wired:
 | Item | Type | Notes |
 |------|------|-------|
 | Auth guard / role enforcement | Security | SPA has no role-based UI filtering |
-| Real API layer → SPA full wiring | Integration | Context fetches on mount but falls back to mock on any failure |
 | Outbox worker auto-start | Worker | Not wired to server lifecycle |
 | i18n / RTL | UX | Not started |
 | Dark mode toggle | UX | Not wired (`next-themes` installed) |
@@ -112,9 +111,10 @@ Items not yet implemented or not wired:
 
 ## NEXT ACTIONS
 
-1. ✅ Database schema overhaul: vehicle_types, vehicle_history, rewritten vehicles/drivers tables
-2. Add role-based UI filtering using `session.user.role`
-3. Wire outbox worker to start on server init
-4. Install Font Awesome as npm dependency (remove CDN)
-5. Seed more realistic data (journal entries, AR/AP, outbox messages)
-6. 🚧 `feat/vehicle-driver-schema` — merge PR after branch review
+1. ✅ Fleet backend wiring: driverId FK, isActive history, toggle/history API, JOINs, enriched returns
+2. ✅ Fleet frontend wiring: detail pane, history table, active toggle, driver assignment in add modal, Add/Edit Driver modal, Edit Vehicle modal, independent data loading
+3. Add role-based UI filtering using `session.user.role`
+4. Wire outbox worker to start on server init
+5. Install Font Awesome as npm dependency (remove CDN)
+6. Seed more realistic data (journal entries, AR/AP, outbox messages)
+7. 🚧 `feat/backend-frontend-wiring` — merge PR after branch review

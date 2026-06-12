@@ -29,6 +29,10 @@ export const vehiclesRelations = relations(vehicles, ({ one, many }) => ({
     fields: [vehicles.vehicleTypeId],
     references: [vehicleTypes.id],
   }),
+  driver: one(drivers, {
+    fields: [vehicles.driverId],
+    references: [drivers.id],
+  }),
   history: many(vehicleHistory),
   operationOrders: many(operationOrders),
 }))

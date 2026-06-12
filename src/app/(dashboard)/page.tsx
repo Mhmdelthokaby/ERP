@@ -17,6 +17,9 @@ import { ReportsPage } from "@/components/dashboard/ReportsPage"
 import { SettingsPage } from "@/components/dashboard/SettingsPage"
 import {
   AddVehicleModal,
+  EditVehicleModal,
+  AddDriverModal,
+  EditDriverModal,
   AddTripModal,
   AddExpenseModal,
   AddJournalModal,
@@ -73,6 +76,9 @@ function DashboardInner() {
         </div>
       </main>
       <AddVehicleModal />
+      <EditVehicleModal />
+      <AddDriverModal />
+      <EditDriverModal />
       <AddTripModal />
       <AddExpenseModal />
       <AddJournalModal />

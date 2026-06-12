@@ -114,6 +114,7 @@ export const vehicles = pgTable("vehicles", {
   purchaseDate: date("purchase_date"),
   hasGps: boolean("has_gps").notNull().default(false),
   vehicleTypeId: uuid("vehicle_type_id").references(() => vehicleTypes.id),
+  driverId: uuid("driver_id").references(() => drivers.id),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -144,6 +145,7 @@ export const vehicleHistory = pgTable("vehicle_history", {
   licenseDate: date("license_date"),
   licenseExpiryDate: date("license_expiry_date"),
   licenseType: text("license_type"),
+  isActive: boolean("is_active"),
   modifiedAt: timestamp("modified_at").notNull().defaultNow(),
   modifiedBy: text("modified_by"),
 })

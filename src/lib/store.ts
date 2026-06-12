@@ -1,11 +1,19 @@
 export interface Vehicle {
   id: number; code: string; plateNumber: string; model: string; year: number
   capacity: number; status: string; vehicleType: string
+  driverId: number | null; driverName: string
 }
 
 export interface Driver {
   id: number; code: string; fullName: string; phone: string; nationalId: string
   licenseGrade: string; isActive: boolean
+}
+
+export interface VehicleHistoryEntry {
+  id: number; plateNumber: string; engineNumber: string | null
+  licenseDate: string | null; licenseExpiryDate: string | null
+  licenseType: string | null; isActive: boolean | null
+  modifiedAt: string; modifiedBy: string | null
 }
 
 export interface Trip {
@@ -74,6 +82,7 @@ export interface CostCenter {
 export interface AppData {
   vehicles: Vehicle[]
   drivers: Driver[]
+  vehicleHistory: Record<number, VehicleHistoryEntry[]>
   trips: Trip[]
   vehicleExpenses: VehicleExpense[]
   currencies: Currency[]
@@ -89,13 +98,14 @@ export interface AppData {
 
 export const defaultData: AppData = {
   vehicles: [
-    { id: 1, code: 'VHC-001', plateNumber: 'ABC-1234', model: 'Toyota Hiace', year: 2022, capacity: 20, status: 'Active', vehicleType: 'Bus' },
-    { id: 2, code: 'VHC-002', plateNumber: 'XYZ-5678', model: 'Mercedes Sprinter', year: 2021, capacity: 25, status: 'Active', vehicleType: 'Bus' },
-    { id: 3, code: 'VHC-003', plateNumber: 'DEF-9012', model: 'Mitsubishi L300', year: 2020, capacity: 18, status: 'Maintenance', vehicleType: 'Van' },
-    { id: 4, code: 'VHC-004', plateNumber: 'GHI-3456', model: 'Nissan Urvan', year: 2023, capacity: 22, status: 'Active', vehicleType: 'Bus' },
-    { id: 5, code: 'VHC-005', plateNumber: 'JKL-7890', model: 'Ford Transit', year: 2019, capacity: 20, status: 'Active', vehicleType: 'Van' },
-    { id: 6, code: 'VHC-006', plateNumber: 'MNO-2345', model: 'Iveco Daily', year: 2023, capacity: 24, status: 'Inactive', vehicleType: 'Truck' },
+    { id: 1, code: 'VHC-001', plateNumber: 'ABC-1234', model: 'Toyota Hiace', year: 2022, capacity: 20, status: 'Active', vehicleType: 'Bus', driverId: null, driverName: '' },
+    { id: 2, code: 'VHC-002', plateNumber: 'XYZ-5678', model: 'Mercedes Sprinter', year: 2021, capacity: 25, status: 'Active', vehicleType: 'Bus', driverId: null, driverName: '' },
+    { id: 3, code: 'VHC-003', plateNumber: 'DEF-9012', model: 'Mitsubishi L300', year: 2020, capacity: 18, status: 'Maintenance', vehicleType: 'Van', driverId: null, driverName: '' },
+    { id: 4, code: 'VHC-004', plateNumber: 'GHI-3456', model: 'Nissan Urvan', year: 2023, capacity: 22, status: 'Active', vehicleType: 'Bus', driverId: null, driverName: '' },
+    { id: 5, code: 'VHC-005', plateNumber: 'JKL-7890', model: 'Ford Transit', year: 2019, capacity: 20, status: 'Active', vehicleType: 'Van', driverId: null, driverName: '' },
+    { id: 6, code: 'VHC-006', plateNumber: 'MNO-2345', model: 'Iveco Daily', year: 2023, capacity: 24, status: 'Inactive', vehicleType: 'Truck', driverId: null, driverName: '' },
   ],
+  vehicleHistory: {},
   drivers: [
     { id: 1, code: 'DRV-001', fullName: 'Ahmed Hassan', phone: '01012345678', nationalId: '29801012345678', licenseGrade: 'A', isActive: true },
     { id: 2, code: 'DRV-002', fullName: 'Mohamed Khalil', phone: '01098765432', nationalId: '29001012345679', licenseGrade: 'B', isActive: true },

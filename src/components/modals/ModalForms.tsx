@@ -5,18 +5,24 @@ import { useApp } from "@/lib/app-context"
 import { Modal } from "@/components/shared"
 
 export function AddVehicleModal() {
-  const { addVehicle, closeModal } = useApp()
+  const { addVehicle, closeModal, data } = useApp()
   const [code, setCode] = useState("")
   const [plate, setPlate] = useState("")
   const [model, setModel] = useState("")
   const [year, setYear] = useState("")
   const [capacity, setCapacity] = useState("")
   const [vehicleType, setVehicleType] = useState("Bus")
+  const [driverId, setDriverId] = useState<number | string>("")
 
   const handleSubmit = () => {
     if (!code || !plate || !model || !year) return
-    addVehicle({ code, plateNumber: plate, model, year: parseInt(year), capacity: parseFloat(capacity) || 0, vehicleType })
-    setCode(""); setPlate(""); setModel(""); setYear(""); setCapacity(""); setVehicleType("Bus")
+    const driver = driverId !== "" ? data.drivers.find((d) => d.id === Number(driverId)) : null
+    addVehicle({
+      code, plateNumber: plate, model, year: parseInt(year),
+      capacity: parseFloat(capacity) || 0, vehicleType,
+      driverId: driver?.id ?? null, driverName: driver?.fullName ?? "",
+    })
+    setCode(""); setPlate(""); setModel(""); setYear(""); setCapacity(""); setVehicleType("Bus"); setDriverId("")
     closeModal()
   }
 
@@ -37,9 +43,155 @@ export function AddVehicleModal() {
             </select>
           </div>
         </div>
+        <div><label className="text-xs text-muted mb-1 block">Assign Driver (optional)</label>
+          <select value={driverId} onChange={(e) => setDriverId(e.target.value)}>
+            <option value="">— No Driver —</option>
+            {data.drivers.filter((d) => d.isActive).map((d) => (
+              <option key={d.id} value={d.id}>{d.fullName} ({d.code})</option>
+            ))}
+          </select>
+        </div>
         <div className="flex gap-3 pt-2">
           <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Add Vehicle</button>
           <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>Cancel</button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+export function AddDriverModal() {
+  const { addDriver, closeModal } = useApp()
+  const [code, setCode] = useState("")
+  const [fullName, setFullName] = useState("")
+  const [phone, setPhone] = useState("")
+  const [nationalId, setNationalId] = useState("")
+  const [licenseGrade, setLicenseGrade] = useState("A")
+
+  const handleSubmit = () => {
+    if (!code || !fullName || !phone) return
+    addDriver({ code, fullName, phone, nationalId, licenseGrade, isActive: true })
+    setCode(""); setFullName(""); setPhone(""); setNationalId(""); setLicenseGrade("A")
+    closeModal()
+  }
+
+  return (
+    <Modal title="Add Driver" id="addDriverModal">
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">Code</label><input type="text" placeholder="DRV-010" value={code} onChange={(e) => setCode(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">Full Name</label><input type="text" placeholder="Ahmed Hassan" value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">Phone</label><input type="text" placeholder="01012345678" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">National ID</label><input type="text" placeholder="29801012345678" value={nationalId} onChange={(e) => setNationalId(e.target.value)} /></div>
+        </div>
+        <div><label className="text-xs text-muted mb-1 block">License Grade</label>
+          <select value={licenseGrade} onChange={(e) => setLicenseGrade(e.target.value)}>
+            <option>A</option><option>B</option><option>C</option>
+          </select>
+        </div>
+        <div className="flex gap-3 pt-2">
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Add Driver</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>Cancel</button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+export function EditVehicleModal() {
+  const { editingVehicle, updateVehicle, closeModal, data, setEditingVehicle } = useApp()
+  const [code, setCode] = useState(editingVehicle?.code ?? "")
+  const [plate, setPlate] = useState(editingVehicle?.plateNumber ?? "")
+  const [model, setModel] = useState(editingVehicle?.model ?? "")
+  const [year, setYear] = useState(String(editingVehicle?.year ?? ""))
+  const [capacity, setCapacity] = useState(String(editingVehicle?.capacity ?? ""))
+  const [vehicleType, setVehicleType] = useState(editingVehicle?.vehicleType ?? "Bus")
+  const [driverId, setDriverId] = useState<number | string>(editingVehicle?.driverId ?? "")
+
+  if (!editingVehicle) return null
+
+  const handleSubmit = () => {
+    if (!code || !plate || !model || !year) return
+    const driver = driverId !== "" ? data.drivers.find((d) => d.id === Number(driverId)) : null
+    updateVehicle(editingVehicle.id, {
+      code, plateNumber: plate, model, year: parseInt(year),
+      capacity: parseFloat(capacity) || 0, vehicleType,
+      driverId: driver?.id ?? null, driverName: driver?.fullName ?? "",
+    })
+    setEditingVehicle(null); closeModal()
+  }
+
+  return (
+    <Modal title="Edit Vehicle" id="editVehicleModal">
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">Code</label><input type="text" value={code} onChange={(e) => setCode(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">Plate Number</label><input type="text" value={plate} onChange={(e) => setPlate(e.target.value)} /></div>
+        </div>
+        <div><label className="text-xs text-muted mb-1 block">Model</label><input type="text" value={model} onChange={(e) => setModel(e.target.value)} /></div>
+        <div className="grid grid-cols-3 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">Year</label><input type="number" value={year} onChange={(e) => setYear(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">Capacity (tons)</label><input type="number" value={capacity} onChange={(e) => setCapacity(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">Type</label>
+            <select value={vehicleType} onChange={(e) => setVehicleType(e.target.value)}>
+              <option>Bus</option><option>Van</option><option>Truck</option>
+            </select>
+          </div>
+        </div>
+        <div><label className="text-xs text-muted mb-1 block">Assign Driver (optional)</label>
+          <select value={driverId} onChange={(e) => setDriverId(e.target.value)}>
+            <option value="">— No Driver —</option>
+            {data.drivers.filter((d) => d.isActive).map((d) => (
+              <option key={d.id} value={d.id}>{d.fullName} ({d.code})</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex gap-3 pt-2">
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Save Changes</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={() => { setEditingVehicle(null); closeModal() }}>Cancel</button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+export function EditDriverModal() {
+  const { editingDriver, updateDriver, closeModal, setEditingDriver } = useApp()
+  const [code, setCode] = useState(editingDriver?.code ?? "")
+  const [fullName, setFullName] = useState(editingDriver?.fullName ?? "")
+  const [phone, setPhone] = useState(editingDriver?.phone ?? "")
+  const [nationalId, setNationalId] = useState(editingDriver?.nationalId ?? "")
+  const [licenseGrade, setLicenseGrade] = useState(editingDriver?.licenseGrade ?? "A")
+
+  if (!editingDriver) return null
+
+  const handleSubmit = () => {
+    if (!code || !fullName || !phone) return
+    updateDriver(editingDriver.id, { code, fullName, phone, nationalId, licenseGrade })
+    setEditingDriver(null); closeModal()
+  }
+
+  return (
+    <Modal title="Edit Driver" id="editDriverModal">
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">Code</label><input type="text" value={code} onChange={(e) => setCode(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">Full Name</label><input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">Phone</label><input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">National ID</label><input type="text" value={nationalId} onChange={(e) => setNationalId(e.target.value)} /></div>
+        </div>
+        <div><label className="text-xs text-muted mb-1 block">License Grade</label>
+          <select value={licenseGrade} onChange={(e) => setLicenseGrade(e.target.value)}>
+            <option>A</option><option>B</option><option>C</option>
+          </select>
+        </div>
+        <div className="flex gap-3 pt-2">
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Save Changes</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={() => { setEditingDriver(null); closeModal() }}>Cancel</button>
         </div>
       </div>
     </Modal>

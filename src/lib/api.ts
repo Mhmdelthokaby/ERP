@@ -22,10 +22,18 @@ export const api = {
     request<{ data: JsonValue }>(`/api/fleet/vehicles/${id}`, { method: "PUT", body: JSON.stringify(body) }),
   deleteVehicle: (id: string) =>
     request<{ data: JsonValue }>(`/api/fleet/vehicles/${id}`, { method: "DELETE" }),
+  toggleVehicleActive: (id: string) =>
+    request<{ data: JsonValue }>(`/api/fleet/vehicles/${id}/toggle`, { method: "PATCH" }),
+  getVehicleHistory: (id: string) =>
+    request<{ data: JsonValue[] }>(`/api/fleet/vehicles/${id}/history`),
 
   getDrivers: () => request<{ data: JsonValue[] }>("/api/fleet/drivers"),
   createDriver: (body: Record<string, unknown>) =>
     request<{ data: JsonValue }>("/api/fleet/drivers", { method: "POST", body: JSON.stringify(body) }),
+  updateDriver: (id: string, body: Record<string, unknown>) =>
+    request<{ data: JsonValue }>(`/api/fleet/drivers/${id}`, { method: "PUT", body: JSON.stringify(body) }),
+  deleteDriver: (id: string) =>
+    request<{ data: JsonValue }>(`/api/fleet/drivers/${id}`, { method: "DELETE" }),
 
   getOrders: () => request<{ data: JsonValue[] }>("/api/operations/orders"),
   createOrder: (body: Record<string, unknown>) =>

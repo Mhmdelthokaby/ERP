@@ -63,11 +63,11 @@ async function seed() {
 
   // ── Vehicles ──
   const vehicleData = [
-    { code: "VHC-001", plateNumber: "ABC-1234", brand: "Toyota", model: "Hiace", year: 2022, capacity: 14, chassisNumber: "CHA-001", engineNumber: "ENG-001", hasGps: true, vehicleTypeId: vtIds["BUS"] },
-    { code: "VHC-002", plateNumber: "XYZ-5678", brand: "Mercedes", model: "Sprinter", year: 2023, capacity: 20, chassisNumber: "CHA-002", engineNumber: "ENG-002", hasGps: true, vehicleTypeId: vtIds["BUS"] },
-    { code: "VHC-003", plateNumber: "DEF-9012", brand: "Mitsubishi", model: "L300", year: 2021, capacity: 8, chassisNumber: "CHA-003", engineNumber: "ENG-003", hasGps: false, vehicleTypeId: vtIds["VAN"] },
-    { code: "VHC-004", plateNumber: "GHI-3456", brand: "Nissan", model: "Urvan", year: 2023, capacity: 15, chassisNumber: "CHA-004", engineNumber: "ENG-004", hasGps: true, vehicleTypeId: vtIds["BUS"] },
-    { code: "VHC-005", plateNumber: "JKL-7890", brand: "Ford", model: "Transit", year: 2022, capacity: 12, chassisNumber: "CHA-005", engineNumber: "ENG-005", hasGps: false, vehicleTypeId: vtIds["VAN"] },
+    { code: "VHC-001", plateNumber: "ABC-1234", brand: "Toyota", model: "Hiace", year: 2022, capacity: 14, chassisNumber: "CHA-001", engineNumber: "ENG-001", hasGps: true, vehicleTypeId: vtIds["BUS"], driverId: null },
+    { code: "VHC-002", plateNumber: "XYZ-5678", brand: "Mercedes", model: "Sprinter", year: 2023, capacity: 20, chassisNumber: "CHA-002", engineNumber: "ENG-002", hasGps: true, vehicleTypeId: vtIds["BUS"], driverId: null },
+    { code: "VHC-003", plateNumber: "DEF-9012", brand: "Mitsubishi", model: "L300", year: 2021, capacity: 8, chassisNumber: "CHA-003", engineNumber: "ENG-003", hasGps: false, vehicleTypeId: vtIds["VAN"], driverId: null },
+    { code: "VHC-004", plateNumber: "GHI-3456", brand: "Nissan", model: "Urvan", year: 2023, capacity: 15, chassisNumber: "CHA-004", engineNumber: "ENG-004", hasGps: true, vehicleTypeId: vtIds["BUS"], driverId: null },
+    { code: "VHC-005", plateNumber: "JKL-7890", brand: "Ford", model: "Transit", year: 2022, capacity: 12, chassisNumber: "CHA-005", engineNumber: "ENG-005", hasGps: false, vehicleTypeId: vtIds["VAN"], driverId: null },
   ]
   const vehicleIds: string[] = []
   for (const v of vehicleData) {
