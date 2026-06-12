@@ -1,5 +1,9 @@
 import { relations } from "drizzle-orm"
-import { users, sessions, accounts, verifications } from "./schema"
+import {
+  users, sessions, accounts, verifications,
+  vehicles, drivers, vehicleTypes, vehicleHistory,
+  operationOrders,
+} from "./schema"
 
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
@@ -15,3 +19,27 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 }))
 
 export const verificationsRelations = relations(verifications, () => ({}))
+
+export const vehicleTypesRelations = relations(vehicleTypes, ({ many }) => ({
+  vehicles: many(vehicles),
+}))
+
+export const vehiclesRelations = relations(vehicles, ({ one, many }) => ({
+  vehicleType: one(vehicleTypes, {
+    fields: [vehicles.vehicleTypeId],
+    references: [vehicleTypes.id],
+  }),
+  history: many(vehicleHistory),
+  operationOrders: many(operationOrders),
+}))
+
+export const vehicleHistoryRelations = relations(vehicleHistory, ({ one }) => ({
+  vehicle: one(vehicles, {
+    fields: [vehicleHistory.vehicleId],
+    references: [vehicles.id],
+  }),
+}))
+
+export const driversRelations = relations(drivers, ({ many }) => ({
+  operationOrders: many(operationOrders),
+}))

@@ -63,7 +63,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Root route | ✅ | `src/app/(dashboard)/page.tsx` | `/` serves the SPA dashboard (landing page removed) |
 | SPA Dashboard | ✅ | `page.tsx + all components` | Fully functional with mock data |
 | Dashboard KPIs + charts | ✅ | `DashboardHome.tsx` | 4 KPIs, bar chart, canvas pie chart |
-| Fleet CRUD | ✅ | `FleetPage.tsx + AddVehicleModal` | Add + deactivate vehicles |
+| Fleet CRUD | ✅ | `FleetPage.tsx + AddVehicleModal + DashboardHome` | Vehicles (code/plate/model/year/capacity/type/status) + drivers (code/fullName/phone/nationalId/grade/status) + deactivate |
 | Operations workflow | ✅ | `TripsPage.tsx + AddTripModal` | Status transitions, outbox + journal simulation |
 | Expenses | ✅ | `ExpensesPage.tsx + AddExpenseModal` | Pie chart, trend, CRUD |
 | Accounting – CoA | ✅ | `AccountingPage.tsx + AddAccountModal` | Recursive tree, add account |
@@ -78,12 +78,12 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Toast notifications | ✅ | `ToastContainer.tsx + context` | 4 types with auto-dismiss |
 | Modals | ✅ | `ModalForms.tsx + Modal.tsx` | 6 form modals with validation |
 | DB – PostgreSQL | ✅ | localhost:5432 | PostgreSQL 17 running, `erp_db` created |
-| DB – Drizzle schema | ✅ | `src/db/schema/index.ts` | 19 tables fully defined |
-| DB – Drizzle relations | ✅ | `src/db/relations.ts` | Auth relations (user→sessions, user→accounts) |
+| DB – Drizzle schema | ✅ | `src/db/schema/index.ts` | 21 tables: added vehicle_types, vehicle_history; overhauled vehicles/drivers |
+| DB – Drizzle relations | ✅ | `src/db/relations.ts` | All relations: auth, vehicle→type, vehicle→history, driver→orders |
 | DB – Connection | ✅ | `src/db/index.ts` | Drizzle + postgres driver wired |
-| DB – Migrations | ✅ | `src/db/migrations/` | Generated + applied (0000_glossy_epoch) |
-| DB – Seed script | ✅ | `src/db/seed.ts` | Manager+vehicles+drivers+customers+routes+orders+expenses+CoA+periods |
-| API routes (CRUD) | ✅ | `src/app/api/*` | 20 typed endpoints with Drizzle queries |
+| DB – Migrations | ✅ | `src/db/migrations/` | Generated + applied (0000_mysterious_kingpin) |
+| DB – Seed script | ✅ | `src/db/seed.ts` | Vehicle types, vehicles (new fields), drivers (fullName/nationalId/grade/salary/hireDate), customers, routes, orders, expenses, CoA, periods |
+| API routes (CRUD) | ✅ | `src/app/api/*` | 20 typed endpoints — pass-through bodies (schema-agnostic) |
 | API client | ✅ | `src/lib/api.ts` | Typed fetch client, all endpoints |
 | Context → API wiring | ✅ | `src/lib/app-context.tsx` | Fetches API on mount, falls back to mock |
 | Services (Outbox) | ⚠️ | `src/services/*` | Exists but not wired to real outbox table |
@@ -112,8 +112,9 @@ Items not yet implemented or not wired:
 
 ## NEXT ACTIONS
 
-1. ✅ Login redirects to dashboard SPA at `/` (landing page `src/app/page.tsx` removed)
+1. ✅ Database schema overhaul: vehicle_types, vehicle_history, rewritten vehicles/drivers tables
 2. Add role-based UI filtering using `session.user.role`
 3. Wire outbox worker to start on server init
 4. Install Font Awesome as npm dependency (remove CDN)
 5. Seed more realistic data (journal entries, AR/AP, outbox messages)
+6. 🚧 `feat/vehicle-driver-schema` — merge PR after branch review

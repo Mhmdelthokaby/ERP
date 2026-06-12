@@ -79,15 +79,19 @@ CREATE TABLE "customers" (
 --> statement-breakpoint
 CREATE TABLE "drivers" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"first_name" text NOT NULL,
-	"last_name" text NOT NULL,
-	"license_number" text NOT NULL,
+	"code" text NOT NULL,
+	"full_name" text NOT NULL,
+	"national_id" text,
+	"insurance_number" text,
 	"phone" text NOT NULL,
-	"email" text,
+	"license_grade" text,
+	"salary" numeric,
+	"hire_date" date,
 	"is_active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "drivers_license_number_unique" UNIQUE("license_number")
+	CONSTRAINT "drivers_code_unique" UNIQUE("code"),
+	CONSTRAINT "drivers_national_id_unique" UNIQUE("national_id")
 );
 --> statement-breakpoint
 CREATE TABLE "expense_categories" (
@@ -211,17 +215,49 @@ CREATE TABLE "users" (
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
+CREATE TABLE "vehicle_history" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"vehicle_id" uuid NOT NULL,
+	"plate_number" text NOT NULL,
+	"engine_number" text,
+	"license_date" date,
+	"license_expiry_date" date,
+	"license_type" text,
+	"modified_at" timestamp DEFAULT now() NOT NULL,
+	"modified_by" text
+);
+--> statement-breakpoint
+CREATE TABLE "vehicle_types" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"name" text NOT NULL,
+	"code" text NOT NULL,
+	"model" text NOT NULL,
+	"model_code" text,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "vehicle_types_code_unique" UNIQUE("code")
+);
+--> statement-breakpoint
 CREATE TABLE "vehicles" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"code" text NOT NULL,
 	"plate_number" text NOT NULL,
 	"brand" text NOT NULL,
 	"model" text NOT NULL,
 	"year" integer NOT NULL,
 	"capacity" integer NOT NULL,
-	"vehicle_type" text NOT NULL,
+	"chassis_number" text,
+	"engine_number" text,
+	"license_date" date,
+	"license_expiry_date" date,
+	"owner_name" text,
+	"license_type" text,
+	"purchase_date" date,
+	"has_gps" boolean DEFAULT false NOT NULL,
+	"vehicle_type_id" uuid,
 	"is_active" boolean DEFAULT true NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "vehicles_code_unique" UNIQUE("code"),
 	CONSTRAINT "vehicles_plate_number_unique" UNIQUE("plate_number")
 );
 --> statement-breakpoint
@@ -248,4 +284,6 @@ ALTER TABLE "operation_orders" ADD CONSTRAINT "operation_orders_customer_id_cust
 ALTER TABLE "operation_orders" ADD CONSTRAINT "operation_orders_route_id_routes_id_fk" FOREIGN KEY ("route_id") REFERENCES "public"."routes"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "operation_orders" ADD CONSTRAINT "operation_orders_vehicle_id_vehicles_id_fk" FOREIGN KEY ("vehicle_id") REFERENCES "public"."vehicles"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "operation_orders" ADD CONSTRAINT "operation_orders_driver_id_drivers_id_fk" FOREIGN KEY ("driver_id") REFERENCES "public"."drivers"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "vehicle_history" ADD CONSTRAINT "vehicle_history_vehicle_id_vehicles_id_fk" FOREIGN KEY ("vehicle_id") REFERENCES "public"."vehicles"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "vehicles" ADD CONSTRAINT "vehicles_vehicle_type_id_vehicle_types_id_fk" FOREIGN KEY ("vehicle_type_id") REFERENCES "public"."vehicle_types"("id") ON DELETE no action ON UPDATE no action;

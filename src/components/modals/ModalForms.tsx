@@ -6,26 +6,36 @@ import { Modal } from "@/components/shared"
 
 export function AddVehicleModal() {
   const { addVehicle, closeModal } = useApp()
+  const [code, setCode] = useState("")
   const [plate, setPlate] = useState("")
   const [model, setModel] = useState("")
   const [year, setYear] = useState("")
   const [capacity, setCapacity] = useState("")
+  const [vehicleType, setVehicleType] = useState("Bus")
 
   const handleSubmit = () => {
-    if (!plate || !model || !year) return
-    addVehicle({ plateNumber: plate, model, year: parseInt(year), capacity: parseFloat(capacity) || 0 })
-    setPlate(""); setModel(""); setYear(""); setCapacity("")
+    if (!code || !plate || !model || !year) return
+    addVehicle({ code, plateNumber: plate, model, year: parseInt(year), capacity: parseFloat(capacity) || 0, vehicleType })
+    setCode(""); setPlate(""); setModel(""); setYear(""); setCapacity(""); setVehicleType("Bus")
     closeModal()
   }
 
   return (
     <Modal title="Add Vehicle" id="addVehicleModal">
       <div className="space-y-4">
-        <div><label className="text-xs text-muted mb-1 block">Plate Number</label><input type="text" placeholder="ABC-1234" value={plate} onChange={(e) => setPlate(e.target.value)} /></div>
-        <div><label className="text-xs text-muted mb-1 block">Model</label><input type="text" placeholder="Mercedes Actros" value={model} onChange={(e) => setModel(e.target.value)} /></div>
         <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">Code</label><input type="text" placeholder="VHC-010" value={code} onChange={(e) => setCode(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">Plate Number</label><input type="text" placeholder="ABC-1234" value={plate} onChange={(e) => setPlate(e.target.value)} /></div>
+        </div>
+        <div><label className="text-xs text-muted mb-1 block">Model</label><input type="text" placeholder="Toyota Hiace" value={model} onChange={(e) => setModel(e.target.value)} /></div>
+        <div className="grid grid-cols-3 gap-3">
           <div><label className="text-xs text-muted mb-1 block">Year</label><input type="number" placeholder="2024" value={year} onChange={(e) => setYear(e.target.value)} /></div>
           <div><label className="text-xs text-muted mb-1 block">Capacity (tons)</label><input type="number" placeholder="20" value={capacity} onChange={(e) => setCapacity(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">Type</label>
+            <select value={vehicleType} onChange={(e) => setVehicleType(e.target.value)}>
+              <option>Bus</option><option>Van</option><option>Truck</option>
+            </select>
+          </div>
         </div>
         <div className="flex gap-3 pt-2">
           <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>Add Vehicle</button>

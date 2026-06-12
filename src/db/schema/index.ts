@@ -88,14 +88,32 @@ export const verifications = pgTable("verifications", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 })
 
+export const vehicleTypes = pgTable("vehicle_types", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
+  code: text("code").notNull().unique(),
+  model: text("model").notNull(),
+  modelCode: text("model_code"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
 export const vehicles = pgTable("vehicles", {
   id: uuid("id").defaultRandom().primaryKey(),
+  code: text("code").notNull().unique(),
   plateNumber: text("plate_number").notNull().unique(),
   brand: text("brand").notNull(),
   model: text("model").notNull(),
   year: integer("year").notNull(),
   capacity: integer("capacity").notNull(),
-  vehicleType: text("vehicle_type").notNull(),
+  chassisNumber: text("chassis_number"),
+  engineNumber: text("engine_number"),
+  licenseDate: date("license_date"),
+  licenseExpiryDate: date("license_expiry_date"),
+  ownerName: text("owner_name"),
+  licenseType: text("license_type"),
+  purchaseDate: date("purchase_date"),
+  hasGps: boolean("has_gps").notNull().default(false),
+  vehicleTypeId: uuid("vehicle_type_id").references(() => vehicleTypes.id),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
@@ -103,14 +121,31 @@ export const vehicles = pgTable("vehicles", {
 
 export const drivers = pgTable("drivers", {
   id: uuid("id").defaultRandom().primaryKey(),
-  firstName: text("first_name").notNull(),
-  lastName: text("last_name").notNull(),
-  licenseNumber: text("license_number").notNull().unique(),
+  code: text("code").notNull().unique(),
+  fullName: text("full_name").notNull(),
+  nationalId: text("national_id").unique(),
+  insuranceNumber: text("insurance_number"),
   phone: text("phone").notNull(),
-  email: text("email"),
+  licenseGrade: text("license_grade"),
+  salary: numeric("salary"),
+  hireDate: date("hire_date"),
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
+})
+
+export const vehicleHistory = pgTable("vehicle_history", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  vehicleId: uuid("vehicle_id")
+    .notNull()
+    .references(() => vehicles.id, { onDelete: "cascade" }),
+  plateNumber: text("plate_number").notNull(),
+  engineNumber: text("engine_number"),
+  licenseDate: date("license_date"),
+  licenseExpiryDate: date("license_expiry_date"),
+  licenseType: text("license_type"),
+  modifiedAt: timestamp("modified_at").notNull().defaultNow(),
+  modifiedBy: text("modified_by"),
 })
 
 export const customers = pgTable("customers", {

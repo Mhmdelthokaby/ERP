@@ -33,15 +33,17 @@ export function FleetPage() {
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-              <th className="text-left p-4 font-medium">Plate</th><th className="text-left p-4 font-medium">Model</th><th className="text-left p-4 font-medium">Year</th><th className="text-left p-4 font-medium">Capacity</th><th className="text-left p-4 font-medium">Status</th><th className="text-right p-4 font-medium">Actions</th>
+              <th className="text-left p-4 font-medium">Code</th><th className="text-left p-4 font-medium">Plate</th><th className="text-left p-4 font-medium">Model</th><th className="text-left p-4 font-medium">Year</th><th className="text-left p-4 font-medium">Capacity</th><th className="text-left p-4 font-medium">Type</th><th className="text-left p-4 font-medium">Status</th><th className="text-right p-4 font-medium">Actions</th>
             </tr></thead>
             <tbody>
               {data.vehicles.map((v) => (
                 <tr key={v.id} className="data-row border-b border-border/50">
+                  <td className="p-4 font-mono text-xs text-muted">{v.code}</td>
                   <td className="p-4 font-mono font-semibold text-accent">{v.plateNumber}</td>
                   <td className="p-4 text-fg">{v.model}</td>
                   <td className="p-4 text-muted">{v.year}</td>
                   <td className="p-4 text-muted">{v.capacity} tons</td>
+                  <td className="p-4 text-muted">{v.vehicleType}</td>
                   <td className="p-4"><StatusBadge status={v.status} /></td>
                   <td className="p-4 text-right">
                     <button className="text-muted hover:text-accent transition-colors mr-2" title="Edit"><i className="fa-solid fa-pen-to-square text-xs"></i></button>
@@ -58,15 +60,16 @@ export function FleetPage() {
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-              <th className="text-left p-4 font-medium">Name</th><th className="text-left p-4 font-medium">Phone</th><th className="text-left p-4 font-medium">License</th><th className="text-left p-4 font-medium">Type</th><th className="text-left p-4 font-medium">Status</th><th className="text-right p-4 font-medium">Actions</th>
+              <th className="text-left p-4 font-medium">Code</th><th className="text-left p-4 font-medium">Full Name</th><th className="text-left p-4 font-medium">Phone</th><th className="text-left p-4 font-medium">National ID</th><th className="text-left p-4 font-medium">License Grade</th><th className="text-left p-4 font-medium">Status</th><th className="text-right p-4 font-medium">Actions</th>
             </tr></thead>
             <tbody>
               {data.drivers.map((d) => (
                 <tr key={d.id} className="data-row border-b border-border/50">
-                  <td className="p-4 text-fg font-medium">{d.name}</td>
+                  <td className="p-4 font-mono text-xs text-muted">{d.code}</td>
+                  <td className="p-4 text-fg font-medium">{d.fullName}</td>
                   <td className="p-4 text-muted font-mono text-xs">{d.phone}</td>
-                  <td className="p-4 text-muted font-mono text-xs">{d.licenseNumber}</td>
-                  <td className="p-4"><StatusBadge status={d.employmentType} /></td>
+                  <td className="p-4 text-muted font-mono text-xs">{d.nationalId}</td>
+                  <td className="p-4 text-muted font-mono text-xs">{d.licenseGrade}</td>
                   <td className="p-4">{d.isActive ? <StatusBadge status="Active" /> : <StatusBadge status="Inactive" />}</td>
                   <td className="p-4 text-right">
                     <button className="text-muted hover:text-accent transition-colors mr-2"><i className="fa-solid fa-pen-to-square text-xs"></i></button>
