@@ -24,23 +24,8 @@ export function LegsPage() {
   const [filterSalaryMax, setFilterSalaryMax] = useState("")
   const [filterHireDateFrom, setFilterHireDateFrom] = useState("")
   const [filterHireDateTo, setFilterHireDateTo] = useState("")
-  // sort state
-  const [sortBy, setSortBy] = useState<"name" | "salary" | "">("")
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
-  // pagination state
-  const [pageSize, setPageSize] = useState(10)
-  const [currentPage, setCurrentPage] = useState(1)
 
-  const handleSort = (field: "name" | "salary") => {
-    if (sortBy === field) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"))
-    } else {
-      setSortBy(field); setSortDir("asc")
-    }
-    setCurrentPage(1)
-  }
-
-  const sorted = [...data.drivers].filter((d) => {
+  const filteredDrivers = data.drivers.filter((d) => {
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       const match = d.fullName.toLowerCase().includes(q) || d.phone.includes(q) || String(d.code).includes(q) || (d.insuranceNumber || "").toLowerCase().includes(q)
@@ -54,16 +39,7 @@ export function LegsPage() {
     if (filterHireDateFrom && d.hireDate && d.hireDate < filterHireDateFrom) return false
     if (filterHireDateTo && d.hireDate && d.hireDate > filterHireDateTo) return false
     return true
-  }).sort((a, b) => {
-    if (!sortBy) return 0
-    const dir = sortDir === "asc" ? 1 : -1
-    if (sortBy === "name") return a.fullName.localeCompare(b.fullName) * dir
-    return ((Number(a.salary || 0) - Number(b.salary || 0)) * dir)
   })
-
-  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize))
-  const safePage = Math.min(currentPage, totalPages)
-  const paginatedDrivers = sorted.slice((safePage - 1) * pageSize, safePage * pageSize)
 
   const goToVehicle = (vehicleId: number) => {
     setPendingVehicleView(vehicleId)
@@ -168,9 +144,9 @@ export function LegsPage() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedDrivers.length === 0 ? (
-                  <tr><td colSpan={7} className="p-8 text-center text-muted text-sm">لا يوجد سائقون مطابقون</td></tr>
-                ) : paginatedDrivers.map((d) => (
+                {filteredDrivers.length === 0 ? (
+                  <tr><td colSpan={6} className="p-8 text-center text-muted text-sm">لا يوجد سائقون مطابقون</td></tr>
+                ) : filteredDrivers.map((d) => (
                   <tr
                     key={d.id}
                     className={`data-row border-b border-border/50 cursor-pointer ${selectedId === d.id ? "bg-accent/5" : ""}`}
