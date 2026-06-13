@@ -1,0 +1,13 @@
+ALTER TABLE "vehicles" DROP CONSTRAINT IF EXISTS "vehicles_code_unique";
+ALTER TABLE "vehicles" ALTER COLUMN "code" DROP NOT NULL;
+ALTER TABLE "vehicles" RENAME COLUMN "code" TO "code_old";
+ALTER TABLE "vehicles" ADD COLUMN "code" integer;
+UPDATE "vehicles" SET "code" = seq.seq_num FROM (SELECT id, row_number() OVER (ORDER BY created_at) AS seq_num FROM "vehicles") seq WHERE "vehicles".id = seq.id;
+CREATE SEQUENCE IF NOT EXISTS "vehicles_code_seq" OWNED BY "vehicles"."code";
+ALTER TABLE "vehicles" ALTER COLUMN "code" SET DEFAULT nextval('vehicles_code_seq');
+ALTER TABLE "vehicles" ALTER COLUMN "code" SET NOT NULL;
+ALTER TABLE "vehicles" ADD CONSTRAINT "vehicles_code_unique" UNIQUE("code");
+SELECT setval('vehicles_code_seq', COALESCE((SELECT MAX(code) FROM "vehicles"), 0));
+ALTER TABLE "vehicles" DROP COLUMN "code_old";
+ALTER TABLE "vehicles" ADD CONSTRAINT "vehicles_chassis_number_unique" UNIQUE("chassis_number");
+ALTER TABLE "vehicles" ADD CONSTRAINT "vehicles_engine_number_unique" UNIQUE("engine_number");

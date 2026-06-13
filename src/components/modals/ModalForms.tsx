@@ -8,10 +8,13 @@ const m = ar.fleetModals
 const mod = ar.modals
 const l = ar.legs
 
+function formatPlate(raw: string) {
+  return raw.replace(/\s/g, "").split("").join(" ")
+}
+
 export function AddVehicleModal() {
   const { addVehicle, closeModal, data } = useApp()
   const [plate, setPlate] = useState("")
-  const [model, setModel] = useState("")
   const [year, setYear] = useState("")
   const [capacity, setCapacity] = useState("")
   const [vehicleTypeId, setVehicleTypeId] = useState<number | string>("")
@@ -28,32 +31,34 @@ export function AddVehicleModal() {
 
   const fieldError = (f: string) => errors.includes(f)
 
-  const handleSubmit = () => {
-    if (!plate || !model || !year) return
+  const handleSubmit = async () => {
+    if (!plate || !year) return
+    setErrors([])
     const vt = vehicleTypeId !== "" ? data.vehicleTypes.find((t) => t.id === Number(vehicleTypeId)) : null
     const driver = driverId !== "" ? data.drivers.find((d) => d.id === Number(driverId)) : null
-    addVehicle({
-      plateNumber: plate, model, year: parseInt(year),
-      capacity: parseFloat(capacity) || 0, vehicleType: vt?.name ?? "",
-      vehicleTypeId: vt?.id ?? null,
-      driverId: driver?.id ?? null, driverName: driver?.fullName ?? "",
-      chassisNumber: chassis, engineNumber: engine,
-      hasGps, licenseDate, licenseExpiryDate: licenseExpiry,
-      ownerName, licenseType, purchaseDate,
-    })
-    setPlate(""); setModel(""); setYear(""); setCapacity(""); setVehicleTypeId(""); setDriverId("")
-    setChassis(""); setEngine(""); setHasGps(false); setLicenseDate(""); setLicenseExpiry("")
-    setOwnerName(""); setLicenseType(""); setPurchaseDate("")
-    closeModal()
+    try {
+      await addVehicle({
+        plateNumber: plate, model: vt ? `${vt.code} - ${vt.model}` : "", year: parseInt(year),
+        capacity: parseFloat(capacity) || 0, vehicleType: vt?.name ?? "",
+        vehicleTypeId: vt?.id ?? null,
+        driverId: driver?.id ?? null, driverName: driver?.fullName ?? "",
+        chassisNumber: chassis, engineNumber: engine,
+        hasGps, licenseDate, licenseExpiryDate: licenseExpiry,
+        ownerName, licenseType, purchaseDate,
+      })
+      setPlate(""); setYear(""); setCapacity(""); setVehicleTypeId(""); setDriverId("")
+      setChassis(""); setEngine(""); setHasGps(false); setLicenseDate(""); setLicenseExpiry("")
+      setOwnerName(""); setLicenseType(""); setPurchaseDate("")
+      closeModal()
+    } catch (e: any) {
+      if (e.status === 409) setErrors(e.fields ?? [])
+    }
   }
 
   return (
     <Modal title={m.addVehicle} id="addVehicleModal">
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <div><label className={`text-xs mb-1 block ${fieldError("plateNumber") ? "text-danger" : "text-muted"}`}>{m.plateNumber}</label><input type="text" placeholder="ABC-1234" value={plate} onChange={(e) => { setPlate(e.target.value); setErrors([]) }} className={fieldError("plateNumber") ? "!border-danger" : ""} />{fieldError("plateNumber") && <span className="text-xs text-danger mt-0.5 block">رقم اللوحة موجود مسبقاً</span>}</div>
-          <div><label className="text-xs text-muted mb-1 block">{m.model}</label><input type="text" placeholder="Toyota Hiace" value={model} onChange={(e) => setModel(e.target.value)} /></div>
-        </div>
+        <div><label className={`text-xs mb-1 block ${fieldError("plateNumber") ? "text-danger" : "text-muted"}`}>{m.plateNumber}</label><input type="text" placeholder="م ك ل 1 2 3" value={plate} onChange={(e) => { setPlate(formatPlate(e.target.value)); setErrors([]) }} className={fieldError("plateNumber") ? "!border-danger" : ""} />{fieldError("plateNumber") && <span className="text-xs text-danger mt-0.5 block">رقم اللوحة موجود مسبقاً</span>}</div>
         <div className="grid grid-cols-3 gap-3">
           <div><label className="text-xs text-muted mb-1 block">{m.year}</label><input type="number" placeholder="2024" value={year} onChange={(e) => setYear(e.target.value)} /></div>
           <div><label className="text-xs text-muted mb-1 block">{m.capacity}</label><input type="number" placeholder="20" value={capacity} onChange={(e) => setCapacity(e.target.value)} /></div>
@@ -166,7 +171,6 @@ export function AddDriverModal() {
 export function EditVehicleModal() {
   const { editingVehicle, updateVehicle, closeModal, data, setEditingVehicle } = useApp()
   const [plate, setPlate] = useState(editingVehicle?.plateNumber ?? "")
-  const [model, setModel] = useState(editingVehicle?.model ?? "")
   const [year, setYear] = useState(String(editingVehicle?.year ?? ""))
   const [capacity, setCapacity] = useState(String(editingVehicle?.capacity ?? ""))
   const [vehicleTypeId, setVehicleTypeId] = useState<number | string>(editingVehicle?.vehicleTypeId ?? "")
@@ -185,29 +189,31 @@ export function EditVehicleModal() {
 
   if (!editingVehicle) return null
 
-  const handleSubmit = () => {
-    if (!plate || !model || !year) return
+  const handleSubmit = async () => {
+    if (!plate || !year) return
+    setErrors([])
     const vt = vehicleTypeId !== "" ? data.vehicleTypes.find((t) => t.id === Number(vehicleTypeId)) : null
     const driver = driverId !== "" ? data.drivers.find((d) => d.id === Number(driverId)) : null
-    updateVehicle(editingVehicle.id, {
-      plateNumber: plate, model, year: parseInt(year),
-      capacity: parseFloat(capacity) || 0, vehicleType: vt?.name ?? "",
-      vehicleTypeId: vt?.id ?? null,
-      driverId: driver?.id ?? null, driverName: driver?.fullName ?? "",
-      chassisNumber: chassis, engineNumber: engine,
-      hasGps, licenseDate, licenseExpiryDate: licenseExpiry,
-      ownerName, licenseType, purchaseDate,
-    })
-    setEditingVehicle(null); closeModal()
+    try {
+      await updateVehicle(editingVehicle.id, {
+        plateNumber: plate, model: vt ? `${vt.code} - ${vt.model}` : "", year: parseInt(year),
+        capacity: parseFloat(capacity) || 0, vehicleType: vt?.name ?? "",
+        vehicleTypeId: vt?.id ?? null,
+        driverId: driver?.id ?? null, driverName: driver?.fullName ?? "",
+        chassisNumber: chassis, engineNumber: engine,
+        hasGps, licenseDate, licenseExpiryDate: licenseExpiry,
+        ownerName, licenseType, purchaseDate,
+      })
+      setEditingVehicle(null); closeModal()
+    } catch (e: any) {
+      if (e.status === 409) setErrors(e.fields ?? [])
+    }
   }
 
   return (
     <Modal title={m.editVehicle} id="editVehicleModal">
       <div className="space-y-4">
-        <div className="grid grid-cols-2 gap-3">
-          <div><label className={`text-xs mb-1 block ${fieldError("plateNumber") ? "text-danger" : "text-muted"}`}>{m.plateNumber}</label><input type="text" value={plate} onChange={(e) => { setPlate(e.target.value); setErrors([]) }} className={fieldError("plateNumber") ? "!border-danger" : ""} />{fieldError("plateNumber") && <span className="text-xs text-danger mt-0.5 block">رقم اللوحة موجود مسبقاً</span>}</div>
-          <div><label className="text-xs text-muted mb-1 block">{m.model}</label><input type="text" value={model} onChange={(e) => setModel(e.target.value)} /></div>
-        </div>
+        <div><label className={`text-xs mb-1 block ${fieldError("plateNumber") ? "text-danger" : "text-muted"}`}>{m.plateNumber}</label><input type="text" placeholder="م ك ل 1 2 3" value={plate} onChange={(e) => { setPlate(formatPlate(e.target.value)); setErrors([]) }} className={fieldError("plateNumber") ? "!border-danger" : ""} />{fieldError("plateNumber") && <span className="text-xs text-danger mt-0.5 block">رقم اللوحة موجود مسبقاً</span>}</div>
         <div className="grid grid-cols-3 gap-3">
           <div><label className="text-xs text-muted mb-1 block">{m.year}</label><input type="number" value={year} onChange={(e) => setYear(e.target.value)} /></div>
           <div><label className="text-xs text-muted mb-1 block">{m.capacity}</label><input type="number" value={capacity} onChange={(e) => setCapacity(e.target.value)} /></div>

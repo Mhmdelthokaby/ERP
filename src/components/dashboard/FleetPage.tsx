@@ -66,7 +66,7 @@ export function FleetPage() {
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead><tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-                <th className="text-left p-4 font-medium">{f.code}</th><th className="text-left p-4 font-medium">{f.plate}</th><th className="text-left p-4 font-medium">{f.model}</th><th className="text-left p-4 font-medium">{f.year}</th><th className="text-left p-4 font-medium">{f.capacity}</th><th className="text-left p-4 font-medium">{f.type}</th><th className="text-left p-4 font-medium">{f.driver}</th><th className="text-left p-4 font-medium">{f.status}</th><th className="text-right p-4 font-medium">{f.actions}</th>
+                <th className="text-left p-4 font-medium">{f.code}</th><th className="text-left p-4 font-medium">{f.plate}</th><th className="text-left p-4 font-medium">{f.model}</th><th className="text-left p-4 font-medium">{f.year}</th><th className="text-left p-4 font-medium">{f.capacity}</th><th className="text-left p-4 font-medium">{f.driver}</th><th className="text-left p-4 font-medium">{f.status}</th><th className="text-right p-4 font-medium">{f.actions}</th>
               </tr></thead>
               <tbody>
                 {data.vehicles.map((v) => (
@@ -76,7 +76,6 @@ export function FleetPage() {
                     <td className="p-4 text-fg">{v.model}</td>
                     <td className="p-4 text-muted">{v.year}</td>
                     <td className="p-4 text-muted">{v.capacity} {f.capacityUnit}</td>
-                    <td className="p-4 text-muted">{v.vehicleType}</td>
                     <td className="p-4 text-muted text-xs">{v.driverName || "—"}</td>
                     <td className="p-4"><StatusBadge status={v.status} /></td>
                     <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
@@ -106,7 +105,6 @@ export function FleetPage() {
                   <div><span className="text-muted">{f.plateLabel}</span> <span className="font-mono">{selectedVehicle.plateNumber}</span></div>
                   <div><span className="text-muted">{f.chassisNumber}:</span> <span className="font-mono">{selectedVehicle.chassisNumber || "—"}</span></div>
                   <div><span className="text-muted">{f.engineNumber}:</span> <span className="font-mono">{selectedVehicle.engineNumber || "—"}</span></div>
-                  <div><span className="text-muted">{f.typeLabel}</span> {selectedVehicle.vehicleType}</div>
                   <div><span className="text-muted">{f.model}:</span> {selectedVehicle.model}</div>
                   <div><span className="text-muted">{f.gps}:</span> <span className={selectedVehicle.hasGps ? "text-success" : "text-muted"}>{selectedVehicle.hasGps ? f.gpsFound : f.gpsNotFound}</span></div>
                   <div><span className="text-muted">{f.yearLabel}</span> {selectedVehicle.year}</div>

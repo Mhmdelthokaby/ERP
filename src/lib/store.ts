@@ -3,7 +3,7 @@ export interface LicenseGrade {
 }
 
 export interface VehicleType {
-  id: number; name: string; code: string; model: string; modelCode: string
+  id: number; name: string; code: string; model: string; modelCode: string; dbId?: string
 }
 
 export interface Vehicle {
@@ -12,7 +12,7 @@ export interface Vehicle {
   vehicleTypeId: number | null; driverId: number | null; driverName: string
   chassisNumber: string; engineNumber: string
   licenseDate: string; licenseExpiryDate: string; ownerName: string
-  licenseType: string; purchaseDate: string; hasGps: boolean
+  licenseType: string; purchaseDate: string; hasGps: boolean; dbId?: string
 }
 
 export interface Driver {

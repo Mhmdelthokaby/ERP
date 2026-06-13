@@ -43,8 +43,8 @@ interface AppContextType {
   addVehicleType: (vt: Omit<VehicleType, "id">) => void
   updateVehicleType: (id: number, vt: Partial<VehicleType>) => void
   deleteVehicleType: (id: number) => void
-  addVehicle: (v: Omit<Vehicle, "id" | "status" | "code">) => void
-  updateVehicle: (id: number, v: Partial<Vehicle>) => void
+  addVehicle: (v: Omit<Vehicle, "id" | "status" | "code">) => Promise<void>
+  updateVehicle: (id: number, v: Partial<Vehicle>) => Promise<void>
   toggleVehicleActive: (id: number) => void
   deactivateVehicle: (id: number) => void
   addDriver: (d: Omit<Driver, "id" | "code">) => void
@@ -72,10 +72,11 @@ const AppContext = createContext<AppContextType | null>(null)
 function dbVehicleToMock(v: Record<string, unknown>): Vehicle {
   const rawId = String(v.id ?? "")
   return {
+    dbId: rawId,
     id: parseInt(rawId.slice(0, 8), 16) || Math.random(),
     code: Number(v.code) || 0,
     plateNumber: String(v.plateNumber || ""),
-    model: `${String(v.brand || "")} ${String(v.model || "")}`.trim(),
+    model: String(v.model || ""),
     year: Number(v.year) || 0,
     capacity: Number(v.capacity) || 0,
     status: String(v.isActive) === "true" ? "Active" : "Inactive",
@@ -137,6 +138,7 @@ function dbLicenseGradeToMock(lg: Record<string, unknown>): LicenseGrade {
 function dbVehicleTypeToMock(vt: Record<string, unknown>): VehicleType {
   const rawId = String(vt.id ?? "")
   return {
+    dbId: rawId,
     id: parseInt(rawId.slice(0, 8), 16) || Math.random(),
     name: String(vt.name || ""),
     code: String(vt.code || ""),
@@ -218,34 +220,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [editingLicenseGrade, setEditingLicenseGrade] = useState<LicenseGrade | null>(null)
 
   const addVehicle = useCallback((v: Omit<Vehicle, "id" | "status" | "code">) => {
-    api.createVehicle({ ...v, brand: v.model.split(" ")[0] || v.model, isActive: true }).then((res) => {
+    const vt = v.vehicleTypeId ? data.vehicleTypes.find((t) => t.id === v.vehicleTypeId) : null
+    const dr = v.driverId ? data.drivers.find((d) => d.id === v.driverId) : null
+    const { vehicleType, driverName, ...dbFields } = { ...v, vehicleTypeId: vt?.dbId ?? null, driverId: dr?.dbId ?? null }
+    return api.createVehicle({ ...dbFields, brand: dbFields.model.split(" ")[0] || dbFields.model, isActive: true }).then((res) => {
       const mapped = dbVehicleToMock(res.data as Record<string, unknown>)
       setData((prev) => ({ ...prev, vehicles: [...prev.vehicles, mapped] }))
-    }).catch(() => {
-      setData((prev) => {
-        const maxCode = prev.vehicles.reduce((max, veh) => Math.max(max, veh.code), 0)
-        return { ...prev, vehicles: [...prev.vehicles, { ...v, id: prev.vehicles.length + 1, code: maxCode + 1, status: "Active" }] }
-      })
+    }).catch((e) => {
+      if (e.status !== 409) showToast(`Failed to save vehicle: ${e.message || "server error"}`, "error")
+      throw e
     })
-    showToast(`Vehicle ${v.plateNumber} added`)
-  }, [showToast])
+  }, [data.vehicleTypes, data.drivers, showToast])
 
   const updateVehicle = useCallback((id: number, updates: Partial<Vehicle>) => {
     const v = data.vehicles.find((x) => x.id === id)
-    if (!v) return
-    api.updateVehicle(String(v.id), updates).then((res) => {
+    if (!v) return Promise.reject(new Error("Vehicle not found"))
+    const vt = updates.vehicleTypeId ? data.vehicleTypes.find((t) => t.id === updates.vehicleTypeId) : null
+    const dr = updates.driverId ? data.drivers.find((d) => d.id === updates.driverId) : null
+    const { vehicleType, driverName, status, ...dbFields } = { ...updates, vehicleTypeId: vt?.dbId ?? null, driverId: dr?.dbId ?? null }
+    return api.updateVehicle(v.dbId ?? String(v.id), dbFields).then((res) => {
       const mapped = dbVehicleToMock(res.data as Record<string, unknown>)
       setData((prev) => ({ ...prev, vehicles: prev.vehicles.map((x) => x.id === id ? mapped : x) }))
-    }).catch(() => {
-      setData((prev) => ({ ...prev, vehicles: prev.vehicles.map((x) => x.id === id ? { ...x, ...updates } : x) }))
+    }).catch((e) => {
+      if (e.status !== 409) showToast(`Failed to update vehicle: ${e.message || "server error"}`, "error")
+      throw e
     })
-    showToast(`Vehicle ${v.plateNumber} updated`)
-  }, [data.vehicles, showToast])
+  }, [data.vehicles, data.vehicleTypes, data.drivers, showToast])
 
   const toggleVehicleActive = useCallback((id: number) => {
     const v = data.vehicles.find((x) => x.id === id)
     if (!v) return
-    api.toggleVehicleActive(String(v.id)).then((res) => {
+    api.toggleVehicleActive(v.dbId ?? String(v.id)).then((res) => {
       const mapped = dbVehicleToMock(res.data as Record<string, unknown>)
       setData((prev) => ({ ...prev, vehicles: prev.vehicles.map((x) => x.id === id ? mapped : x) }))
     }).catch(() => {
@@ -258,7 +263,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const deactivateVehicle = useCallback((id: number) => {
     const v = data.vehicles.find((x) => x.id === id)
     if (!v) return
-    api.updateVehicle(String(v.id), { isActive: false }).then((res) => {
+    api.updateVehicle(v.dbId ?? String(v.id), { isActive: false }).then((res) => {
       const mapped = dbVehicleToMock(res.data as Record<string, unknown>)
       setData((prev) => ({ ...prev, vehicles: prev.vehicles.map((x) => x.id === id ? mapped : x) }))
     }).catch(() => {
@@ -377,7 +382,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const v = data.vehicles.find((x) => x.id === id)
     if (!v) return
     try {
-      const res = await api.getVehicleHistory(String(v.id))
+      const res = await api.getVehicleHistory(v.dbId ?? String(v.id))
       const history = res.data.map((h) => dbHistoryToMock(h as Record<string, unknown>))
       setData((prev) => ({ ...prev, vehicleHistory: { ...prev.vehicleHistory, [id]: history } }))
     } catch {

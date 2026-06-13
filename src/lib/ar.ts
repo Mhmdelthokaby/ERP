@@ -106,7 +106,7 @@ export const ar = {
     plateNumber: 'رقم اللوحة',
     model: 'الموديل',
     year: 'السنة',
-    capacity: 'السعة (طن)',
+    capacity: 'السعة',
     type: 'النوع',
     assignDriver: 'تعيين سائق (اختياري)',
     noDriver: '— بدون سائق —',
