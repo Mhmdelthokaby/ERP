@@ -1,13 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useApp } from "@/lib/app-context"
 import { Modal } from "@/components/shared"
+import { api } from "@/lib/api"
 import { ar } from "@/lib/ar"
+import type { Vehicle } from "@/lib/store"
 const f = ar.fleet
 
 export function FleetPage() {
-  const { data, openModal, closeModal, toggleVehicleActive, fetchVehicleHistory, deleteVehicleType, setEditingVehicle, setEditingVehicleType, pendingVehicleView, setPendingVehicleView, setCurrentSubtitle, toggleSidebar, sidebarOpen } = useApp()
+  const { data, openModal, closeModal, toggleVehicleActive, fetchVehicleHistory, deleteVehicleType, setEditingVehicle, setEditingVehicleType, pendingVehicleView, setPendingVehicleView, setPage, setPendingDriverView, setCurrentSubtitle, toggleSidebar, sidebarOpen } = useApp()
   const [fleetTab, setFleetTab] = useState<"vehicles" | "types">("vehicles")
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null)
   const [historyLoading, setHistoryLoading] = useState(false)
@@ -16,6 +18,12 @@ export function FleetPage() {
   const [filterYear, setFilterYear] = useState("")
   const [filterExpiry, setFilterExpiry] = useState("")
   const [filterStatus, setFilterStatus] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
+
+  const [tableVehicles, setTableVehicles] = useState<Vehicle[]>([])
+  const [totalCount, setTotalCount] = useState(0)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     setCurrentSubtitle(`/ ${fleetTab === "vehicles" ? f.vehicles : f.types}`)
@@ -38,21 +46,53 @@ export function FleetPage() {
   const [pendingToggleId, setPendingToggleId] = useState<number | null>(null)
   const pendingVehicle = pendingToggleId != null ? data.vehicles.find((v) => v.id === pendingToggleId) : null
 
-  const filteredVehicles = data.vehicles.filter((v) => {
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase()
-      const match = String(v.code).includes(q) || v.plateNumber.toLowerCase().includes(q) || (v.chassisNumber || "").toLowerCase().includes(q) || (v.engineNumber || "").toLowerCase().includes(q)
-      if (!match) return false
-    }
-    if (filterModel && v.model !== filterModel) return false
-    if (filterYear && String(v.year) !== filterYear) return false
-    if (filterExpiry && (!v.licenseExpiryDate || v.licenseExpiryDate > filterExpiry)) return false
-    if (filterStatus) {
-      if (filterStatus === "active" && v.status !== "Active") return false
-      if (filterStatus === "inactive" && v.status !== "Inactive") return false
-    }
-    return true
-  })
+  const dbVehicleToTable = useCallback((v: Record<string, unknown>): Vehicle => ({
+    id: parseInt(String(v.id).slice(0, 8), 16) || Math.random(),
+    dbId: String(v.id),
+    code: Number(v.code) || 0,
+    plateNumber: String(v.plateNumber || ""),
+    model: String(v.model || ""),
+    year: Number(v.year) || 0,
+    capacity: Number(v.capacity) || 0,
+    chassisNumber: String(v.chassisNumber || ""),
+    engineNumber: String(v.engineNumber || ""),
+    licenseDate: String(v.licenseDate || ""),
+    licenseExpiryDate: String(v.licenseExpiryDate || ""),
+    ownerName: String(v.ownerName || ""),
+    licenseType: String(v.licenseType || ""),
+    purchaseDate: String(v.purchaseDate || ""),
+    hasGps: String(v.hasGps) === "true",
+    vehicleTypeId: v.vehicleTypeId ? parseInt(String(v.vehicleTypeId).slice(0, 8), 16) || null : null,
+    vehicleType: String(v.vehicleTypeName || ""),
+    driverId: v.driverId ? parseInt(String(v.driverId).slice(0, 8), 16) || null : null,
+    driverName: String(v.driverName || ""),
+    status: String(v.isActive) === "true" ? "Active" : "Inactive",
+  }), [])
+
+  const buildParams = useCallback(() => {
+    const params: Record<string, string> = {}
+    if (searchQuery) params.search = searchQuery
+    if (filterModel) params.model = filterModel
+    if (filterYear) params.year = filterYear
+    if (filterExpiry) params.licenseExpiry = filterExpiry
+    if (filterStatus) params.isActive = filterStatus === "active" ? "true" : "false"
+    params.page = String(currentPage)
+    params.pageSize = String(pageSize)
+    return params
+  }, [searchQuery, filterModel, filterYear, filterExpiry, filterStatus, currentPage, pageSize])
+
+  useEffect(() => {
+    setLoading(true)
+    api.searchVehicles(buildParams()).then((res) => {
+      setTableVehicles(res.data.map((v) => dbVehicleToTable(v as Record<string, unknown>)))
+      setTotalCount(res.total)
+    }).catch(() => {
+      setTableVehicles([]); setTotalCount(0)
+    }).finally(() => setLoading(false))
+  }, [buildParams, dbVehicleToTable])
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
+  const safePage = Math.min(currentPage, totalPages)
 
   const handleToggle = () => {
     if (pendingToggleId == null) return
@@ -128,14 +168,18 @@ export function FleetPage() {
                 <th className="text-left p-4 font-medium">{f.code}</th><th className="text-left p-4 font-medium">{f.plate}</th><th className="text-left p-4 font-medium">{f.model}</th><th className="text-left p-4 font-medium">{f.year}</th><th className="text-left p-4 font-medium">{f.capacity}</th><th className="text-left p-4 font-medium">{f.driver}</th><th className="text-left p-4 font-medium">{f.status}</th><th className="text-right p-4 font-medium">{f.actions}</th>
               </tr></thead>
               <tbody>
-                {filteredVehicles.map((v) => (
+                {loading ? (
+                  <tr><td colSpan={8} className="p-4 text-center text-muted text-xs">جاري التحميل...</td></tr>
+                ) : tableVehicles.length === 0 ? (
+                  <tr><td colSpan={8} className="p-4 text-center text-muted text-xs">لا توجد نتائج</td></tr>
+                ) : tableVehicles.map((v) => (
                   <tr key={v.id} className={`data-row border-b border-border/50 cursor-pointer ${selectedVehicleId === v.id ? "bg-accent/5" : ""}`} onClick={() => handleVehicleClick(v.id)}>
                     <td className="p-4 font-mono text-xs text-muted">{v.code}</td>
                     <td className="p-4 font-mono font-semibold text-accent">{v.plateNumber}</td>
                     <td className="p-4 text-fg">{v.model}</td>
                     <td className="p-4 text-muted">{v.year}</td>
                     <td className="p-4 text-muted">{v.capacity}</td>
-                    <td className="p-4 text-muted text-xs">{v.driverName || "—"}</td>
+                    <td className="p-4 text-muted text-xs">{v.driverName ? <button className="text-accent hover:underline" onClick={(e) => { e.stopPropagation(); setPendingDriverView(v.driverId); setPage("legs") }}>{v.driverName}</button> : "—"}</td>
                     <td className="p-4">
                       <button
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${v.status === "Active" ? "bg-success" : "bg-danger"}`}
@@ -151,6 +195,24 @@ export function FleetPage() {
                 ))}
               </tbody>
             </table>
+            <div className="flex items-center justify-between p-3 border-t border-border text-xs text-muted">
+              <div className="flex items-center gap-2">
+                <span>عرض</span>
+                <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1) }} className="!py-1 !text-xs">
+                  <option value={10}>10</option>
+                  <option value={15}>15</option>
+                  <option value={20}>20</option>
+                </select>
+                <span>من {totalCount}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <button className="px-2 py-1 rounded hover:bg-surface disabled:opacity-30" disabled={safePage <= 1} onClick={() => setCurrentPage(safePage - 1)}>‹</button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <button key={p} className={`px-2 py-1 rounded ${p === safePage ? "bg-accent text-white" : "hover:bg-surface"}`} onClick={() => setCurrentPage(p)}>{p}</button>
+                ))}
+                <button className="px-2 py-1 rounded hover:bg-surface disabled:opacity-30" disabled={safePage >= totalPages} onClick={() => setCurrentPage(safePage + 1)}>›</button>
+              </div>
+            </div>
           </div>
 
           {selectedVehicle && (
@@ -184,7 +246,7 @@ export function FleetPage() {
                   <div><span className="text-muted">{f.licenseExpiry}:</span> {selectedVehicle.licenseExpiryDate || "—"}</div>
                   <div><span className="text-muted">{f.licenseTypeLabel}:</span> {selectedVehicle.licenseType || "—"}</div>
                   <div><span className="text-muted">{f.purchaseDate}:</span> {selectedVehicle.purchaseDate || "—"}</div>
-                  <div><span className="text-muted">{f.driverLabel}</span> {selectedVehicle.driverName || f.unassigned}</div>
+                  <div><span className="text-muted">{f.driverLabel}</span> {selectedVehicle.driverName ? <button className="text-accent hover:underline" onClick={() => { setPendingDriverView(selectedVehicle.driverId); setPage("legs") }}>{selectedVehicle.driverName}</button> : f.unassigned}</div>
                   <div><span className="text-muted">{f.statusLabel}</span>
                     <button
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors align-middle mr-2 ${selectedVehicle.status === "Active" ? "bg-success" : "bg-danger"}`}
