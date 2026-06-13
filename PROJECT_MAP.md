@@ -1,6 +1,6 @@
 # ERP — Project Map
 
-> Generated: 2026-06-12 · Protocol: Flow Adherence
+> Generated: 2026-06-13 · Protocol: Flow Adherence
 
 ---
 
@@ -41,7 +41,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Shared | `src/components/shared/Modal.tsx` | Reusable modal overlay + content |
 | Dashboard | `src/components/dashboard/DashboardHome.tsx` | 4 KPIs, revenue vs expenses chart, fleet status bars, recent trips/invoices |
 | Legs | `src/components/dashboard/LegsPage.tsx` | Drivers + License Grades tabs; drivers table (6 cols), full detail pane (10 fields + linked vehicle link), active toggle with confirmation modal, add/edit via modal, auto-close sidebar; license grades CRUD table with add/edit/delete |
-| Fleet | `src/components/dashboard/FleetPage.tsx` | Vehicles + types tabs, detail pane, history table, active toggle (drivers moved to LegsPage) |
+| Fleet | `src/components/dashboard/FleetPage.tsx` | Vehicles + types tabs, detail pane with edit button + status toggle, history table (8 cols: date/plate/engine/licenseDate/licenseExpiry/licenseType/active/owner), active toggle with confirmation modal (開く driver pattern) |
 | Trips | `src/components/dashboard/TripsPage.tsx` | Status/date filters, workflow widget, start/cancel/complete actions |
 | Expenses | `src/components/dashboard/ExpensesPage.tsx` | Canvas pie chart, trend bar chart, 3-tab tables |
 | Accounting | `src/components/dashboard/AccountingPage.tsx` | CoA recursive tree, journal table with reverse, periods, cost centers |
@@ -66,7 +66,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Root route | ✅ | `src/app/(dashboard)/page.tsx` | `/` serves the SPA dashboard (landing page removed) |
 | SPA Dashboard | ✅ | `page.tsx + all components` | Fully functional with mock data |
 | Dashboard KPIs + charts | ✅ | `DashboardHome.tsx` | 4 KPIs, bar chart, canvas pie chart |
-| Fleet CRUD | ✅ | `FleetPage.tsx + ModalForms.tsx + DashboardHome` | Vehicles CRUD (+ type select from DB); Drivers CRUD; Vehicle Types CRUD (name/code/model/modelCode); detail pane + history; edit modals |
+| Fleet CRUD | ✅ | `FleetPage.tsx + ModalForms.tsx + DashboardHome` | Vehicles CRUD (+ type select from DB); Drivers CRUD; Vehicle Types CRUD (name/code/model/modelCode); detail pane with edit/toggle; history table with full columns; async add/update with UUID conversion; form data sync via useEffect |
 | Legs CRUD | ✅ | `LegsPage.tsx + app-context.tsx + drivers toggle API` | Drivers/operators + license grades tabs; drivers table from DB, full detail pane, add/edit modals with all fields (license grade from DB dropdown), active toggle; license grades CRUD table with add/edit/delete modals |
 | Operations workflow | ✅ | `TripsPage.tsx + AddTripModal` | Status transitions, outbox + journal simulation |
 | Expenses | ✅ | `ExpensesPage.tsx + AddExpenseModal` | Pie chart, trend, CRUD |
@@ -80,12 +80,12 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Settings – Outbox | ✅ | `SettingsPage.tsx` | Outbox messages table |
 | Settings – Audit Log | ✅ | `SettingsPage.tsx` | Audit log table |
 | Toast notifications | ✅ | `ToastContainer.tsx + context` | 4 types with auto-dismiss |
-| Modals | ✅ | `ModalForms.tsx + Modal.tsx` | 10 form modals — add/edit Driver (all fields, license grade from DB), add/edit Vehicle (with type/driver selects), add VehicleType, edit VehicleType, add LicenseGrade, edit LicenseGrade, add Trip, add Expense, add Journal, add Account, add User |
+| Modals | ✅ | `ModalForms.tsx + Modal.tsx` | 10 form modals — add/edit Driver (all fields, license grade from DB, form synced from context), add/edit Vehicle (with type/driver selects, form synced via useEffect), add VehicleType, edit VehicleType, add LicenseGrade, edit LicenseGrade, add Trip, add Expense, add Journal, add Account, add User |
 | DB – PostgreSQL | ✅ | localhost:5432 | PostgreSQL 17 running, `erp_db` created |
-| DB – Drizzle schema | ✅ | `src/db/schema/index.ts` | 22 tables: added license_grades, vehicle_types, vehicle_history; overhauled vehicles/drivers |
+| DB – Drizzle schema | ✅ | `src/db/schema/index.ts` | 22 tables: added license_grades, vehicle_types, vehicle_history (incl. owner_name), drivers code→serial; overhauled vehicles/drivers |
 | DB – Drizzle relations | ✅ | `src/db/relations.ts` | All relations: auth, vehicle→type, vehicle→history, driver→orders |
 | DB – Connection | ✅ | `src/db/index.ts` | Drizzle + postgres driver wired |
-| DB – Migrations | ✅ | `src/db/migrations/` | Generated + applied (0000_mysterious_kingpin, 0001_sweet_vargas, 0003_cool_firestar) |
+| DB – Migrations | ✅ | `src/db/migrations/` | Generated + applied (0000–0006); 0005 vehicles.code text→serial; 0006 vehicle_history.owner_name |
 | DB – Seed script | ✅ | `src/db/seed.ts` | Vehicle types, vehicles (new fields), drivers (fullName/nationalId/grade/salary/hireDate), customers, routes, orders, expenses, CoA, periods |
 | API routes (CRUD + fleet) | ✅ | `src/app/api/*` | 31 typed endpoints — vehicles with JOINs (type + driver), toggle, history; vehicle-types CRUD; license-grades CRUD; drivers toggle |
 | API client | ✅ | `src/lib/api.ts` | Typed fetch client, all endpoints |
@@ -107,7 +107,7 @@ Items not yet implemented or not wired:
 | Item | Type | Notes |
 |------|------|-------|
 | Auth guard / role enforcement | Security | SPA has no role-based UI filtering |
-| Cross-page vehicle view | UX | `pendingVehicleView` in context; LegsPage → FleetPage navigation works but FleetPage doesn't auto-scroll/highlight the target vehicle row |
+| Cross-page vehicle view | UX | `pendingVehicleView` in context; LegsPage → FleetPage navigation works and auto-selects the vehicle tab/details |
 | Outbox worker auto-start | Worker | Not wired to server lifecycle |
 | RTL layout | UX | LTR kept — Arabic business software convention |
 | Dark mode toggle | UX | Not wired (`next-themes` installed) |
@@ -123,7 +123,12 @@ Items not yet implemented or not wired:
 4. ✅ Arabic UI: all dashboard pages, modals, layout, shared components translated; `ar.ts` with comprehensive translations; `ar-EG` locale
 5. ✅ Driver code auto-generation: DB `code` changed from `text` to `serial` — numeric, auto-incremented, removed from user forms
 6. ✅ License Grades CRUD: DB `license_grades` table, API (GET/POST/PUT/DELETE), frontend tab in LegsPage, add/edit modals, driver forms load grades from DB
-7. Add role-based UI filtering using `session.user.role`
+7. ✅ Vehicle toggle switch: replaced power-off icon with toggle switch + confirmation modal (matching driver UX)
+8. ✅ Vehicle history table: 8 columns (date, plate, engine, licenseDate, licenseExpiry, licenseType, active, ownerName); migration 0006 adds owner_name
+9. ✅ Edit form data sync: useEffect in EditVehicleModal populates fields from context on open
+10. ✅ Details panel: edit button + status toggle in vehicle detail pane
+11. Toggle auto-refresh: toggleVehicleActive calls fetchVehicleHistory after success
+12. Add role-based UI filtering using `session.user.role`
 7. Wire outbox worker to start on server init
 8. Install Font Awesome as npm dependency (remove CDN)
 9. Seed more realistic data (journal entries, AR/AP, outbox messages)
