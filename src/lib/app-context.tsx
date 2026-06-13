@@ -7,6 +7,7 @@ import {
   defaultData, type AppData, type Vehicle, type VehicleType, type Driver, type Trip,
   type VehicleExpense, type JournalEntry, type JournalLine,
   type User, type PageName, type CoaNode, type VehicleHistoryEntry, type Leg,
+  type LicenseGrade,
 } from "./store"
 import { api } from "./api"
 
@@ -32,6 +33,11 @@ interface AppContextType {
   setEditingVehicle: (v: Vehicle | null) => void
   setEditingDriver: (d: Driver | null) => void
   setEditingVehicleType: (vt: VehicleType | null) => void
+  editingLicenseGrade: LicenseGrade | null
+  setEditingLicenseGrade: (lg: LicenseGrade | null) => void
+  addLicenseGrade: (lg: Omit<LicenseGrade, "id">) => void
+  updateLicenseGrade: (id: number, lg: Partial<LicenseGrade>) => void
+  deleteLicenseGrade: (id: number) => void
   addVehicleType: (vt: Omit<VehicleType, "id">) => void
   updateVehicleType: (id: number, vt: Partial<VehicleType>) => void
   deleteVehicleType: (id: number) => void
@@ -109,6 +115,15 @@ function dbHistoryToMock(h: Record<string, unknown>): VehicleHistoryEntry {
   }
 }
 
+function dbLicenseGradeToMock(lg: Record<string, unknown>): LicenseGrade {
+  const rawId = String(lg.id ?? "")
+  return {
+    id: parseInt(rawId.slice(0, 8), 16) || Math.random(),
+    dbId: rawId,
+    name: String(lg.name || ""),
+  }
+}
+
 function dbVehicleTypeToMock(vt: Record<string, unknown>): VehicleType {
   const rawId = String(vt.id ?? "")
   return {
@@ -141,6 +156,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }).catch(() => {})
     api.getDrivers().then((res) => {
       setData((prev) => ({ ...prev, drivers: res.data.map((d) => dbDriverToMock(d as Record<string, unknown>)) }))
+    }).catch(() => {})
+    api.getLicenseGrades().then((res) => {
+      setData((prev) => ({ ...prev, licenseGrades: res.data.map((lg) => dbLicenseGradeToMock(lg as Record<string, unknown>)) }))
     }).catch(() => {})
     Promise.all([
       api.getOrders().catch(() => null),
@@ -184,6 +202,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null)
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null)
   const [editingVehicleType, setEditingVehicleType] = useState<VehicleType | null>(null)
+  const [editingLicenseGrade, setEditingLicenseGrade] = useState<LicenseGrade | null>(null)
 
   const addVehicle = useCallback((v: Omit<Vehicle, "id" | "status">) => {
     api.createVehicle({ ...v, brand: v.model.split(" ")[0] || v.model, isActive: true }).then((res) => {
@@ -285,6 +304,39 @@ export function AppProvider({ children }: { children: ReactNode }) {
     })
     showToast(`Vehicle type ${vt.name} updated`)
   }, [data.vehicleTypes, showToast])
+
+  const addLicenseGrade = useCallback((lg: Omit<LicenseGrade, "id">) => {
+    api.createLicenseGrade(lg).then((res) => {
+      const mapped = dbLicenseGradeToMock(res.data as Record<string, unknown>)
+      setData((prev) => ({ ...prev, licenseGrades: [...prev.licenseGrades, mapped] }))
+    }).catch(() => {
+      setData((prev) => ({ ...prev, licenseGrades: [...prev.licenseGrades, { ...lg, id: prev.licenseGrades.length + 1 }] }))
+    })
+    showToast(`License grade ${lg.name} added`)
+  }, [showToast])
+
+  const updateLicenseGrade = useCallback((id: number, updates: Partial<LicenseGrade>) => {
+    const lg = data.licenseGrades.find((x) => x.id === id)
+    if (!lg) return
+    api.updateLicenseGrade(lg.dbId ?? String(lg.id), updates).then((res) => {
+      const mapped = dbLicenseGradeToMock(res.data as Record<string, unknown>)
+      setData((prev) => ({ ...prev, licenseGrades: prev.licenseGrades.map((x) => x.id === id ? mapped : x) }))
+    }).catch(() => {
+      setData((prev) => ({ ...prev, licenseGrades: prev.licenseGrades.map((x) => x.id === id ? { ...x, ...updates } : x) }))
+    })
+    showToast(`License grade ${lg.name} updated`)
+  }, [data.licenseGrades, showToast])
+
+  const deleteLicenseGrade = useCallback((id: number) => {
+    const lg = data.licenseGrades.find((x) => x.id === id)
+    if (!lg) return
+    api.deleteLicenseGrade(lg.dbId ?? String(lg.id)).then(() => {
+      setData((prev) => ({ ...prev, licenseGrades: prev.licenseGrades.filter((x) => x.id !== id) }))
+    }).catch(() => {
+      setData((prev) => ({ ...prev, licenseGrades: prev.licenseGrades.filter((x) => x.id !== id) }))
+    })
+    showToast(`License grade ${lg.name} deleted`, "warning")
+  }, [data.licenseGrades, showToast])
 
   const deleteVehicleType = useCallback((id: number) => {
     const vt = data.vehicleTypes.find((x) => x.id === id)
@@ -472,6 +524,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       data, loading, apiAvailable, currentPage, setPage, sidebarOpen, toggleSidebar, toasts, showToast, removeToast,
       activeModal, openModal, closeModal,
       editingVehicle, editingDriver, editingVehicleType, setEditingVehicle, setEditingDriver, setEditingVehicleType,
+      editingLicenseGrade, setEditingLicenseGrade,
+      addLicenseGrade, updateLicenseGrade, deleteLicenseGrade,
       addVehicleType, updateVehicleType, deleteVehicleType,
       addVehicle, updateVehicle, toggleVehicleActive, deactivateVehicle,
       addDriver, updateDriver, deleteDriver, fetchVehicleHistory,

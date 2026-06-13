@@ -136,6 +136,12 @@ export const drivers = pgTable("drivers", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 })
 
+export const licenseGrades = pgTable("license_grades", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull().unique(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+})
+
 export const vehicleHistory = pgTable("vehicle_history", {
   id: uuid("id").defaultRandom().primaryKey(),
   vehicleId: uuid("vehicle_id")

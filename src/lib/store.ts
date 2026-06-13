@@ -1,3 +1,7 @@
+export interface LicenseGrade {
+  id: number; name: string; dbId?: string
+}
+
 export interface VehicleType {
   id: number; name: string; code: string; model: string; modelCode: string
 }
@@ -90,6 +94,7 @@ export interface Leg {
 }
 
 export interface AppData {
+  licenseGrades: LicenseGrade[]
   vehicleTypes: VehicleType[]
   vehicles: Vehicle[]
   drivers: Driver[]
@@ -109,6 +114,12 @@ export interface AppData {
 }
 
 export const defaultData: AppData = {
+  licenseGrades: [
+    { id: 1, name: 'أولى' },
+    { id: 2, name: 'ثانية' },
+    { id: 3, name: 'ثالثة' },
+    { id: 4, name: 'رابعة' },
+  ],
   vehicleTypes: [
     { id: 1, name: 'Bus', code: 'BUS', model: 'Hiace/Sprinter', modelCode: 'HS' },
     { id: 2, name: 'Van', code: 'VAN', model: 'L300/Transit', modelCode: 'LT' },

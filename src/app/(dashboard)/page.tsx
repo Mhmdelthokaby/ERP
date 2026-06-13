@@ -28,6 +28,8 @@ import {
   AddJournalModal,
   AddAccountModal,
   AddUserModal,
+  AddLicenseGradeModal,
+  EditLicenseGradeModal,
 } from "@/components/modals/ModalForms"
 
 function DashboardInner() {
@@ -90,6 +92,8 @@ function DashboardInner() {
       <AddJournalModal />
       <AddAccountModal />
       <AddUserModal />
+      <AddLicenseGradeModal />
+      <EditLicenseGradeModal />
       <ToastContainer />
     </div>
   )

@@ -10,12 +10,12 @@ import * as relations from "./relations"
 const allSchema = { ...schema, ...relations }
 const client = postgres(process.env.DATABASE_URL!)
 const db = drizzle(client, { schema: allSchema })
-const { users, accounts, sessions, verifications, vehicles, drivers, vehicleTypes, vehicleHistory, customers, routesTable, operationOrders, expenseCategories, expenses, chartOfAccounts, fiscalPeriods, journalEntries, journalEntryLines, accountsReceivable, accountsPayable, outboxMessages, auditLogs } = schema
+const { users, accounts, sessions, verifications, vehicles, drivers, vehicleTypes, vehicleHistory, licenseGrades, customers, routesTable, operationOrders, expenseCategories, expenses, chartOfAccounts, fiscalPeriods, journalEntries, journalEntryLines, accountsReceivable, accountsPayable, outboxMessages, auditLogs } = schema
 
 const uuid = () => crypto.randomUUID()
 const today = () => new Date().toISOString().slice(0, 10)
 const addMonths = (d: Date, n: number) => { const r = new Date(d); r.setMonth(r.getMonth() + n); return r.toISOString().slice(0, 10) }
-const tables = [auditLogs, outboxMessages, accountsPayable, accountsReceivable, journalEntryLines, journalEntries, expenses, expenseCategories, operationOrders, routesTable, customers, drivers, vehicles, sessions, accounts, verifications, users, chartOfAccounts, fiscalPeriods, vehicleHistory, vehicleTypes]
+const tables = [auditLogs, outboxMessages, accountsPayable, accountsReceivable, journalEntryLines, journalEntries, expenses, expenseCategories, operationOrders, routesTable, customers, drivers, vehicles, licenseGrades, sessions, accounts, verifications, users, chartOfAccounts, fiscalPeriods, vehicleHistory, vehicleTypes]
 
 async function seed() {
   console.log("Seeding database...")
@@ -59,6 +59,12 @@ async function seed() {
     const id = uuid()
     vtIds[vt.code] = id
     await db.insert(vehicleTypes).values({ id, ...vt })
+  }
+
+  // ── License Grades ──
+  const lgData = ["أولى", "ثانية", "ثالثة", "رابعة"]
+  for (const name of lgData) {
+    await db.insert(licenseGrades).values({ id: uuid(), name })
   }
 
   // ── Vehicles ──
