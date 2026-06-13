@@ -24,8 +24,23 @@ export function LegsPage() {
   const [filterSalaryMax, setFilterSalaryMax] = useState("")
   const [filterHireDateFrom, setFilterHireDateFrom] = useState("")
   const [filterHireDateTo, setFilterHireDateTo] = useState("")
+  // sort state
+  const [sortBy, setSortBy] = useState<"name" | "salary" | "">("")
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
+  // pagination state
+  const [pageSize, setPageSize] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
 
-  const filteredDrivers = data.drivers.filter((d) => {
+  const handleSort = (field: "name" | "salary") => {
+    if (sortBy === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"))
+    } else {
+      setSortBy(field); setSortDir("asc")
+    }
+    setCurrentPage(1)
+  }
+
+  const sorted = [...data.drivers].filter((d) => {
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       const match = d.fullName.toLowerCase().includes(q) || d.phone.includes(q) || String(d.code).includes(q) || (d.insuranceNumber || "").toLowerCase().includes(q)
@@ -39,7 +54,16 @@ export function LegsPage() {
     if (filterHireDateFrom && d.hireDate && d.hireDate < filterHireDateFrom) return false
     if (filterHireDateTo && d.hireDate && d.hireDate > filterHireDateTo) return false
     return true
+  }).sort((a, b) => {
+    if (!sortBy) return 0
+    const dir = sortDir === "asc" ? 1 : -1
+    if (sortBy === "name") return a.fullName.localeCompare(b.fullName) * dir
+    return ((Number(a.salary || 0) - Number(b.salary || 0)) * dir)
   })
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize))
+  const safePage = Math.min(currentPage, totalPages)
+  const paginatedDrivers = sorted.slice((safePage - 1) * pageSize, safePage * pageSize)
 
   const goToVehicle = (vehicleId: number) => {
     setPendingVehicleView(vehicleId)
@@ -131,17 +155,22 @@ export function LegsPage() {
               <thead>
                 <tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
                   <th className="text-right p-4 font-medium">{l.code}</th>
-                  <th className="text-right p-4 font-medium">{l.fullName}</th>
+                  <th className="text-right p-4 font-medium cursor-pointer select-none hover:text-fg" onClick={() => handleSort("name")}>
+                    {l.fullName} {sortBy === "name" ? (sortDir === "asc" ? "▲" : "▼") : ""}
+                  </th>
                   <th className="text-right p-4 font-medium">{l.phone}</th>
                   <th className="text-right p-4 font-medium">{l.licenseGrade}</th>
                   <th className="text-right p-4 font-medium">{l.status}</th>
+                  <th className="text-right p-4 font-medium cursor-pointer select-none hover:text-fg" onClick={() => handleSort("salary")}>
+                    {ar.fleetModals.salary} {sortBy === "salary" ? (sortDir === "asc" ? "▲" : "▼") : ""}
+                  </th>
                   <th className="text-right p-4 font-medium">{l.actions}</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredDrivers.length === 0 ? (
-                  <tr><td colSpan={6} className="p-8 text-center text-muted text-sm">لا يوجد سائقون مطابقون</td></tr>
-                ) : filteredDrivers.map((d) => (
+                {paginatedDrivers.length === 0 ? (
+                  <tr><td colSpan={7} className="p-8 text-center text-muted text-sm">لا يوجد سائقون مطابقون</td></tr>
+                ) : paginatedDrivers.map((d) => (
                   <tr
                     key={d.id}
                     className={`data-row border-b border-border/50 cursor-pointer ${selectedId === d.id ? "bg-accent/5" : ""}`}
@@ -159,6 +188,7 @@ export function LegsPage() {
                         <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${d.isActive ? "translate-x-6" : "translate-x-1"}`} />
                       </button>
                     </td>
+                    <td className="p-4 font-mono text-xs text-muted">{d.salary || "—"}</td>
                     <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
                       <button className="text-muted hover:text-accent transition-colors mr-2" title={l.view} onClick={() => selectDriver(d.id)}>
                         <i className="fa-solid fa-eye text-xs"></i>
@@ -171,6 +201,24 @@ export function LegsPage() {
                 ))}
               </tbody>
             </table>
+            <div className="flex items-center justify-between p-3 border-t border-border text-xs text-muted">
+              <div className="flex items-center gap-2">
+                <span>عرض</span>
+                <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1) }} className="!py-1 !text-xs">
+                  <option value={10}>10</option>
+                  <option value={15}>15</option>
+                  <option value={20}>20</option>
+                </select>
+                <span>من {sorted.length}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <button className="px-2 py-1 rounded hover:bg-surface disabled:opacity-30" disabled={safePage <= 1} onClick={() => setCurrentPage(safePage - 1)}>‹</button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <button key={p} className={`px-2 py-1 rounded ${p === safePage ? "bg-accent text-white" : "hover:bg-surface"}`} onClick={() => setCurrentPage(p)}>{p}</button>
+                ))}
+                <button className="px-2 py-1 rounded hover:bg-surface disabled:opacity-30" disabled={safePage >= totalPages} onClick={() => setCurrentPage(safePage + 1)}>›</button>
+              </div>
+            </div>
           </div>
 
           {selected && (
