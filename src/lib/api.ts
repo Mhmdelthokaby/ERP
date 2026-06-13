@@ -7,7 +7,10 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
   })
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
-    throw new Error(body.error || `Request failed: ${res.statusText}`)
+    const err = new Error(body.error || `Request failed: ${res.statusText}`) as Error & { status: number; fields?: string[] }
+    err.status = res.status
+    err.fields = body.fields
+    throw err
   }
   return res.json()
 }
@@ -44,6 +47,8 @@ export const api = {
     request<{ data: JsonValue }>(`/api/fleet/license-grades/${id}`, { method: "DELETE" }),
 
   getDrivers: () => request<{ data: JsonValue[] }>("/api/fleet/drivers"),
+  searchDrivers: (params: Record<string, string>) =>
+    request<{ data: JsonValue[]; total: number }>(`/api/fleet/drivers?${new URLSearchParams(params).toString()}`),
   createDriver: (body: Record<string, unknown>) =>
     request<{ data: JsonValue }>("/api/fleet/drivers", { method: "POST", body: JSON.stringify(body) }),
   updateDriver: (id: string, body: Record<string, unknown>) =>
