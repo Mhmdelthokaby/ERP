@@ -11,6 +11,11 @@ export function FleetPage() {
   const [fleetTab, setFleetTab] = useState<"vehicles" | "types">("vehicles")
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null)
   const [historyLoading, setHistoryLoading] = useState(false)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [filterModel, setFilterModel] = useState("")
+  const [filterYear, setFilterYear] = useState("")
+  const [filterExpiry, setFilterExpiry] = useState("")
+  const [filterStatus, setFilterStatus] = useState("")
 
   useEffect(() => {
     setCurrentSubtitle(`/ ${fleetTab === "vehicles" ? f.vehicles : f.types}`)
@@ -32,6 +37,22 @@ export function FleetPage() {
   const history = selectedVehicleId != null ? data.vehicleHistory[selectedVehicleId] || [] : []
   const [pendingToggleId, setPendingToggleId] = useState<number | null>(null)
   const pendingVehicle = pendingToggleId != null ? data.vehicles.find((v) => v.id === pendingToggleId) : null
+
+  const filteredVehicles = data.vehicles.filter((v) => {
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase()
+      const match = String(v.code).includes(q) || v.plateNumber.toLowerCase().includes(q) || (v.chassisNumber || "").toLowerCase().includes(q) || (v.engineNumber || "").toLowerCase().includes(q)
+      if (!match) return false
+    }
+    if (filterModel && v.model !== filterModel) return false
+    if (filterYear && String(v.year) !== filterYear) return false
+    if (filterExpiry && (!v.licenseExpiryDate || v.licenseExpiryDate > filterExpiry)) return false
+    if (filterStatus) {
+      if (filterStatus === "active" && v.status !== "Active") return false
+      if (filterStatus === "inactive" && v.status !== "Inactive") return false
+    }
+    return true
+  })
 
   const handleToggle = () => {
     if (pendingToggleId == null) return
@@ -81,6 +102,25 @@ export function FleetPage() {
       </div>
 
       {fleetTab === "vehicles" && (
+        <>
+        <div className="bg-card border border-border rounded-xl p-4 mb-4 space-y-3">
+          <input type="text" placeholder={f.search} value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <select value={filterModel} onChange={(e) => setFilterModel(e.target.value)}>
+              <option value="">{f.model}: {f.allModels}</option>
+              {data.vehicleTypes.map((vt) => (
+                <option key={vt.id} value={`${vt.code} - ${vt.model}`}>{vt.name} ({vt.model})</option>
+              ))}
+            </select>
+            <div><label className="text-xs text-muted mb-1 block">موديل السنة</label><input type="number" placeholder="السنة..." value={filterYear} onChange={(e) => setFilterYear(e.target.value)} /></div>
+            <div><label className="text-xs text-muted mb-1 block">{f.licenseExpiry}</label><input type="date" value={filterExpiry} onChange={(e) => setFilterExpiry(e.target.value)} /></div>
+            <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+              <option value="">{f.status}: {f.allStatuses}</option>
+              <option value="active">{f.active}</option>
+              <option value="inactive">{f.inactive}</option>
+            </select>
+          </div>
+        </div>
         <div className="grid grid-cols-1 gap-4" style={selectedVehicleId != null ? { gridTemplateColumns: "1fr 1fr" } : {}}>
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <table className="w-full text-sm">
@@ -88,13 +128,13 @@ export function FleetPage() {
                 <th className="text-left p-4 font-medium">{f.code}</th><th className="text-left p-4 font-medium">{f.plate}</th><th className="text-left p-4 font-medium">{f.model}</th><th className="text-left p-4 font-medium">{f.year}</th><th className="text-left p-4 font-medium">{f.capacity}</th><th className="text-left p-4 font-medium">{f.driver}</th><th className="text-left p-4 font-medium">{f.status}</th><th className="text-right p-4 font-medium">{f.actions}</th>
               </tr></thead>
               <tbody>
-                {data.vehicles.map((v) => (
+                {filteredVehicles.map((v) => (
                   <tr key={v.id} className={`data-row border-b border-border/50 cursor-pointer ${selectedVehicleId === v.id ? "bg-accent/5" : ""}`} onClick={() => handleVehicleClick(v.id)}>
                     <td className="p-4 font-mono text-xs text-muted">{v.code}</td>
                     <td className="p-4 font-mono font-semibold text-accent">{v.plateNumber}</td>
                     <td className="p-4 text-fg">{v.model}</td>
                     <td className="p-4 text-muted">{v.year}</td>
-                    <td className="p-4 text-muted">{v.capacity} {f.capacityUnit}</td>
+                    <td className="p-4 text-muted">{v.capacity}</td>
                     <td className="p-4 text-muted text-xs">{v.driverName || "—"}</td>
                     <td className="p-4">
                       <button
@@ -185,9 +225,10 @@ export function FleetPage() {
                   </div>
                 )}
               </div>
-            </div>
+          </div>
           )}
         </div>
+        </>
       )}
 
       {fleetTab === "types" && (
