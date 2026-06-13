@@ -9,7 +9,7 @@ export interface Vehicle {
 }
 
 export interface Driver {
-  id: number; code: string; fullName: string; phone: string; nationalId: string
+  id: number; code: number; fullName: string; phone: string; nationalId: string
   licenseGrade: string; isActive: boolean; dbId?: string
   insuranceNumber?: string; salary?: string; hireDate?: string
 }
@@ -124,10 +124,10 @@ export const defaultData: AppData = {
   ],
   vehicleHistory: {},
   drivers: [
-    { id: 1, code: 'DRV-001', fullName: 'Ahmed Hassan', phone: '01012345678', nationalId: '29801012345678', licenseGrade: 'A', isActive: true },
-    { id: 2, code: 'DRV-002', fullName: 'Mohamed Khalil', phone: '01098765432', nationalId: '29001012345679', licenseGrade: 'B', isActive: true },
-    { id: 3, code: 'DRV-003', fullName: 'Sayed Ali', phone: '01155544433', nationalId: '29201012345680', licenseGrade: 'A', isActive: true },
-    { id: 4, code: 'DRV-004', fullName: 'Walid Ramzi', phone: '01233322211', nationalId: '28801012345681', licenseGrade: 'C', isActive: false },
+    { id: 1, code: 1, fullName: 'Ahmed Hassan', phone: '01012345678', nationalId: '29801012345678', licenseGrade: 'A', isActive: true },
+    { id: 2, code: 2, fullName: 'Mohamed Khalil', phone: '01098765432', nationalId: '29001012345679', licenseGrade: 'B', isActive: true },
+    { id: 3, code: 3, fullName: 'Sayed Ali', phone: '01155544433', nationalId: '29201012345680', licenseGrade: 'A', isActive: true },
+    { id: 4, code: 4, fullName: 'Walid Ramzi', phone: '01233322211', nationalId: '28801012345681', licenseGrade: 'C', isActive: false },
   ],
   trips: [
     { id: 42, from: 'Cairo', to: 'Alexandria', customer: 'ABC Transport Corp', vehicle: 'ABC-1234', driver: 'Ahmed Hassan', date: '2024-03-15', price: 50000, priceBase: 50000, status: 'Completed' },

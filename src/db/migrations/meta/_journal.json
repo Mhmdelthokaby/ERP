@@ -15,6 +15,13 @@
       "when": 1781284306098,
       "tag": "0001_sweet_vargas",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781336359600,
+      "tag": "0002_even_shatterstar",
+      "breakpoints": true
     }
   ]
 }

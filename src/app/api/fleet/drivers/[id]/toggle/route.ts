@@ -6,7 +6,8 @@ import { eq, or } from "drizzle-orm"
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
   try {
     const { searchParams } = new URL(request.url)
-    const code = searchParams.get("code")
+    const codeParam = searchParams.get("code")
+    const code = codeParam ? Number(codeParam) : undefined
     const whereClause = code ? or(eq(drivers.id, params.id), eq(drivers.code, code)) : eq(drivers.id, params.id)
     const [current] = await db.select({ isActive: drivers.isActive, id: drivers.id }).from(drivers).where(whereClause).limit(1)
     if (!current) return NextResponse.json({ error: "Driver not found" }, { status: 404 })

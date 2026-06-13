@@ -78,9 +78,9 @@ async function seed() {
 
   // ── Drivers ──
   const driverData = [
-    { code: "DRV-001", fullName: "Ahmed Hassan", nationalId: "29801012345678", insuranceNumber: "INS-001", phone: "+201001234567", licenseGrade: "A", salary: "5000", hireDate: "2023-01-15" },
-    { code: "DRV-002", fullName: "Mohamed Ali", nationalId: "29001012345679", insuranceNumber: "INS-002", phone: "+201001234568", licenseGrade: "B", salary: "4500", hireDate: "2023-03-20" },
-    { code: "DRV-003", fullName: "Khaled Omar", nationalId: "29201012345680", insuranceNumber: "INS-003", phone: "+201001234569", licenseGrade: "A", salary: "5200", hireDate: "2022-11-01" },
+    { fullName: "Ahmed Hassan", nationalId: "29801012345678", insuranceNumber: "INS-001", phone: "+201001234567", licenseGrade: "A", salary: "5000", hireDate: "2023-01-15" },
+    { fullName: "Mohamed Ali", nationalId: "29001012345679", insuranceNumber: "INS-002", phone: "+201001234568", licenseGrade: "B", salary: "4500", hireDate: "2023-03-20" },
+    { fullName: "Khaled Omar", nationalId: "29201012345680", insuranceNumber: "INS-003", phone: "+201001234569", licenseGrade: "A", salary: "5200", hireDate: "2022-11-01" },
   ]
   const driverIds: string[] = []
   for (const d of driverData) {
