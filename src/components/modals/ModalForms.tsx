@@ -6,6 +6,7 @@ import { Modal } from "@/components/shared"
 import { ar } from "@/lib/ar"
 const m = ar.fleetModals
 const mod = ar.modals
+const l = ar.legs
 
 export function AddVehicleModal() {
   const { addVehicle, closeModal, data } = useApp()
@@ -69,11 +70,11 @@ export function AddVehicleModal() {
 }
 
 export function AddDriverModal() {
-  const { addDriver, closeModal } = useApp()
+  const { addDriver, closeModal, data } = useApp()
   const [fullName, setFullName] = useState("")
   const [phone, setPhone] = useState("")
   const [nationalId, setNationalId] = useState("")
-  const [licenseGrade, setLicenseGrade] = useState("A")
+  const [licenseGrade, setLicenseGrade] = useState("")
   const [insuranceNumber, setInsuranceNumber] = useState("")
   const [salary, setSalary] = useState("")
   const [hireDate, setHireDate] = useState("")
@@ -101,7 +102,10 @@ export function AddDriverModal() {
         </div>
         <div><label className="text-xs text-muted mb-1 block">{m.licenseGrade}</label>
           <select value={licenseGrade} onChange={(e) => setLicenseGrade(e.target.value)}>
-            <option>A</option><option>B</option><option>C</option>
+            <option value="">— اختر —</option>
+            {data.licenseGrades.map((g) => (
+              <option key={g.id} value={g.name}>{g.name}</option>
+            ))}
           </select>
         </div>
         <div><label className="text-xs text-muted mb-1 block">{m.hireDate}</label><input type="date" value={hireDate} onChange={(e) => setHireDate(e.target.value)} /></div>
@@ -177,11 +181,11 @@ export function EditVehicleModal() {
 }
 
 export function EditDriverModal() {
-  const { editingDriver, updateDriver, closeModal, setEditingDriver } = useApp()
+  const { editingDriver, updateDriver, closeModal, setEditingDriver, data } = useApp()
   const [fullName, setFullName] = useState("")
   const [phone, setPhone] = useState("")
   const [nationalId, setNationalId] = useState("")
-  const [licenseGrade, setLicenseGrade] = useState("A")
+  const [licenseGrade, setLicenseGrade] = useState("")
   const [insuranceNumber, setInsuranceNumber] = useState("")
   const [salary, setSalary] = useState("")
   const [hireDate, setHireDate] = useState("")
@@ -221,7 +225,10 @@ export function EditDriverModal() {
         </div>
         <div><label className="text-xs text-muted mb-1 block">{m.licenseGrade}</label>
           <select value={licenseGrade} onChange={(e) => setLicenseGrade(e.target.value)}>
-            <option>A</option><option>B</option><option>C</option>
+            <option value="">— اختر —</option>
+            {data.licenseGrades.map((g) => (
+              <option key={g.id} value={g.name}>{g.name}</option>
+            ))}
           </select>
         </div>
         <div><label className="text-xs text-muted mb-1 block">{m.hireDate}</label><input type="date" value={hireDate} onChange={(e) => setHireDate(e.target.value)} /></div>
@@ -529,6 +536,55 @@ export function AddVehicleTypeModal() {
         <div className="flex gap-3 pt-2">
           <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.add}</button>
           <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{m.cancel}</button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+export function AddLicenseGradeModal() {
+  const { addLicenseGrade, closeModal } = useApp()
+  const [name, setName] = useState("")
+
+  const handleSubmit = () => {
+    if (!name) return
+    addLicenseGrade({ name })
+    setName("")
+    closeModal()
+  }
+
+  return (
+    <Modal title={l.addLicenseGrade} id="addLicenseGradeModal">
+      <div className="space-y-4">
+        <div><label className="text-xs text-muted mb-1 block">{l.licenseGradeName}</label><input type="text" placeholder="أولى" value={name} onChange={(e) => setName(e.target.value)} /></div>
+        <div className="flex gap-3 pt-2">
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.add}</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{m.cancel}</button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+export function EditLicenseGradeModal() {
+  const { editingLicenseGrade, updateLicenseGrade, closeModal, setEditingLicenseGrade } = useApp()
+  const [name, setName] = useState(editingLicenseGrade?.name ?? "")
+
+  if (!editingLicenseGrade) return null
+
+  const handleSubmit = () => {
+    if (!name) return
+    updateLicenseGrade(editingLicenseGrade.id, { name })
+    setEditingLicenseGrade(null); closeModal()
+  }
+
+  return (
+    <Modal title={l.editLicenseGrade} id="editLicenseGradeModal">
+      <div className="space-y-4">
+        <div><label className="text-xs text-muted mb-1 block">{l.licenseGradeName}</label><input type="text" value={name} onChange={(e) => setName(e.target.value)} /></div>
+        <div className="flex gap-3 pt-2">
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.save}</button>
+          <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={() => { setEditingLicenseGrade(null); closeModal() }}>{m.cancel}</button>
         </div>
       </div>
     </Modal>

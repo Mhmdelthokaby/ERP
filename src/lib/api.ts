@@ -35,6 +35,14 @@ export const api = {
   deleteVehicleType: (id: string) =>
     request<{ data: JsonValue }>(`/api/fleet/vehicle-types/${id}`, { method: "DELETE" }),
 
+  getLicenseGrades: () => request<{ data: JsonValue[] }>("/api/fleet/license-grades"),
+  createLicenseGrade: (body: Record<string, unknown>) =>
+    request<{ data: JsonValue }>("/api/fleet/license-grades", { method: "POST", body: JSON.stringify(body) }),
+  updateLicenseGrade: (id: string, body: Record<string, unknown>) =>
+    request<{ data: JsonValue }>(`/api/fleet/license-grades/${id}`, { method: "PUT", body: JSON.stringify(body) }),
+  deleteLicenseGrade: (id: string) =>
+    request<{ data: JsonValue }>(`/api/fleet/license-grades/${id}`, { method: "DELETE" }),
+
   getDrivers: () => request<{ data: JsonValue[] }>("/api/fleet/drivers"),
   createDriver: (body: Record<string, unknown>) =>
     request<{ data: JsonValue }>("/api/fleet/drivers", { method: "POST", body: JSON.stringify(body) }),

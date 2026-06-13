@@ -40,7 +40,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Shared | `src/components/shared/ToastContainer.tsx` | Toast notifications with auto-dismiss |
 | Shared | `src/components/shared/Modal.tsx` | Reusable modal overlay + content |
 | Dashboard | `src/components/dashboard/DashboardHome.tsx` | 4 KPIs, revenue vs expenses chart, fleet status bars, recent trips/invoices |
-| Legs | `src/components/dashboard/LegsPage.tsx` | Drivers/operators table (6 cols), full detail pane (10 fields + linked vehicle link), active toggle with confirmation modal, add/edit via modal, auto-close sidebar on detail open / close detail on sidebar open |
+| Legs | `src/components/dashboard/LegsPage.tsx` | Drivers + License Grades tabs; drivers table (6 cols), full detail pane (10 fields + linked vehicle link), active toggle with confirmation modal, add/edit via modal, auto-close sidebar; license grades CRUD table with add/edit/delete |
 | Fleet | `src/components/dashboard/FleetPage.tsx` | Vehicles + types tabs, detail pane, history table, active toggle (drivers moved to LegsPage) |
 | Trips | `src/components/dashboard/TripsPage.tsx` | Status/date filters, workflow widget, start/cancel/complete actions |
 | Expenses | `src/components/dashboard/ExpensesPage.tsx` | Canvas pie chart, trend bar chart, 3-tab tables |
@@ -48,7 +48,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | AR/AP | `src/components/dashboard/ArApPage.tsx` | 4-tab layout (AR invoices, payments, AP invoices, payments) |
 | Reports | `src/components/dashboard/ReportsPage.tsx` | Trial balance, income statement, balance sheet grid |
 | Settings | `src/components/dashboard/SettingsPage.tsx` | Users CRUD, outbox messages, audit log |
-| Modals | `src/components/modals/ModalForms.tsx` | AddVehicle (+ driver + type selects), EditVehicle, AddDriver, EditDriver, AddVehicleType, EditVehicleType, AddTrip, AddExpense, AddJournal, AddAccount, AddUser form modals |
+| Modals | `src/components/modals/ModalForms.tsx` | AddVehicle (+ driver + type selects), EditVehicle, AddDriver (license grade from DB dropdown), EditDriver, AddLicenseGrade, EditLicenseGrade, AddVehicleType, EditVehicleType, AddTrip, AddExpense, AddJournal, AddAccount, AddUser form modals |
 | Entry | `src/app/(dashboard)/page.tsx` | Wraps AppProvider → Sidebar + Header + current page (with cross-page vehicle navigation via pendingVehicleView) + modals + toasts |
 
 ---
@@ -67,7 +67,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | SPA Dashboard | ✅ | `page.tsx + all components` | Fully functional with mock data |
 | Dashboard KPIs + charts | ✅ | `DashboardHome.tsx` | 4 KPIs, bar chart, canvas pie chart |
 | Fleet CRUD | ✅ | `FleetPage.tsx + ModalForms.tsx + DashboardHome` | Vehicles CRUD (+ type select from DB); Drivers CRUD; Vehicle Types CRUD (name/code/model/modelCode); detail pane + history; edit modals |
-| Legs CRUD | ✅ | `LegsPage.tsx + app-context.tsx + drivers toggle API` | Drivers/operators table from DB, full detail pane (all DB fields + linked vehicle link to FleetPage), add/edit modals with all fields (incl. insuranceNumber, salary, hireDate), active toggle with confirmation modal, auto-close sidebar |
+| Legs CRUD | ✅ | `LegsPage.tsx + app-context.tsx + drivers toggle API` | Drivers/operators + license grades tabs; drivers table from DB, full detail pane, add/edit modals with all fields (license grade from DB dropdown), active toggle; license grades CRUD table with add/edit/delete modals |
 | Operations workflow | ✅ | `TripsPage.tsx + AddTripModal` | Status transitions, outbox + journal simulation |
 | Expenses | ✅ | `ExpensesPage.tsx + AddExpenseModal` | Pie chart, trend, CRUD |
 | Accounting – CoA | ✅ | `AccountingPage.tsx + AddAccountModal` | Recursive tree, add account |
@@ -80,14 +80,14 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Settings – Outbox | ✅ | `SettingsPage.tsx` | Outbox messages table |
 | Settings – Audit Log | ✅ | `SettingsPage.tsx` | Audit log table |
 | Toast notifications | ✅ | `ToastContainer.tsx + context` | 4 types with auto-dismiss |
-| Modals | ✅ | `ModalForms.tsx + Modal.tsx` | 8 form modals — add/edit Driver (all fields), add/edit Vehicle (with type/driver selects), add VehicleType, edit VehicleType, add Trip, add Expense, add Journal, add Account, add User |
+| Modals | ✅ | `ModalForms.tsx + Modal.tsx` | 10 form modals — add/edit Driver (all fields, license grade from DB), add/edit Vehicle (with type/driver selects), add VehicleType, edit VehicleType, add LicenseGrade, edit LicenseGrade, add Trip, add Expense, add Journal, add Account, add User |
 | DB – PostgreSQL | ✅ | localhost:5432 | PostgreSQL 17 running, `erp_db` created |
-| DB – Drizzle schema | ✅ | `src/db/schema/index.ts` | 21 tables: added vehicle_types, vehicle_history; overhauled vehicles/drivers |
+| DB – Drizzle schema | ✅ | `src/db/schema/index.ts` | 22 tables: added license_grades, vehicle_types, vehicle_history; overhauled vehicles/drivers |
 | DB – Drizzle relations | ✅ | `src/db/relations.ts` | All relations: auth, vehicle→type, vehicle→history, driver→orders |
 | DB – Connection | ✅ | `src/db/index.ts` | Drizzle + postgres driver wired |
-| DB – Migrations | ✅ | `src/db/migrations/` | Generated + applied (0000_mysterious_kingpin, 0001_sweet_vargas) |
+| DB – Migrations | ✅ | `src/db/migrations/` | Generated + applied (0000_mysterious_kingpin, 0001_sweet_vargas, 0003_cool_firestar) |
 | DB – Seed script | ✅ | `src/db/seed.ts` | Vehicle types, vehicles (new fields), drivers (fullName/nationalId/grade/salary/hireDate), customers, routes, orders, expenses, CoA, periods |
-| API routes (CRUD + fleet) | ✅ | `src/app/api/*` | 27 typed endpoints — vehicles with JOINs (type + driver), toggle, history; vehicle-types CRUD; drivers toggle |
+| API routes (CRUD + fleet) | ✅ | `src/app/api/*` | 31 typed endpoints — vehicles with JOINs (type + driver), toggle, history; vehicle-types CRUD; license-grades CRUD; drivers toggle |
 | API client | ✅ | `src/lib/api.ts` | Typed fetch client, all endpoints |
 | Context → API wiring | ✅ | `src/lib/app-context.tsx` | Fetches API on mount, falls back to mock |
 | Services (Outbox) | ⚠️ | `src/services/*` | Exists but not wired to real outbox table |
@@ -122,7 +122,8 @@ Items not yet implemented or not wired:
 3. ✅ Vehicle Types CRUD: backend API (GET/POST/PUT/DELETE), frontend Types tab, add/edit modals, vehicle forms load types from DB
 4. ✅ Arabic UI: all dashboard pages, modals, layout, shared components translated; `ar.ts` with comprehensive translations; `ar-EG` locale
 5. ✅ Driver code auto-generation: DB `code` changed from `text` to `serial` — numeric, auto-incremented, removed from user forms
-6. Add role-based UI filtering using `session.user.role`
+6. ✅ License Grades CRUD: DB `license_grades` table, API (GET/POST/PUT/DELETE), frontend tab in LegsPage, add/edit modals, driver forms load grades from DB
+7. Add role-based UI filtering using `session.user.role`
 7. Wire outbox worker to start on server init
 8. Install Font Awesome as npm dependency (remove CDN)
 9. Seed more realistic data (journal entries, AR/AP, outbox messages)

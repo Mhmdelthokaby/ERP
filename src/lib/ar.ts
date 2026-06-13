@@ -18,6 +18,11 @@ export const ar = {
   },
   legs: {
     title: 'الساقين',
+    driversTab: 'السائقين',
+    licenseGradesTab: 'درجات الرخصة',
+    addLicenseGrade: 'إضافة درجة',
+    editLicenseGrade: 'تعديل درجة',
+    licenseGradeName: 'الاسم',
     code: 'الكود',
     fullName: 'الاسم الكامل',
     phone: 'الهاتف',
