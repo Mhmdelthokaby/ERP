@@ -1,9 +1,11 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useApp } from "@/lib/app-context"
+import { api } from "@/lib/api"
 import { Modal, StatusBadge } from "@/components/shared"
 import { ar } from "@/lib/ar"
+import type { Driver } from "@/lib/store"
 const l = ar.legs
 
 export function LegsPage() {
@@ -15,6 +17,75 @@ export function LegsPage() {
   }, [legsTab, setCurrentSubtitle])
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [pendingToggleId, setPendingToggleId] = useState<number | null>(null)
+
+  // server-side filter/sort/pagination state
+  const [searchQuery, setSearchQuery] = useState("")
+  const [filterGrade, setFilterGrade] = useState("")
+  const [filterActive, setFilterActive] = useState("")
+  const [filterSalaryMin, setFilterSalaryMin] = useState("")
+  const [filterSalaryMax, setFilterSalaryMax] = useState("")
+  const [filterHireDateFrom, setFilterHireDateFrom] = useState("")
+  const [filterHireDateTo, setFilterHireDateTo] = useState("")
+  const [sortBy, setSortBy] = useState<"name" | "salary" | "">("")
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc")
+  const [pageSize, setPageSize] = useState(10)
+  const [currentPage, setCurrentPage] = useState(1)
+
+  const [tableDrivers, setTableDrivers] = useState<Driver[]>([])
+  const [totalCount, setTotalCount] = useState(0)
+  const [loading, setLoading] = useState(false)
+
+  const buildParams = useCallback(() => {
+    const params: Record<string, string> = {}
+    if (searchQuery) params.search = searchQuery
+    if (filterGrade) params.licenseGrade = filterGrade
+    if (filterActive) params.isActive = filterActive === "active" ? "true" : "false"
+    if (filterSalaryMin) params.salaryMin = filterSalaryMin
+    if (filterSalaryMax) params.salaryMax = filterSalaryMax
+    if (filterHireDateFrom) params.hireDateFrom = filterHireDateFrom
+    if (filterHireDateTo) params.hireDateTo = filterHireDateTo
+    if (sortBy) params.sortBy = sortBy
+    if (sortDir) params.sortDir = sortDir
+    params.page = String(currentPage)
+    params.pageSize = String(pageSize)
+    return params
+  }, [searchQuery, filterGrade, filterActive, filterSalaryMin, filterSalaryMax, filterHireDateFrom, filterHireDateTo, sortBy, sortDir, currentPage, pageSize])
+
+  useEffect(() => {
+    setLoading(true)
+    api.searchDrivers(buildParams()).then((res) => {
+      setTableDrivers(res.data.map((d) => {
+        const r = d as Record<string, unknown>
+        return {
+          id: parseInt(String(r.id).slice(0, 8), 16) || Math.random(),
+          code: Number(r.code) || 0,
+          fullName: String(r.fullName || ""),
+          phone: String(r.phone || ""),
+          nationalId: String(r.nationalId || ""),
+          licenseGrade: String(r.licenseGrade || ""),
+          insuranceNumber: r.insuranceNumber ? String(r.insuranceNumber) : undefined,
+          salary: r.salary ? String(r.salary) : undefined,
+          hireDate: r.hireDate ? String(r.hireDate) : undefined,
+          isActive: String(r.isActive) === "true",
+        } as Driver
+      }))
+      setTotalCount(res.total)
+    }).catch(() => {
+      setTableDrivers([]); setTotalCount(0)
+    }).finally(() => setLoading(false))
+  }, [buildParams])
+
+  const handleSort = (field: "name" | "salary") => {
+    if (sortBy === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"))
+    } else {
+      setSortBy(field); setSortDir("asc")
+    }
+    setCurrentPage(1)
+  }
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
+  const safePage = Math.min(currentPage, totalPages)
 
   const goToVehicle = (vehicleId: number) => {
     setPendingVehicleView(vehicleId)
@@ -30,7 +101,7 @@ export function LegsPage() {
     if (sidebarOpen && id != null) toggleSidebar()
   }
 
-  const selected = selectedId != null ? data.drivers.find((d) => d.id === selectedId) : null
+  const selected = selectedId != null ? tableDrivers.find((d) => d.id === selectedId) : null
   const linkedVehicle = selected ? data.vehicles.find((v) => v.driverId === selected.id) : null
   const pending = pendingToggleId != null ? data.drivers.find((d) => d.id === pendingToggleId) : null
 
@@ -73,21 +144,57 @@ export function LegsPage() {
       </div>
 
       {legsTab === "drivers" && (
-        <div className="grid grid-cols-1 gap-4" style={selectedId != null ? { gridTemplateColumns: "1fr 500px" } : {}}>
+        <>
+        <div className="bg-card border border-border rounded-xl p-4 mb-4 space-y-3">
+          <input type="text" placeholder="بحث بالاسم، الهاتف، الكود، أو رقم التأمين" value={searchQuery} onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1) }} className="w-full" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <select value={filterGrade} onChange={(e) => { setFilterGrade(e.target.value); setCurrentPage(1) }}>
+              <option value="">{l.licenseGrade}: {ar.trips.allStatuses}</option>
+              {data.licenseGrades.map((g) => (
+                <option key={g.id} value={g.name}>{g.name}</option>
+              ))}
+            </select>
+            <select value={filterActive} onChange={(e) => { setFilterActive(e.target.value); setCurrentPage(1) }}>
+              <option value="">{l.status}: {ar.trips.allStatuses}</option>
+              <option value="active">{l.active}</option>
+              <option value="inactive">{l.inactive}</option>
+            </select>
+            <div className="flex gap-1 items-center">
+              <input type="number" placeholder={`${ar.fleetModals.salary} ${ar.modals.from}`} value={filterSalaryMin} onChange={(e) => { setFilterSalaryMin(e.target.value); setCurrentPage(1) }} className="w-full" />
+              <span className="text-muted text-xs">-</span>
+              <input type="number" placeholder={`${ar.modals.to}`} value={filterSalaryMax} onChange={(e) => { setFilterSalaryMax(e.target.value); setCurrentPage(1) }} className="w-full" />
+            </div>
+            <div className="flex gap-1 items-center">
+              <input type="date" placeholder={`${ar.fleetModals.hireDate} ${ar.modals.from}`} value={filterHireDateFrom} onChange={(e) => { setFilterHireDateFrom(e.target.value); setCurrentPage(1) }} className="w-full" />
+              <span className="text-muted text-xs">-</span>
+              <input type="date" placeholder={`${ar.modals.to}`} value={filterHireDateTo} onChange={(e) => { setFilterHireDateTo(e.target.value); setCurrentPage(1) }} className="w-full" />
+            </div>
+          </div>
+        </div>
+        <div className={`grid gap-4 ${selectedId != null ? "grid-cols-1 md:grid-cols-[1fr_500px]" : "grid-cols-1"}`}>
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
                   <th className="text-right p-4 font-medium">{l.code}</th>
-                  <th className="text-right p-4 font-medium">{l.fullName}</th>
+                  <th className="text-right p-4 font-medium cursor-pointer select-none hover:text-fg" onClick={() => handleSort("name")}>
+                    {l.fullName} {sortBy === "name" ? (sortDir === "asc" ? "▲" : "▼") : ""}
+                  </th>
                   <th className="text-right p-4 font-medium">{l.phone}</th>
                   <th className="text-right p-4 font-medium">{l.licenseGrade}</th>
                   <th className="text-right p-4 font-medium">{l.status}</th>
+                  <th className="text-right p-4 font-medium cursor-pointer select-none hover:text-fg" onClick={() => handleSort("salary")}>
+                    {ar.fleetModals.salary} {sortBy === "salary" ? (sortDir === "asc" ? "▲" : "▼") : ""}
+                  </th>
                   <th className="text-right p-4 font-medium">{l.actions}</th>
                 </tr>
               </thead>
               <tbody>
-                {data.drivers.map((d) => (
+                {loading ? (
+                  <tr><td colSpan={7} className="p-8 text-center text-muted text-sm">جار التحميل...</td></tr>
+                ) : tableDrivers.length === 0 ? (
+                  <tr><td colSpan={7} className="p-8 text-center text-muted text-sm">لا يوجد سائقون مطابقون</td></tr>
+                ) : tableDrivers.map((d) => (
                   <tr
                     key={d.id}
                     className={`data-row border-b border-border/50 cursor-pointer ${selectedId === d.id ? "bg-accent/5" : ""}`}
@@ -105,6 +212,7 @@ export function LegsPage() {
                         <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${d.isActive ? "translate-x-6" : "translate-x-1"}`} />
                       </button>
                     </td>
+                    <td className="p-4 font-mono text-xs text-muted">{d.salary || "—"}</td>
                     <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
                       <button className="text-muted hover:text-accent transition-colors mr-2" title={l.view} onClick={() => selectDriver(d.id)}>
                         <i className="fa-solid fa-eye text-xs"></i>
@@ -117,6 +225,24 @@ export function LegsPage() {
                 ))}
               </tbody>
             </table>
+            <div className="flex items-center justify-between p-3 border-t border-border text-xs text-muted">
+              <div className="flex items-center gap-2">
+                <span>عرض</span>
+                <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1) }} className="!py-1 !text-xs">
+                  <option value={10}>10</option>
+                  <option value={15}>15</option>
+                  <option value={20}>20</option>
+                </select>
+                <span>من {totalCount}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <button className="px-2 py-1 rounded hover:bg-surface disabled:opacity-30" disabled={safePage <= 1} onClick={() => setCurrentPage(safePage - 1)}>‹</button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <button key={p} className={`px-2 py-1 rounded ${p === safePage ? "bg-accent text-white" : "hover:bg-surface"}`} onClick={() => setCurrentPage(p)}>{p}</button>
+                ))}
+                <button className="px-2 py-1 rounded hover:bg-surface disabled:opacity-30" disabled={safePage >= totalPages} onClick={() => setCurrentPage(safePage + 1)}>›</button>
+              </div>
+            </div>
           </div>
 
           {selected && (
@@ -147,6 +273,7 @@ export function LegsPage() {
             </div>
           )}
         </div>
+        </>
       )}
 
       {legsTab === "grades" && (

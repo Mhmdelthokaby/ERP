@@ -78,12 +78,26 @@ export function AddDriverModal() {
   const [insuranceNumber, setInsuranceNumber] = useState("")
   const [salary, setSalary] = useState("")
   const [hireDate, setHireDate] = useState("")
+  const [errors, setErrors] = useState<string[]>([])
+  const [submitting, setSubmitting] = useState(false)
 
-  const handleSubmit = () => {
+  const fieldError = (f: string) => errors.includes(f)
+
+  const handleSubmit = async () => {
     if (!fullName || !phone) return
-    addDriver({ fullName, phone, nationalId, licenseGrade, insuranceNumber: insuranceNumber || undefined, salary: salary || undefined, hireDate: hireDate || new Date().toISOString().slice(0, 10), isActive: true })
-    setFullName(""); setPhone(""); setNationalId(""); setLicenseGrade("A"); setInsuranceNumber(""); setSalary(""); setHireDate("")
-    closeModal()
+    setErrors([])
+    setSubmitting(true)
+    const driver = { fullName, phone, nationalId, licenseGrade, insuranceNumber: insuranceNumber || undefined, salary: salary || undefined, hireDate: hireDate || new Date().toISOString().slice(0, 10), isActive: true }
+    try {
+      await addDriver(driver)
+      setFullName(""); setPhone(""); setNationalId(""); setLicenseGrade("A"); setInsuranceNumber(""); setSalary(""); setHireDate("")
+      closeModal()
+    } catch (e: any) {
+      if (e.status === 409 && e.fields) setErrors(e.fields)
+      else setErrors(["phone"])
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -93,11 +107,11 @@ export function AddDriverModal() {
           <div><label className="text-xs text-muted mb-1 block">{m.fullName}</label><input type="text" placeholder="Ahmed Hassan" value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">{m.phone}</label><input type="text" placeholder="01012345678" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">{m.nationalId}</label><input type="text" placeholder="29801012345678" value={nationalId} onChange={(e) => setNationalId(e.target.value)} /></div>
+          <div><label className={`text-xs mb-1 block ${fieldError("phone") ? "text-danger" : "text-muted"}`}>{m.phone}</label><input type="text" placeholder="01012345678" value={phone} onChange={(e) => { setPhone(e.target.value); setErrors([]) }} className={fieldError("phone") ? "!border-danger" : ""} />{fieldError("phone") && <span className="text-xs text-danger mt-0.5 block">رقم الهاتف موجود مسبقاً</span>}</div>
+          <div><label className={`text-xs mb-1 block ${fieldError("nationalId") ? "text-danger" : "text-muted"}`}>{m.nationalId}</label><input type="text" placeholder="29801012345678" value={nationalId} onChange={(e) => { setNationalId(e.target.value); setErrors([]) }} className={fieldError("nationalId") ? "!border-danger" : ""} />{fieldError("nationalId") && <span className="text-xs text-danger mt-0.5 block">الرقم القومي موجود مسبقاً</span>}</div>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">{m.insuranceNumber}</label><input type="text" placeholder="INS-001" value={insuranceNumber} onChange={(e) => setInsuranceNumber(e.target.value)} /></div>
+          <div><label className={`text-xs mb-1 block ${fieldError("insuranceNumber") ? "text-danger" : "text-muted"}`}>{m.insuranceNumber}</label><input type="text" placeholder="INS-001" value={insuranceNumber} onChange={(e) => { setInsuranceNumber(e.target.value); setErrors([]) }} className={fieldError("insuranceNumber") ? "!border-danger" : ""} />{fieldError("insuranceNumber") && <span className="text-xs text-danger mt-0.5 block">رقم التأمين موجود مسبقاً</span>}</div>
           <div><label className="text-xs text-muted mb-1 block">{m.salary}</label><input type="text" placeholder="5000" value={salary} onChange={(e) => setSalary(e.target.value)} /></div>
         </div>
         <div><label className="text-xs text-muted mb-1 block">{m.licenseGrade}</label>
@@ -110,7 +124,7 @@ export function AddDriverModal() {
         </div>
         <div><label className="text-xs text-muted mb-1 block">{m.hireDate}</label><input type="date" value={hireDate} onChange={(e) => setHireDate(e.target.value)} /></div>
         <div className="flex gap-3 pt-2">
-          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.add}</button>
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" disabled={submitting} onClick={handleSubmit}>{m.add}</button>
           <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{m.cancel}</button>
         </div>
       </div>
@@ -189,6 +203,8 @@ export function EditDriverModal() {
   const [insuranceNumber, setInsuranceNumber] = useState("")
   const [salary, setSalary] = useState("")
   const [hireDate, setHireDate] = useState("")
+  const [errors, setErrors] = useState<string[]>([])
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     if (!editingDriver) return
@@ -199,14 +215,26 @@ export function EditDriverModal() {
     setInsuranceNumber(editingDriver.insuranceNumber ?? "")
     setSalary(editingDriver.salary ?? "")
     setHireDate(editingDriver.hireDate ?? "")
+    setErrors([])
   }, [editingDriver])
 
   if (!editingDriver) return null
 
-  const handleSubmit = () => {
+  const fieldError = (f: string) => errors.includes(f)
+
+  const handleSubmit = async () => {
     if (!fullName || !phone) return
-    updateDriver(editingDriver.id, { fullName, phone, nationalId, licenseGrade, insuranceNumber: insuranceNumber || undefined, salary: salary || undefined, hireDate: hireDate || undefined })
-    setEditingDriver(null); closeModal()
+    setErrors([])
+    setSubmitting(true)
+    try {
+      await updateDriver(editingDriver.id, { fullName, phone, nationalId, licenseGrade, insuranceNumber: insuranceNumber || undefined, salary: salary || undefined, hireDate: hireDate || undefined })
+      setEditingDriver(null); closeModal()
+    } catch (e: any) {
+      if (e.status === 409 && e.fields) setErrors(e.fields)
+      else setErrors(["phone"])
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -216,11 +244,11 @@ export function EditDriverModal() {
           <div><label className="text-xs text-muted mb-1 block">{m.fullName}</label><input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">{m.phone}</label><input type="text" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">{m.nationalId}</label><input type="text" value={nationalId} onChange={(e) => setNationalId(e.target.value)} /></div>
+          <div><label className={`text-xs mb-1 block ${fieldError("phone") ? "text-danger" : "text-muted"}`}>{m.phone}</label><input type="text" value={phone} onChange={(e) => { setPhone(e.target.value); setErrors([]) }} className={fieldError("phone") ? "!border-danger" : ""} />{fieldError("phone") && <span className="text-xs text-danger mt-0.5 block">رقم الهاتف موجود مسبقاً</span>}</div>
+          <div><label className={`text-xs mb-1 block ${fieldError("nationalId") ? "text-danger" : "text-muted"}`}>{m.nationalId}</label><input type="text" value={nationalId} onChange={(e) => { setNationalId(e.target.value); setErrors([]) }} className={fieldError("nationalId") ? "!border-danger" : ""} />{fieldError("nationalId") && <span className="text-xs text-danger mt-0.5 block">الرقم القومي موجود مسبقاً</span>}</div>
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">{m.insuranceNumber}</label><input type="text" value={insuranceNumber} onChange={(e) => setInsuranceNumber(e.target.value)} /></div>
+          <div><label className={`text-xs mb-1 block ${fieldError("insuranceNumber") ? "text-danger" : "text-muted"}`}>{m.insuranceNumber}</label><input type="text" value={insuranceNumber} onChange={(e) => { setInsuranceNumber(e.target.value); setErrors([]) }} className={fieldError("insuranceNumber") ? "!border-danger" : ""} />{fieldError("insuranceNumber") && <span className="text-xs text-danger mt-0.5 block">رقم التأمين موجود مسبقاً</span>}</div>
           <div><label className="text-xs text-muted mb-1 block">{m.salary}</label><input type="text" value={salary} onChange={(e) => setSalary(e.target.value)} /></div>
         </div>
         <div><label className="text-xs text-muted mb-1 block">{m.licenseGrade}</label>
@@ -233,7 +261,7 @@ export function EditDriverModal() {
         </div>
         <div><label className="text-xs text-muted mb-1 block">{m.hireDate}</label><input type="date" value={hireDate} onChange={(e) => setHireDate(e.target.value)} /></div>
         <div className="flex gap-3 pt-2">
-          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.save}</button>
+          <button className="btn-primary flex-1 py-2 rounded-lg text-sm" disabled={submitting} onClick={handleSubmit}>{m.save}</button>
           <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={closeModal}>{m.cancel}</button>
         </div>
       </div>
