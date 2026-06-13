@@ -100,14 +100,14 @@ export const vehicleTypes = pgTable("vehicle_types", {
 
 export const vehicles = pgTable("vehicles", {
   id: uuid("id").defaultRandom().primaryKey(),
-  code: text("code").notNull().unique(),
+  code: serial("code").notNull().unique(),
   plateNumber: text("plate_number").notNull().unique(),
   brand: text("brand").notNull(),
   model: text("model").notNull(),
   year: integer("year").notNull(),
   capacity: integer("capacity").notNull(),
-  chassisNumber: text("chassis_number"),
-  engineNumber: text("engine_number"),
+  chassisNumber: text("chassis_number").unique(),
+  engineNumber: text("engine_number").unique(),
   licenseDate: date("license_date"),
   licenseExpiryDate: date("license_expiry_date"),
   ownerName: text("owner_name"),

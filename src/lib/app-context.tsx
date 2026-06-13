@@ -43,7 +43,7 @@ interface AppContextType {
   addVehicleType: (vt: Omit<VehicleType, "id">) => void
   updateVehicleType: (id: number, vt: Partial<VehicleType>) => void
   deleteVehicleType: (id: number) => void
-  addVehicle: (v: Omit<Vehicle, "id" | "status">) => void
+  addVehicle: (v: Omit<Vehicle, "id" | "status" | "code">) => void
   updateVehicle: (id: number, v: Partial<Vehicle>) => void
   toggleVehicleActive: (id: number) => void
   deactivateVehicle: (id: number) => void
@@ -73,7 +73,7 @@ function dbVehicleToMock(v: Record<string, unknown>): Vehicle {
   const rawId = String(v.id ?? "")
   return {
     id: parseInt(rawId.slice(0, 8), 16) || Math.random(),
-    code: String(v.code || ""),
+    code: Number(v.code) || 0,
     plateNumber: String(v.plateNumber || ""),
     model: `${String(v.brand || "")} ${String(v.model || "")}`.trim(),
     year: Number(v.year) || 0,
@@ -83,6 +83,14 @@ function dbVehicleToMock(v: Record<string, unknown>): Vehicle {
     vehicleTypeId: v.vehicleTypeId ? parseInt(String(v.vehicleTypeId).slice(0, 8), 16) || null : null,
     driverId: v.driverId ? parseInt(String(v.driverId).slice(0, 8), 16) || null : null,
     driverName: String(v.driverName || ""),
+    chassisNumber: String(v.chassisNumber || ""),
+    engineNumber: String(v.engineNumber || ""),
+    licenseDate: String(v.licenseDate || ""),
+    licenseExpiryDate: String(v.licenseExpiryDate || ""),
+    ownerName: String(v.ownerName || ""),
+    licenseType: String(v.licenseType || ""),
+    purchaseDate: String(v.purchaseDate || ""),
+    hasGps: String(v.hasGps) === "true",
   }
 }
 
@@ -209,12 +217,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [editingVehicleType, setEditingVehicleType] = useState<VehicleType | null>(null)
   const [editingLicenseGrade, setEditingLicenseGrade] = useState<LicenseGrade | null>(null)
 
-  const addVehicle = useCallback((v: Omit<Vehicle, "id" | "status">) => {
+  const addVehicle = useCallback((v: Omit<Vehicle, "id" | "status" | "code">) => {
     api.createVehicle({ ...v, brand: v.model.split(" ")[0] || v.model, isActive: true }).then((res) => {
       const mapped = dbVehicleToMock(res.data as Record<string, unknown>)
       setData((prev) => ({ ...prev, vehicles: [...prev.vehicles, mapped] }))
     }).catch(() => {
-      setData((prev) => ({ ...prev, vehicles: [...prev.vehicles, { ...v, id: prev.vehicles.length + 1, status: "Active" }] }))
+      setData((prev) => {
+        const maxCode = prev.vehicles.reduce((max, veh) => Math.max(max, veh.code), 0)
+        return { ...prev, vehicles: [...prev.vehicles, { ...v, id: prev.vehicles.length + 1, code: maxCode + 1, status: "Active" }] }
+      })
     })
     showToast(`Vehicle ${v.plateNumber} added`)
   }, [showToast])
