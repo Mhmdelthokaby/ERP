@@ -16,6 +16,31 @@ export function LegsPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [pendingToggleId, setPendingToggleId] = useState<number | null>(null)
 
+  // filter state
+  const [searchQuery, setSearchQuery] = useState("")
+  const [filterGrade, setFilterGrade] = useState("")
+  const [filterActive, setFilterActive] = useState("")
+  const [filterSalaryMin, setFilterSalaryMin] = useState("")
+  const [filterSalaryMax, setFilterSalaryMax] = useState("")
+  const [filterHireDateFrom, setFilterHireDateFrom] = useState("")
+  const [filterHireDateTo, setFilterHireDateTo] = useState("")
+
+  const filteredDrivers = data.drivers.filter((d) => {
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase()
+      const match = d.fullName.toLowerCase().includes(q) || d.phone.includes(q) || String(d.code).includes(q) || (d.insuranceNumber || "").toLowerCase().includes(q)
+      if (!match) return false
+    }
+    if (filterGrade && d.licenseGrade !== filterGrade) return false
+    if (filterActive === "active" && !d.isActive) return false
+    if (filterActive === "inactive" && d.isActive) return false
+    if (filterSalaryMin && Number(d.salary || 0) < Number(filterSalaryMin)) return false
+    if (filterSalaryMax && Number(d.salary || 0) > Number(filterSalaryMax)) return false
+    if (filterHireDateFrom && d.hireDate && d.hireDate < filterHireDateFrom) return false
+    if (filterHireDateTo && d.hireDate && d.hireDate > filterHireDateTo) return false
+    return true
+  })
+
   const goToVehicle = (vehicleId: number) => {
     setPendingVehicleView(vehicleId)
     setPage("fleet")
@@ -73,6 +98,33 @@ export function LegsPage() {
       </div>
 
       {legsTab === "drivers" && (
+        <>
+        <div className="bg-card border border-border rounded-xl p-4 mb-4 space-y-3">
+          <input type="text" placeholder="بحث بالاسم، الهاتف، الكود، أو رقم التأمين" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <select value={filterGrade} onChange={(e) => setFilterGrade(e.target.value)}>
+              <option value="">{l.licenseGrade}: {ar.trips.allStatuses}</option>
+              {data.licenseGrades.map((g) => (
+                <option key={g.id} value={g.name}>{g.name}</option>
+              ))}
+            </select>
+            <select value={filterActive} onChange={(e) => setFilterActive(e.target.value)}>
+              <option value="">{l.status}: {ar.trips.allStatuses}</option>
+              <option value="active">{l.active}</option>
+              <option value="inactive">{l.inactive}</option>
+            </select>
+            <div className="flex gap-1 items-center">
+              <input type="number" placeholder={`${ar.fleetModals.salary} ${ar.modals.from}`} value={filterSalaryMin} onChange={(e) => setFilterSalaryMin(e.target.value)} className="w-full" />
+              <span className="text-muted text-xs">-</span>
+              <input type="number" placeholder={`${ar.modals.to}`} value={filterSalaryMax} onChange={(e) => setFilterSalaryMax(e.target.value)} className="w-full" />
+            </div>
+            <div className="flex gap-1 items-center">
+              <input type="date" placeholder={`${ar.fleetModals.hireDate} ${ar.modals.from}`} value={filterHireDateFrom} onChange={(e) => setFilterHireDateFrom(e.target.value)} className="w-full" />
+              <span className="text-muted text-xs">-</span>
+              <input type="date" placeholder={`${ar.modals.to}`} value={filterHireDateTo} onChange={(e) => setFilterHireDateTo(e.target.value)} className="w-full" />
+            </div>
+          </div>
+        </div>
         <div className="grid grid-cols-1 gap-4" style={selectedId != null ? { gridTemplateColumns: "1fr 500px" } : {}}>
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <table className="w-full text-sm">
@@ -87,7 +139,9 @@ export function LegsPage() {
                 </tr>
               </thead>
               <tbody>
-                {data.drivers.map((d) => (
+                {filteredDrivers.length === 0 ? (
+                  <tr><td colSpan={6} className="p-8 text-center text-muted text-sm">لا يوجد سائقون مطابقون</td></tr>
+                ) : filteredDrivers.map((d) => (
                   <tr
                     key={d.id}
                     className={`data-row border-b border-border/50 cursor-pointer ${selectedId === d.id ? "bg-accent/5" : ""}`}
@@ -147,6 +201,7 @@ export function LegsPage() {
             </div>
           )}
         </div>
+        </>
       )}
 
       {legsTab === "grades" && (
