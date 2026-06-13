@@ -19,6 +19,8 @@ type JsonValue = string | number | boolean | null | JsonValue[] | { [key: string
 
 export const api = {
   getVehicles: () => request<{ data: JsonValue[] }>("/api/fleet/vehicles"),
+  searchVehicles: (params: Record<string, string>) =>
+    request<{ data: JsonValue[]; total: number }>(`/api/fleet/vehicles?${new URLSearchParams(params).toString()}`),
   createVehicle: (body: Record<string, unknown>) =>
     request<{ data: JsonValue }>("/api/fleet/vehicles", { method: "POST", body: JSON.stringify(body) }),
   updateVehicle: (id: string, body: Record<string, unknown>) =>

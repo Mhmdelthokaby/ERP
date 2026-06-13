@@ -65,6 +65,8 @@ interface AppContextType {
   toggleDriverActive: (id: number) => void
   pendingVehicleView: number | null
   setPendingVehicleView: (id: number | null) => void
+  pendingDriverView: number | null
+  setPendingDriverView: (id: number | null) => void
 }
 
 const AppContext = createContext<AppContextType | null>(null)
@@ -156,6 +158,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
   const [activeModal, setActiveModal] = useState<string | null>(null)
   const [pendingVehicleView, setPendingVehicleView] = useState<number | null>(null)
+  const [pendingDriverView, setPendingDriverView] = useState<number | null>(null)
   const [toastId, setToastId] = useState(0)
   const [loading, setLoading] = useState(true)
   const [apiAvailable, setApiAvailable] = useState(false)
@@ -564,6 +567,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addJournalLine, updateJournalBalance, submitJournalEntry, reverseEntry,
       addAccount, addUser, deactivateUser, toggleLegActive, toggleDriverActive,
       pendingVehicleView, setPendingVehicleView,
+      pendingDriverView, setPendingDriverView,
     }}>
       {children}
     </AppContext.Provider>

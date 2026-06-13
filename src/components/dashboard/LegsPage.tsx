@@ -9,12 +9,19 @@ import type { Driver } from "@/lib/store"
 const l = ar.legs
 
 export function LegsPage() {
-  const { data, openModal, closeModal, toggleDriverActive, setEditingDriver, sidebarOpen, toggleSidebar, setPage, setPendingVehicleView, setEditingLicenseGrade, deleteLicenseGrade, setCurrentSubtitle } = useApp()
+  const { data, openModal, closeModal, toggleDriverActive, setEditingDriver, sidebarOpen, toggleSidebar, setPage, setPendingVehicleView, pendingDriverView, setPendingDriverView, setEditingLicenseGrade, deleteLicenseGrade, setCurrentSubtitle } = useApp()
   const [legsTab, setLegsTab] = useState<"drivers" | "grades">("drivers")
 
   useEffect(() => {
     setCurrentSubtitle(legsTab === "grades" ? "/ درجات الرخصة" : "")
   }, [legsTab, setCurrentSubtitle])
+  useEffect(() => {
+    if (pendingDriverView != null) {
+      setSelectedId(pendingDriverView)
+      setLegsTab("drivers")
+      setPendingDriverView(null)
+    }
+  }, [pendingDriverView])
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [pendingToggleId, setPendingToggleId] = useState<number | null>(null)
 
