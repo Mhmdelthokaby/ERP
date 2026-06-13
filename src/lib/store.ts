@@ -24,7 +24,8 @@ export interface Driver {
 export interface VehicleHistoryEntry {
   id: number; plateNumber: string; engineNumber: string | null
   licenseDate: string | null; licenseExpiryDate: string | null
-  licenseType: string | null; isActive: boolean | null
+  licenseType: string | null; ownerName: string | null
+  isActive: boolean | null
   modifiedAt: string; modifiedBy: string | null
 }
 

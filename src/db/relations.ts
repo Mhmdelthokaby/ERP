@@ -45,5 +45,6 @@ export const vehicleHistoryRelations = relations(vehicleHistory, ({ one }) => ({
 }))
 
 export const driversRelations = relations(drivers, ({ many }) => ({
+  vehicles: many(vehicles),
   operationOrders: many(operationOrders),
 }))

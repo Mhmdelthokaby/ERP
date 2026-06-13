@@ -77,6 +77,7 @@ export async function POST(request: Request) {
       licenseDate: data.licenseDate,
       licenseExpiryDate: data.licenseExpiryDate,
       licenseType: data.licenseType,
+      ownerName: data.ownerName,
       isActive: data.isActive,
     })
     const [enriched] = await db

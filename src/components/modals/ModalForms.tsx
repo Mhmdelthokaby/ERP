@@ -185,6 +185,24 @@ export function EditVehicleModal() {
   const [purchaseDate, setPurchaseDate] = useState(editingVehicle?.purchaseDate ?? "")
   const [errors, setErrors] = useState<string[]>([])
 
+  useEffect(() => {
+    if (!editingVehicle) return
+    setPlate(editingVehicle.plateNumber ?? "")
+    setYear(String(editingVehicle.year ?? ""))
+    setCapacity(String(editingVehicle.capacity ?? ""))
+    setVehicleTypeId(editingVehicle.vehicleTypeId ?? "")
+    setDriverId(editingVehicle.driverId ?? "")
+    setChassis(editingVehicle.chassisNumber ?? "")
+    setEngine(editingVehicle.engineNumber ?? "")
+    setHasGps(editingVehicle.hasGps ?? false)
+    setLicenseDate(editingVehicle.licenseDate ?? "")
+    setLicenseExpiry(editingVehicle.licenseExpiryDate ?? "")
+    setOwnerName(editingVehicle.ownerName ?? "")
+    setLicenseType(editingVehicle.licenseType ?? "")
+    setPurchaseDate(editingVehicle.purchaseDate ?? "")
+    setErrors([])
+  }, [editingVehicle])
+
   const fieldError = (f: string) => errors.includes(f)
 
   if (!editingVehicle) return null

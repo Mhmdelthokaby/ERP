@@ -78,6 +78,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
       licenseDate: data.licenseDate,
       licenseExpiryDate: data.licenseExpiryDate,
       licenseType: data.licenseType,
+      ownerName: data.ownerName,
       isActive: data.isActive,
     })
     const [enriched] = await db

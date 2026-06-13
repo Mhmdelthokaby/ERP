@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
-import { StatusBadge } from "@/components/shared"
+import { Modal } from "@/components/shared"
 import { ar } from "@/lib/ar"
 const f = ar.fleet
 
 export function FleetPage() {
-  const { data, openModal, toggleVehicleActive, fetchVehicleHistory, deleteVehicleType, setEditingVehicle, setEditingVehicleType, pendingVehicleView, setPendingVehicleView, setCurrentSubtitle, toggleSidebar, sidebarOpen } = useApp()
+  const { data, openModal, closeModal, toggleVehicleActive, fetchVehicleHistory, deleteVehicleType, setEditingVehicle, setEditingVehicleType, pendingVehicleView, setPendingVehicleView, setCurrentSubtitle, toggleSidebar, sidebarOpen } = useApp()
   const [fleetTab, setFleetTab] = useState<"vehicles" | "types">("vehicles")
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null)
   const [historyLoading, setHistoryLoading] = useState(false)
@@ -30,6 +30,25 @@ export function FleetPage() {
 
   const selectedVehicle = selectedVehicleId != null ? data.vehicles.find((v) => v.id === selectedVehicleId) : null
   const history = selectedVehicleId != null ? data.vehicleHistory[selectedVehicleId] || [] : []
+  const [pendingToggleId, setPendingToggleId] = useState<number | null>(null)
+  const pendingVehicle = pendingToggleId != null ? data.vehicles.find((v) => v.id === pendingToggleId) : null
+
+  const handleToggle = () => {
+    if (pendingToggleId == null) return
+    toggleVehicleActive(pendingToggleId)
+    setPendingToggleId(null)
+    closeModal()
+  }
+
+  const openToggleConfirm = (id: number) => {
+    setPendingToggleId(id)
+    openModal("toggleVehicleConfirm")
+  }
+
+  const closeToggleConfirm = () => {
+    setPendingToggleId(null)
+    closeModal()
+  }
 
   const handleVehicleClick = async (id: number) => {
     if (selectedVehicleId === id) { setSelectedVehicleId(null); return }
@@ -77,9 +96,15 @@ export function FleetPage() {
                     <td className="p-4 text-muted">{v.year}</td>
                     <td className="p-4 text-muted">{v.capacity} {f.capacityUnit}</td>
                     <td className="p-4 text-muted text-xs">{v.driverName || "—"}</td>
-                    <td className="p-4"><StatusBadge status={v.status} /></td>
+                    <td className="p-4">
+                      <button
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${v.status === "Active" ? "bg-success" : "bg-danger"}`}
+                        onClick={(e) => { e.stopPropagation(); openToggleConfirm(v.id) }}
+                      >
+                        <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${v.status === "Active" ? "translate-x-6" : "translate-x-1"}`} />
+                      </button>
+                    </td>
                     <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
-                      <button className="text-muted hover:text-accent transition-colors mr-2" title={f.toggleActive} onClick={() => toggleVehicleActive(v.id)}><i className="fa-solid fa-power-off text-xs"></i></button>
                       <button className="text-muted hover:text-accent transition-colors mr-2" title={f.edit} onClick={() => { setEditingVehicle(v); openModal("editVehicleModal") }}><i className="fa-solid fa-pen-to-square text-xs"></i></button>
                     </td>
                   </tr>
@@ -95,9 +120,14 @@ export function FleetPage() {
                   <h3 className="text-sm font-semibold">{selectedVehicle.plateNumber} — {f.details}</h3>
                   <p className="text-xs text-muted mt-1">{selectedVehicle.model}</p>
                 </div>
-                <button className="text-muted hover:text-fg transition-colors" onClick={() => setSelectedVehicleId(null)} title="إغلاق">
-                  <i className="fa-solid fa-xmark text-lg"></i>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button className="text-muted hover:text-accent transition-colors" title={f.edit} onClick={() => { setEditingVehicle(selectedVehicle); openModal("editVehicleModal") }}>
+                    <i className="fa-solid fa-pen-to-square text-xs"></i>
+                  </button>
+                  <button className="text-muted hover:text-fg transition-colors" onClick={() => setSelectedVehicleId(null)} title="إغلاق">
+                    <i className="fa-solid fa-xmark text-lg"></i>
+                  </button>
+                </div>
               </div>
               <div className="p-4 space-y-3 text-sm">
                 <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
@@ -115,7 +145,14 @@ export function FleetPage() {
                   <div><span className="text-muted">{f.licenseTypeLabel}:</span> {selectedVehicle.licenseType || "—"}</div>
                   <div><span className="text-muted">{f.purchaseDate}:</span> {selectedVehicle.purchaseDate || "—"}</div>
                   <div><span className="text-muted">{f.driverLabel}</span> {selectedVehicle.driverName || f.unassigned}</div>
-                  <div><span className="text-muted">{f.statusLabel}</span> <StatusBadge status={selectedVehicle.status} /></div>
+                  <div><span className="text-muted">{f.statusLabel}</span>
+                    <button
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors align-middle mr-2 ${selectedVehicle.status === "Active" ? "bg-success" : "bg-danger"}`}
+                      onClick={() => openToggleConfirm(selectedVehicle.id)}
+                    >
+                      <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${selectedVehicle.status === "Active" ? "translate-x-6" : "translate-x-1"}`} />
+                    </button>
+                  </div>
                 </div>
               </div>
               <div className="border-t border-border">
@@ -125,17 +162,22 @@ export function FleetPage() {
                 ) : history.length === 0 ? (
                   <div className="p-4 text-center text-muted text-xs">{f.noHistory}</div>
                 ) : (
-                  <div className="max-h-48 overflow-y-auto">
+                  <div className="max-h-48 overflow-y-auto scrollbar-light">
                     <table className="w-full text-xs">
                       <thead><tr className="text-muted uppercase tracking-wider border-b border-border bg-surface/50">
-                        <th className="text-left p-2 font-medium">{f.date}</th><th className="text-left p-2 font-medium">{f.plateCol}</th><th className="text-left p-2 font-medium">{f.active}</th>
+                        <th className="text-left p-2 font-medium">{f.date}</th><th className="text-left p-2 font-medium">{f.plateCol}</th><th className="text-left p-2 font-medium">{f.engineNumber}</th><th className="text-left p-2 font-medium">{f.licenseDate}</th><th className="text-left p-2 font-medium">{f.licenseExpiry}</th><th className="text-left p-2 font-medium">{f.licenseTypeLabel}</th><th className="text-left p-2 font-medium">{f.active}</th><th className="text-left p-2 font-medium">{f.ownerName}</th>
                       </tr></thead>
                       <tbody>
                         {history.map((h) => (
                           <tr key={h.id} className="border-b border-border/50">
                             <td className="p-2 text-muted font-mono">{new Date(h.modifiedAt).toLocaleDateString()}</td>
                             <td className="p-2 font-mono">{h.plateNumber}</td>
-                            <td className="p-2">{h.isActive != null ? <StatusBadge status={h.isActive ? "Active" : "Inactive"} /> : "—"}</td>
+                            <td className="p-2 font-mono">{h.engineNumber || "—"}</td>
+                            <td className="p-2">{h.licenseDate || "—"}</td>
+                            <td className="p-2">{h.licenseExpiryDate || "—"}</td>
+                            <td className="p-2">{h.licenseType || "—"}</td>
+                            <td className="p-2">{h.isActive ? "نشط" : h.isActive === false ? "غير نشط" : "—"}</td>
+                            <td className="p-2">{h.ownerName || "—"}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -171,6 +213,25 @@ export function FleetPage() {
           </table>
         </div>
       )}
+      <Modal id="toggleVehicleConfirm" title={f.toggleConfirmTitle} width="w-[400px]">
+        {pendingVehicle && (
+          <>
+            <p className="text-sm text-muted mb-6">
+              {pendingVehicle.status === "Active" ? f.toggleDeactivateMsg : f.toggleActivateMsg}
+              <br />
+              <span className="text-fg font-semibold">{pendingVehicle.plateNumber}</span>
+            </p>
+            <div className="flex justify-end gap-3">
+              <button className="btn-ghost px-4 py-2 rounded-lg text-sm" onClick={closeToggleConfirm}>
+                {f.cancel}
+              </button>
+              <button className="btn-primary px-4 py-2 rounded-lg text-sm" onClick={handleToggle}>
+                {f.confirm}
+              </button>
+            </div>
+          </>
+        )}
+      </Modal>
     </div>
   )
 }

@@ -45,6 +45,9 @@
 ::-webkit-scrollbar-thumb { background: #2A2E3A; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #353A4A; }
 
+.scrollbar-light::-webkit-scrollbar-thumb { background: #7A8090; }
+.scrollbar-light::-webkit-scrollbar-thumb:hover { background: #8B90A0; }
+
 .sidebar-item { transition: all 0.2s ease; position: relative; }
 .sidebar-item::before {
   content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);

@@ -152,6 +152,7 @@ export const vehicleHistory = pgTable("vehicle_history", {
   licenseDate: date("license_date"),
   licenseExpiryDate: date("license_expiry_date"),
   licenseType: text("license_type"),
+  ownerName: text("owner_name"),
   isActive: boolean("is_active"),
   modifiedAt: timestamp("modified_at").notNull().defaultNow(),
   modifiedBy: text("modified_by"),

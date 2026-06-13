@@ -120,6 +120,7 @@ function dbHistoryToMock(h: Record<string, unknown>): VehicleHistoryEntry {
     licenseDate: String(h.licenseDate || ""),
     licenseExpiryDate: String(h.licenseExpiryDate || ""),
     licenseType: String(h.licenseType || ""),
+    ownerName: String(h.ownerName || ""),
     isActive: h.isActive != null ? String(h.isActive) === "true" : null,
     modifiedAt: String(h.modifiedAt || ""),
     modifiedBy: String(h.modifiedBy || ""),
@@ -247,18 +248,31 @@ export function AppProvider({ children }: { children: ReactNode }) {
     })
   }, [data.vehicles, data.vehicleTypes, data.drivers, showToast])
 
+  const fetchVehicleHistory = useCallback(async (id: number) => {
+    const v = data.vehicles.find((x) => x.id === id)
+    if (!v) return
+    try {
+      const res = await api.getVehicleHistory(v.dbId ?? String(v.id))
+      const history = res.data.map((h) => dbHistoryToMock(h as Record<string, unknown>))
+      setData((prev) => ({ ...prev, vehicleHistory: { ...prev.vehicleHistory, [id]: history } }))
+    } catch {
+      showToast("Failed to fetch vehicle history", "error")
+    }
+  }, [data.vehicles, showToast])
+
   const toggleVehicleActive = useCallback((id: number) => {
     const v = data.vehicles.find((x) => x.id === id)
     if (!v) return
     api.toggleVehicleActive(v.dbId ?? String(v.id)).then((res) => {
       const mapped = dbVehicleToMock(res.data as Record<string, unknown>)
       setData((prev) => ({ ...prev, vehicles: prev.vehicles.map((x) => x.id === id ? mapped : x) }))
+      fetchVehicleHistory(id)
     }).catch(() => {
       const newStatus = v.status === "Active" ? "Inactive" : "Active"
       setData((prev) => ({ ...prev, vehicles: prev.vehicles.map((x) => x.id === id ? { ...x, status: newStatus } : x) }))
     })
     showToast(`${v.plateNumber} toggled`)
-  }, [data.vehicles, showToast])
+  }, [data.vehicles, fetchVehicleHistory, showToast])
 
   const deactivateVehicle = useCallback((id: number) => {
     const v = data.vehicles.find((x) => x.id === id)
@@ -377,18 +391,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     })
     showToast(`Vehicle type ${vt.name} deleted`, "warning")
   }, [data.vehicleTypes, showToast])
-
-  const fetchVehicleHistory = useCallback(async (id: number) => {
-    const v = data.vehicles.find((x) => x.id === id)
-    if (!v) return
-    try {
-      const res = await api.getVehicleHistory(v.dbId ?? String(v.id))
-      const history = res.data.map((h) => dbHistoryToMock(h as Record<string, unknown>))
-      setData((prev) => ({ ...prev, vehicleHistory: { ...prev.vehicleHistory, [id]: history } }))
-    } catch {
-      showToast("Failed to fetch vehicle history", "error")
-    }
-  }, [data.vehicles, showToast])
 
   const addTrip = useCallback((t: { from: string; to: string; customer: string; date: string; price: number; rate: number }) => {
     api.createOrder({ customerId: t.customer, origin: t.from, destination: t.to, scheduledDate: t.date, priceAmount: String(t.price), baseAmount: String(t.price * t.rate) }).catch(() => {})

@@ -43,6 +43,13 @@
       "when": 1781357294017,
       "tag": "0005_adorable_hardball",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1781400000000,
+      "tag": "0006_naughty_wasp",
+      "breakpoints": true
     }
   ]
 }

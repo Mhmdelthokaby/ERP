@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm"
 
 export async function PATCH(_request: Request, { params }: { params: { id: string } }) {
   try {
-    const [current] = await db.select({ isActive: vehicles.isActive, plateNumber: vehicles.plateNumber, engineNumber: vehicles.engineNumber, licenseDate: vehicles.licenseDate, licenseExpiryDate: vehicles.licenseExpiryDate, licenseType: vehicles.licenseType }).from(vehicles).where(eq(vehicles.id, params.id))
+    const [current] = await db.select({ isActive: vehicles.isActive, plateNumber: vehicles.plateNumber, engineNumber: vehicles.engineNumber, licenseDate: vehicles.licenseDate, licenseExpiryDate: vehicles.licenseExpiryDate, licenseType: vehicles.licenseType, ownerName: vehicles.ownerName }).from(vehicles).where(eq(vehicles.id, params.id))
     if (!current) return NextResponse.json({ error: "Vehicle not found" }, { status: 404 })
     const newActive = !current.isActive
     const [data] = await db.update(vehicles).set({ isActive: newActive, updatedAt: new Date() }).where(eq(vehicles.id, params.id)).returning()
@@ -16,6 +16,7 @@ export async function PATCH(_request: Request, { params }: { params: { id: strin
       licenseDate: data.licenseDate,
       licenseExpiryDate: data.licenseExpiryDate,
       licenseType: data.licenseType,
+      ownerName: data.ownerName,
       isActive: data.isActive,
     })
     return NextResponse.json({ data })

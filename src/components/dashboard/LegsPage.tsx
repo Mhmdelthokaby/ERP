@@ -102,7 +102,7 @@ export function LegsPage() {
   }
 
   const selected = selectedId != null ? tableDrivers.find((d) => d.id === selectedId) : null
-  const linkedVehicle = selected ? data.vehicles.find((v) => v.driverId === selected.id) : null
+  const linkedVehicles = selected ? data.vehicles.filter((v) => v.driverId === selected.id) : []
   const pending = pendingToggleId != null ? data.drivers.find((d) => d.id === pendingToggleId) : null
 
   const handleToggle = () => {
@@ -267,7 +267,7 @@ export function LegsPage() {
                   <div><span className="text-muted">رقم التأمين:</span> <span className="font-mono block mt-0.5">{selected.insuranceNumber || "—"}</span></div>
                   <div><span className="text-muted">الراتب:</span> <span className="font-mono block mt-0.5">{selected.salary || "—"}</span></div>
                   <div><span className="text-muted">تاريخ التعيين:</span> <span className="font-mono block mt-0.5">{selected.hireDate || "—"}</span></div>
-                  <div><span className="text-muted">المركبة:</span> {linkedVehicle ? <button className="font-mono block mt-0.5 text-accent hover:underline cursor-pointer" onClick={() => goToVehicle(linkedVehicle.id)}>{linkedVehicle.code}</button> : <span className="font-mono block mt-0.5 text-muted">غير مرتبط</span>}</div>
+                  <div><span className="text-muted">المركبات:</span> {linkedVehicles.length ? linkedVehicles.map((lv) => <button key={lv.id} className="font-mono block mt-0.5 text-accent hover:underline cursor-pointer" onClick={() => goToVehicle(lv.id)}>{lv.code}</button>) : <span className="font-mono block mt-0.5 text-muted">غير مرتبط</span>}</div>
                 </div>
               </div>
             </div>
