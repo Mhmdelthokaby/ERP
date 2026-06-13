@@ -5,7 +5,7 @@ import { pageTitles } from "@/lib/store"
 import { ar } from "@/lib/ar"
 
 export function Header() {
-  const { currentPage, toggleSidebar } = useApp()
+  const { currentPage, currentSubtitle, toggleSidebar } = useApp()
   const [title, breadcrumb] = pageTitles[currentPage]
 
   return (
@@ -15,7 +15,7 @@ export function Header() {
           <i className="fa-solid fa-bars text-sm"></i>
         </button>
         <h2 className="font-display font-semibold text-fg text-base">{title}</h2>
-        <span className="text-xs text-muted">{breadcrumb}</span>
+        <span className="text-xs text-muted">{currentSubtitle || breadcrumb}</span>
       </div>
       <div className="flex items-center gap-3">
         <div className="relative">
