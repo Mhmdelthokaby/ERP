@@ -99,6 +99,10 @@ export const ar = {
     ownerName: 'اسم المالك',
     licenseTypeLabel: 'نوع الترخيص',
     purchaseDate: 'تاريخ الشراء',
+    search: 'بحث بلوحة، كود، شاسية، أو ماتور',
+    allModels: 'جميع الموديلات',
+    allStatuses: 'جميع الحالات',
+    inactive: 'غير نشط',
   },
   fleetModals: {
     addVehicle: 'إضافة مركبة',
