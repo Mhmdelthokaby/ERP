@@ -34,7 +34,7 @@ export function FleetPage() {
   const handleVehicleClick = async (id: number) => {
     if (selectedVehicleId === id) { setSelectedVehicleId(null); return }
     setSelectedVehicleId(id)
-    toggleSidebar()
+    if (sidebarOpen) toggleSidebar()
     setHistoryLoading(true)
     await fetchVehicleHistory(id)
     setHistoryLoading(false)
@@ -101,12 +101,21 @@ export function FleetPage() {
                 </button>
               </div>
               <div className="p-4 space-y-3 text-sm">
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
                   <div><span className="text-muted">{f.codeLabel}</span> <span className="font-mono">{selectedVehicle.code}</span></div>
                   <div><span className="text-muted">{f.plateLabel}</span> <span className="font-mono">{selectedVehicle.plateNumber}</span></div>
+                  <div><span className="text-muted">{f.chassisNumber}:</span> <span className="font-mono">{selectedVehicle.chassisNumber || "—"}</span></div>
+                  <div><span className="text-muted">{f.engineNumber}:</span> <span className="font-mono">{selectedVehicle.engineNumber || "—"}</span></div>
+                  <div><span className="text-muted">{f.typeLabel}</span> {selectedVehicle.vehicleType}</div>
+                  <div><span className="text-muted">{f.model}:</span> {selectedVehicle.model}</div>
+                  <div><span className="text-muted">{f.gps}:</span> <span className={selectedVehicle.hasGps ? "text-success" : "text-muted"}>{selectedVehicle.hasGps ? f.gpsFound : f.gpsNotFound}</span></div>
                   <div><span className="text-muted">{f.yearLabel}</span> {selectedVehicle.year}</div>
                   <div><span className="text-muted">{f.capacityLabel}</span> {selectedVehicle.capacity} {f.capacityUnit}</div>
-                  <div><span className="text-muted">{f.typeLabel}</span> {selectedVehicle.vehicleType}</div>
+                  <div><span className="text-muted">{f.ownerName}:</span> {selectedVehicle.ownerName || "—"}</div>
+                  <div><span className="text-muted">{f.licenseDate}:</span> {selectedVehicle.licenseDate || "—"}</div>
+                  <div><span className="text-muted">{f.licenseExpiry}:</span> {selectedVehicle.licenseExpiryDate || "—"}</div>
+                  <div><span className="text-muted">{f.licenseTypeLabel}:</span> {selectedVehicle.licenseType || "—"}</div>
+                  <div><span className="text-muted">{f.purchaseDate}:</span> {selectedVehicle.purchaseDate || "—"}</div>
                   <div><span className="text-muted">{f.driverLabel}</span> {selectedVehicle.driverName || f.unassigned}</div>
                   <div><span className="text-muted">{f.statusLabel}</span> <StatusBadge status={selectedVehicle.status} /></div>
                 </div>

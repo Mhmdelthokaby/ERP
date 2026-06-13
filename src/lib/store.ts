@@ -7,9 +7,12 @@ export interface VehicleType {
 }
 
 export interface Vehicle {
-  id: number; code: string; plateNumber: string; model: string; year: number
+  id: number; code: number; plateNumber: string; model: string; year: number
   capacity: number; status: string; vehicleType: string
   vehicleTypeId: number | null; driverId: number | null; driverName: string
+  chassisNumber: string; engineNumber: string
+  licenseDate: string; licenseExpiryDate: string; ownerName: string
+  licenseType: string; purchaseDate: string; hasGps: boolean
 }
 
 export interface Driver {
@@ -126,12 +129,12 @@ export const defaultData: AppData = {
     { id: 3, name: 'Truck', code: 'TRK', model: 'Actros/FH', modelCode: 'AF' },
   ],
   vehicles: [
-    { id: 1, code: 'VHC-001', plateNumber: 'ABC-1234', model: 'Toyota Hiace', year: 2022, capacity: 20, status: 'Active', vehicleType: 'Bus', vehicleTypeId: 1, driverId: null, driverName: '' },
-    { id: 2, code: 'VHC-002', plateNumber: 'XYZ-5678', model: 'Mercedes Sprinter', year: 2021, capacity: 25, status: 'Active', vehicleType: 'Bus', vehicleTypeId: 1, driverId: null, driverName: '' },
-    { id: 3, code: 'VHC-003', plateNumber: 'DEF-9012', model: 'Mitsubishi L300', year: 2020, capacity: 18, status: 'Maintenance', vehicleType: 'Van', vehicleTypeId: 2, driverId: null, driverName: '' },
-    { id: 4, code: 'VHC-004', plateNumber: 'GHI-3456', model: 'Nissan Urvan', year: 2023, capacity: 22, status: 'Active', vehicleType: 'Bus', vehicleTypeId: 1, driverId: null, driverName: '' },
-    { id: 5, code: 'VHC-005', plateNumber: 'JKL-7890', model: 'Ford Transit', year: 2019, capacity: 20, status: 'Active', vehicleType: 'Van', vehicleTypeId: 2, driverId: null, driverName: '' },
-    { id: 6, code: 'VHC-006', plateNumber: 'MNO-2345', model: 'Iveco Daily', year: 2023, capacity: 24, status: 'Inactive', vehicleType: 'Truck', vehicleTypeId: 3, driverId: null, driverName: '' },
+    { id: 1, code: 1, plateNumber: 'ABC-1234', model: 'Toyota Hiace', year: 2022, capacity: 20, status: 'Active', vehicleType: 'Bus', vehicleTypeId: 1, driverId: null, driverName: '', chassisNumber: 'CH-TH-001', engineNumber: 'EN-TH-001', licenseDate: '2022-01-15', licenseExpiryDate: '2025-01-14', ownerName: 'محمد عماد', licenseType: 'نقل عام', purchaseDate: '2022-01-01', hasGps: true },
+    { id: 2, code: 2, plateNumber: 'XYZ-5678', model: 'Mercedes Sprinter', year: 2021, capacity: 25, status: 'Active', vehicleType: 'Bus', vehicleTypeId: 1, driverId: null, driverName: '', chassisNumber: 'CH-MS-002', engineNumber: 'EN-MS-002', licenseDate: '2021-06-20', licenseExpiryDate: '2024-06-19', ownerName: 'شركة ترانس', licenseType: 'نقل خاص', purchaseDate: '2021-05-01', hasGps: true },
+    { id: 3, code: 3, plateNumber: 'DEF-9012', model: 'Mitsubishi L300', year: 2020, capacity: 18, status: 'Maintenance', vehicleType: 'Van', vehicleTypeId: 2, driverId: null, driverName: '', chassisNumber: 'CH-ML-003', engineNumber: 'EN-ML-003', licenseDate: '2020-03-10', licenseExpiryDate: '2023-03-09', ownerName: 'شركة ترانس', licenseType: 'نقل خاص', purchaseDate: '2020-02-01', hasGps: false },
+    { id: 4, code: 4, plateNumber: 'GHI-3456', model: 'Nissan Urvan', year: 2023, capacity: 22, status: 'Active', vehicleType: 'Bus', vehicleTypeId: 1, driverId: null, driverName: '', chassisNumber: 'CH-NU-004', engineNumber: 'EN-NU-004', licenseDate: '2023-01-01', licenseExpiryDate: '2026-01-01', ownerName: 'محمد عماد', licenseType: 'نقل عام', purchaseDate: '2023-01-01', hasGps: true },
+    { id: 5, code: 5, plateNumber: 'JKL-7890', model: 'Ford Transit', year: 2019, capacity: 20, status: 'Active', vehicleType: 'Van', vehicleTypeId: 2, driverId: null, driverName: '', chassisNumber: 'CH-FT-005', engineNumber: 'EN-FT-005', licenseDate: '2019-05-15', licenseExpiryDate: '2022-05-14', ownerName: 'شركة ترانس', licenseType: 'نقل خاص', purchaseDate: '2019-04-01', hasGps: false },
+    { id: 6, code: 6, plateNumber: 'MNO-2345', model: 'Iveco Daily', year: 2023, capacity: 24, status: 'Inactive', vehicleType: 'Truck', vehicleTypeId: 3, driverId: null, driverName: '', chassisNumber: 'CH-ID-006', engineNumber: 'EN-ID-006', licenseDate: '', licenseExpiryDate: '', ownerName: '', licenseType: '', purchaseDate: '', hasGps: false },
   ],
   vehicleHistory: {},
   drivers: [

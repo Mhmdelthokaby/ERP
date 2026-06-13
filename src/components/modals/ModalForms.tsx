@@ -10,25 +10,40 @@ const l = ar.legs
 
 export function AddVehicleModal() {
   const { addVehicle, closeModal, data } = useApp()
-  const [code, setCode] = useState("")
   const [plate, setPlate] = useState("")
   const [model, setModel] = useState("")
   const [year, setYear] = useState("")
   const [capacity, setCapacity] = useState("")
   const [vehicleTypeId, setVehicleTypeId] = useState<number | string>("")
   const [driverId, setDriverId] = useState<number | string>("")
+  const [chassis, setChassis] = useState("")
+  const [engine, setEngine] = useState("")
+  const [hasGps, setHasGps] = useState(false)
+  const [licenseDate, setLicenseDate] = useState("")
+  const [licenseExpiry, setLicenseExpiry] = useState("")
+  const [ownerName, setOwnerName] = useState("")
+  const [licenseType, setLicenseType] = useState("")
+  const [purchaseDate, setPurchaseDate] = useState("")
+  const [errors, setErrors] = useState<string[]>([])
+
+  const fieldError = (f: string) => errors.includes(f)
 
   const handleSubmit = () => {
-    if (!code || !plate || !model || !year) return
+    if (!plate || !model || !year) return
     const vt = vehicleTypeId !== "" ? data.vehicleTypes.find((t) => t.id === Number(vehicleTypeId)) : null
     const driver = driverId !== "" ? data.drivers.find((d) => d.id === Number(driverId)) : null
     addVehicle({
-      code, plateNumber: plate, model, year: parseInt(year),
+      plateNumber: plate, model, year: parseInt(year),
       capacity: parseFloat(capacity) || 0, vehicleType: vt?.name ?? "",
       vehicleTypeId: vt?.id ?? null,
       driverId: driver?.id ?? null, driverName: driver?.fullName ?? "",
+      chassisNumber: chassis, engineNumber: engine,
+      hasGps, licenseDate, licenseExpiryDate: licenseExpiry,
+      ownerName, licenseType, purchaseDate,
     })
-    setCode(""); setPlate(""); setModel(""); setYear(""); setCapacity(""); setVehicleTypeId(""); setDriverId("")
+    setPlate(""); setModel(""); setYear(""); setCapacity(""); setVehicleTypeId(""); setDriverId("")
+    setChassis(""); setEngine(""); setHasGps(false); setLicenseDate(""); setLicenseExpiry("")
+    setOwnerName(""); setLicenseType(""); setPurchaseDate("")
     closeModal()
   }
 
@@ -36,10 +51,9 @@ export function AddVehicleModal() {
     <Modal title={m.addVehicle} id="addVehicleModal">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">{m.code}</label><input type="text" placeholder="VHC-010" value={code} onChange={(e) => setCode(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">{m.plateNumber}</label><input type="text" placeholder="ABC-1234" value={plate} onChange={(e) => setPlate(e.target.value)} /></div>
+          <div><label className={`text-xs mb-1 block ${fieldError("plateNumber") ? "text-danger" : "text-muted"}`}>{m.plateNumber}</label><input type="text" placeholder="ABC-1234" value={plate} onChange={(e) => { setPlate(e.target.value); setErrors([]) }} className={fieldError("plateNumber") ? "!border-danger" : ""} />{fieldError("plateNumber") && <span className="text-xs text-danger mt-0.5 block">رقم اللوحة موجود مسبقاً</span>}</div>
+          <div><label className="text-xs text-muted mb-1 block">{m.model}</label><input type="text" placeholder="Toyota Hiace" value={model} onChange={(e) => setModel(e.target.value)} /></div>
         </div>
-        <div><label className="text-xs text-muted mb-1 block">{m.model}</label><input type="text" placeholder="Toyota Hiace" value={model} onChange={(e) => setModel(e.target.value)} /></div>
         <div className="grid grid-cols-3 gap-3">
           <div><label className="text-xs text-muted mb-1 block">{m.year}</label><input type="number" placeholder="2024" value={year} onChange={(e) => setYear(e.target.value)} /></div>
           <div><label className="text-xs text-muted mb-1 block">{m.capacity}</label><input type="number" placeholder="20" value={capacity} onChange={(e) => setCapacity(e.target.value)} /></div>
@@ -51,6 +65,23 @@ export function AddVehicleModal() {
               ))}
             </select>
           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className={`text-xs mb-1 block ${fieldError("chassisNumber") ? "text-danger" : "text-muted"}`}>{m.chassisNumber}</label><input type="text" placeholder="CH-001" value={chassis} onChange={(e) => { setChassis(e.target.value); setErrors([]) }} className={fieldError("chassisNumber") ? "!border-danger" : ""} />{fieldError("chassisNumber") && <span className="text-xs text-danger mt-0.5 block">رقم الشاسية موجود مسبقاً</span>}</div>
+          <div><label className={`text-xs mb-1 block ${fieldError("engineNumber") ? "text-danger" : "text-muted"}`}>{m.engineNumber}</label><input type="text" placeholder="EN-001" value={engine} onChange={(e) => { setEngine(e.target.value); setErrors([]) }} className={fieldError("engineNumber") ? "!border-danger" : ""} />{fieldError("engineNumber") && <span className="text-xs text-danger mt-0.5 block">رقم الماتور موجود مسبقاً</span>}</div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">{m.ownerName}</label><input type="text" placeholder="محمد عماد" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.licenseType}</label><input type="text" placeholder="نقل عام" value={licenseType} onChange={(e) => setLicenseType(e.target.value)} /></div>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">{m.licenseDate}</label><input type="date" value={licenseDate} onChange={(e) => setLicenseDate(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.licenseExpiry}</label><input type="date" value={licenseExpiry} onChange={(e) => setLicenseExpiry(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.purchaseDate}</label><input type="date" value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} /></div>
+        </div>
+        <div className="flex items-center gap-2">
+          <input type="checkbox" id="addGps" checked={hasGps} onChange={(e) => setHasGps(e.target.checked)} className="w-4 h-4" />
+          <label htmlFor="addGps" className="text-xs text-muted">{m.gps}</label>
         </div>
         <div><label className="text-xs text-muted mb-1 block">{m.assignDriver}</label>
           <select value={driverId} onChange={(e) => setDriverId(e.target.value)}>
@@ -134,25 +165,38 @@ export function AddDriverModal() {
 
 export function EditVehicleModal() {
   const { editingVehicle, updateVehicle, closeModal, data, setEditingVehicle } = useApp()
-  const [code, setCode] = useState(editingVehicle?.code ?? "")
   const [plate, setPlate] = useState(editingVehicle?.plateNumber ?? "")
   const [model, setModel] = useState(editingVehicle?.model ?? "")
   const [year, setYear] = useState(String(editingVehicle?.year ?? ""))
   const [capacity, setCapacity] = useState(String(editingVehicle?.capacity ?? ""))
   const [vehicleTypeId, setVehicleTypeId] = useState<number | string>(editingVehicle?.vehicleTypeId ?? "")
   const [driverId, setDriverId] = useState<number | string>(editingVehicle?.driverId ?? "")
+  const [chassis, setChassis] = useState(editingVehicle?.chassisNumber ?? "")
+  const [engine, setEngine] = useState(editingVehicle?.engineNumber ?? "")
+  const [hasGps, setHasGps] = useState(editingVehicle?.hasGps ?? false)
+  const [licenseDate, setLicenseDate] = useState(editingVehicle?.licenseDate ?? "")
+  const [licenseExpiry, setLicenseExpiry] = useState(editingVehicle?.licenseExpiryDate ?? "")
+  const [ownerName, setOwnerName] = useState(editingVehicle?.ownerName ?? "")
+  const [licenseType, setLicenseType] = useState(editingVehicle?.licenseType ?? "")
+  const [purchaseDate, setPurchaseDate] = useState(editingVehicle?.purchaseDate ?? "")
+  const [errors, setErrors] = useState<string[]>([])
+
+  const fieldError = (f: string) => errors.includes(f)
 
   if (!editingVehicle) return null
 
   const handleSubmit = () => {
-    if (!code || !plate || !model || !year) return
+    if (!plate || !model || !year) return
     const vt = vehicleTypeId !== "" ? data.vehicleTypes.find((t) => t.id === Number(vehicleTypeId)) : null
     const driver = driverId !== "" ? data.drivers.find((d) => d.id === Number(driverId)) : null
     updateVehicle(editingVehicle.id, {
-      code, plateNumber: plate, model, year: parseInt(year),
+      plateNumber: plate, model, year: parseInt(year),
       capacity: parseFloat(capacity) || 0, vehicleType: vt?.name ?? "",
       vehicleTypeId: vt?.id ?? null,
       driverId: driver?.id ?? null, driverName: driver?.fullName ?? "",
+      chassisNumber: chassis, engineNumber: engine,
+      hasGps, licenseDate, licenseExpiryDate: licenseExpiry,
+      ownerName, licenseType, purchaseDate,
     })
     setEditingVehicle(null); closeModal()
   }
@@ -161,10 +205,9 @@ export function EditVehicleModal() {
     <Modal title={m.editVehicle} id="editVehicleModal">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">{m.code}</label><input type="text" value={code} onChange={(e) => setCode(e.target.value)} /></div>
-          <div><label className="text-xs text-muted mb-1 block">{m.plateNumber}</label><input type="text" value={plate} onChange={(e) => setPlate(e.target.value)} /></div>
+          <div><label className={`text-xs mb-1 block ${fieldError("plateNumber") ? "text-danger" : "text-muted"}`}>{m.plateNumber}</label><input type="text" value={plate} onChange={(e) => { setPlate(e.target.value); setErrors([]) }} className={fieldError("plateNumber") ? "!border-danger" : ""} />{fieldError("plateNumber") && <span className="text-xs text-danger mt-0.5 block">رقم اللوحة موجود مسبقاً</span>}</div>
+          <div><label className="text-xs text-muted mb-1 block">{m.model}</label><input type="text" value={model} onChange={(e) => setModel(e.target.value)} /></div>
         </div>
-        <div><label className="text-xs text-muted mb-1 block">{m.model}</label><input type="text" value={model} onChange={(e) => setModel(e.target.value)} /></div>
         <div className="grid grid-cols-3 gap-3">
           <div><label className="text-xs text-muted mb-1 block">{m.year}</label><input type="number" value={year} onChange={(e) => setYear(e.target.value)} /></div>
           <div><label className="text-xs text-muted mb-1 block">{m.capacity}</label><input type="number" value={capacity} onChange={(e) => setCapacity(e.target.value)} /></div>
@@ -176,6 +219,23 @@ export function EditVehicleModal() {
               ))}
             </select>
           </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className={`text-xs mb-1 block ${fieldError("chassisNumber") ? "text-danger" : "text-muted"}`}>{m.chassisNumber}</label><input type="text" value={chassis} onChange={(e) => { setChassis(e.target.value); setErrors([]) }} className={fieldError("chassisNumber") ? "!border-danger" : ""} />{fieldError("chassisNumber") && <span className="text-xs text-danger mt-0.5 block">رقم الشاسية موجود مسبقاً</span>}</div>
+          <div><label className={`text-xs mb-1 block ${fieldError("engineNumber") ? "text-danger" : "text-muted"}`}>{m.engineNumber}</label><input type="text" value={engine} onChange={(e) => { setEngine(e.target.value); setErrors([]) }} className={fieldError("engineNumber") ? "!border-danger" : ""} />{fieldError("engineNumber") && <span className="text-xs text-danger mt-0.5 block">رقم الماتور موجود مسبقاً</span>}</div>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">{m.ownerName}</label><input type="text" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.licenseType}</label><input type="text" value={licenseType} onChange={(e) => setLicenseType(e.target.value)} /></div>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">{m.licenseDate}</label><input type="date" value={licenseDate} onChange={(e) => setLicenseDate(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.licenseExpiry}</label><input type="date" value={licenseExpiry} onChange={(e) => setLicenseExpiry(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{m.purchaseDate}</label><input type="date" value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} /></div>
+        </div>
+        <div className="flex items-center gap-2">
+          <input type="checkbox" id="editGps" checked={hasGps} onChange={(e) => setHasGps(e.target.checked)} className="w-4 h-4" />
+          <label htmlFor="editGps" className="text-xs text-muted">{m.gps}</label>
         </div>
         <div><label className="text-xs text-muted mb-1 block">{m.assignDriver}</label>
           <select value={driverId} onChange={(e) => setDriverId(e.target.value)}>

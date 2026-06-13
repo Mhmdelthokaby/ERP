@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { db } from "@/db"
 import { vehicles, vehicleTypes, drivers, vehicleHistory } from "@/db/schema"
-import { eq } from "drizzle-orm"
+import { eq, or } from "drizzle-orm"
 
 export async function GET(_request: Request, { params }: { params: { id: string } }) {
   try {
@@ -41,9 +41,35 @@ export async function GET(_request: Request, { params }: { params: { id: string 
   }
 }
 
+async function checkUnique(body: Record<string, unknown>, excludeId?: string) {
+  const errors: string[] = []
+  const conditions: any[] = []
+  if (body.plateNumber) conditions.push(eq(vehicles.plateNumber, body.plateNumber as string))
+  if (body.chassisNumber) conditions.push(eq(vehicles.chassisNumber, body.chassisNumber as string))
+  if (body.engineNumber) conditions.push(eq(vehicles.engineNumber, body.engineNumber as string))
+  if (body.code) conditions.push(eq(vehicles.code, Number(body.code)))
+  if (conditions.length === 0) return errors
+  const existing = await db.select({
+    plateNumber: vehicles.plateNumber, chassisNumber: vehicles.chassisNumber,
+    engineNumber: vehicles.engineNumber, code: vehicles.code, id: vehicles.id,
+  }).from(vehicles).where(or(...conditions))
+  for (const row of existing) {
+    if (excludeId && row.id === excludeId) continue
+    if (row.plateNumber === body.plateNumber) errors.push("plateNumber")
+    if (body.chassisNumber && row.chassisNumber === body.chassisNumber) errors.push("chassisNumber")
+    if (body.engineNumber && row.engineNumber === body.engineNumber) errors.push("engineNumber")
+    if (body.code && row.code === Number(body.code)) errors.push("code")
+  }
+  return errors
+}
+
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
     const body = await request.json()
+    const conflicts = await checkUnique(body, params.id)
+    if (conflicts.length) {
+      return NextResponse.json({ error: "duplicate", fields: conflicts }, { status: 409 })
+    }
     const [data] = await db.update(vehicles).set({ ...body, updatedAt: new Date() }).where(eq(vehicles.id, params.id)).returning()
     await db.insert(vehicleHistory).values({
       vehicleId: data.id,
