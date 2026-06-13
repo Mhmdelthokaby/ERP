@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useApp } from "@/lib/app-context"
 import { Modal } from "@/components/shared"
 import { ar } from "@/lib/ar"
@@ -70,7 +70,6 @@ export function AddVehicleModal() {
 
 export function AddDriverModal() {
   const { addDriver, closeModal } = useApp()
-  const [code, setCode] = useState("")
   const [fullName, setFullName] = useState("")
   const [phone, setPhone] = useState("")
   const [nationalId, setNationalId] = useState("")
@@ -80,9 +79,9 @@ export function AddDriverModal() {
   const [hireDate, setHireDate] = useState("")
 
   const handleSubmit = () => {
-    if (!code || !fullName || !phone) return
-    addDriver({ code, fullName, phone, nationalId, licenseGrade, insuranceNumber: insuranceNumber || undefined, salary: salary || undefined, hireDate: hireDate || undefined, isActive: true })
-    setCode(""); setFullName(""); setPhone(""); setNationalId(""); setLicenseGrade("A"); setInsuranceNumber(""); setSalary(""); setHireDate("")
+    if (!fullName || !phone) return
+    addDriver({ fullName, phone, nationalId, licenseGrade, insuranceNumber: insuranceNumber || undefined, salary: salary || undefined, hireDate: hireDate || new Date().toISOString().slice(0, 10), isActive: true })
+    setFullName(""); setPhone(""); setNationalId(""); setLicenseGrade("A"); setInsuranceNumber(""); setSalary(""); setHireDate("")
     closeModal()
   }
 
@@ -90,7 +89,6 @@ export function AddDriverModal() {
     <Modal title={m.addDriver} id="addDriverModal">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">{m.code}</label><input type="text" placeholder="DRV-010" value={code} onChange={(e) => setCode(e.target.value)} /></div>
           <div><label className="text-xs text-muted mb-1 block">{m.fullName}</label><input type="text" placeholder="Ahmed Hassan" value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -180,20 +178,30 @@ export function EditVehicleModal() {
 
 export function EditDriverModal() {
   const { editingDriver, updateDriver, closeModal, setEditingDriver } = useApp()
-  const [code, setCode] = useState(editingDriver?.code ?? "")
-  const [fullName, setFullName] = useState(editingDriver?.fullName ?? "")
-  const [phone, setPhone] = useState(editingDriver?.phone ?? "")
-  const [nationalId, setNationalId] = useState(editingDriver?.nationalId ?? "")
-  const [licenseGrade, setLicenseGrade] = useState(editingDriver?.licenseGrade ?? "A")
-  const [insuranceNumber, setInsuranceNumber] = useState(editingDriver?.insuranceNumber ?? "")
-  const [salary, setSalary] = useState(editingDriver?.salary ?? "")
-  const [hireDate, setHireDate] = useState(editingDriver?.hireDate ?? "")
+  const [fullName, setFullName] = useState("")
+  const [phone, setPhone] = useState("")
+  const [nationalId, setNationalId] = useState("")
+  const [licenseGrade, setLicenseGrade] = useState("A")
+  const [insuranceNumber, setInsuranceNumber] = useState("")
+  const [salary, setSalary] = useState("")
+  const [hireDate, setHireDate] = useState("")
+
+  useEffect(() => {
+    if (!editingDriver) return
+    setFullName(editingDriver.fullName)
+    setPhone(editingDriver.phone)
+    setNationalId(editingDriver.nationalId ?? "")
+    setLicenseGrade(editingDriver.licenseGrade)
+    setInsuranceNumber(editingDriver.insuranceNumber ?? "")
+    setSalary(editingDriver.salary ?? "")
+    setHireDate(editingDriver.hireDate ?? "")
+  }, [editingDriver])
 
   if (!editingDriver) return null
 
   const handleSubmit = () => {
-    if (!code || !fullName || !phone) return
-    updateDriver(editingDriver.id, { code, fullName, phone, nationalId, licenseGrade, insuranceNumber: insuranceNumber || undefined, salary: salary || undefined, hireDate: hireDate || undefined })
+    if (!fullName || !phone) return
+    updateDriver(editingDriver.id, { fullName, phone, nationalId, licenseGrade, insuranceNumber: insuranceNumber || undefined, salary: salary || undefined, hireDate: hireDate || undefined })
     setEditingDriver(null); closeModal()
   }
 
@@ -201,7 +209,6 @@ export function EditDriverModal() {
     <Modal title={m.editDriver} id="editDriverModal">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">{m.code}</label><input type="text" value={code} onChange={(e) => setCode(e.target.value)} /></div>
           <div><label className="text-xs text-muted mb-1 block">{m.fullName}</label><input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} /></div>
         </div>
         <div className="grid grid-cols-2 gap-3">

@@ -121,7 +121,8 @@ Items not yet implemented or not wired:
 2. ✅ Fleet frontend wiring: detail pane, history table, active toggle, driver assignment in add modal, Add/Edit Driver modal, Edit Vehicle modal, independent data loading
 3. ✅ Vehicle Types CRUD: backend API (GET/POST/PUT/DELETE), frontend Types tab, add/edit modals, vehicle forms load types from DB
 4. ✅ Arabic UI: all dashboard pages, modals, layout, shared components translated; `ar.ts` with comprehensive translations; `ar-EG` locale
-5. Add role-based UI filtering using `session.user.role`
-6. Wire outbox worker to start on server init
-7. Install Font Awesome as npm dependency (remove CDN)
-8. Seed more realistic data (journal entries, AR/AP, outbox messages)
+5. ✅ Driver code auto-generation: DB `code` changed from `text` to `serial` — numeric, auto-incremented, removed from user forms
+6. Add role-based UI filtering using `session.user.role`
+7. Wire outbox worker to start on server init
+8. Install Font Awesome as npm dependency (remove CDN)
+9. Seed more realistic data (journal entries, AR/AP, outbox messages)

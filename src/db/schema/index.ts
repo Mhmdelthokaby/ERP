@@ -9,6 +9,7 @@ import {
   integer,
   boolean,
   jsonb,
+  serial,
 } from "drizzle-orm/pg-core"
 
 export const userRoleEnum = pgEnum("user_role", [
@@ -122,7 +123,7 @@ export const vehicles = pgTable("vehicles", {
 
 export const drivers = pgTable("drivers", {
   id: uuid("id").defaultRandom().primaryKey(),
-  code: text("code").notNull().unique(),
+  code: serial("code").notNull().unique(),
   fullName: text("full_name").notNull(),
   nationalId: text("national_id").unique(),
   insuranceNumber: text("insurance_number"),

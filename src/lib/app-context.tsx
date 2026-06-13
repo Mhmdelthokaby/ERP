@@ -39,7 +39,7 @@ interface AppContextType {
   updateVehicle: (id: number, v: Partial<Vehicle>) => void
   toggleVehicleActive: (id: number) => void
   deactivateVehicle: (id: number) => void
-  addDriver: (d: Omit<Driver, "id">) => void
+  addDriver: (d: Omit<Driver, "id" | "code">) => void
   updateDriver: (id: number, d: Partial<Driver>) => void
   deleteDriver: (id: number) => void
   fetchVehicleHistory: (id: number) => Promise<void>
@@ -83,7 +83,7 @@ function dbDriverToMock(d: Record<string, unknown>): Driver {
   return {
     id: parseInt(rawId.slice(0, 8), 16) || Math.random(),
     dbId: rawId,
-    code: String(d.code || ""),
+    code: Number(d.code) || 0,
     fullName: String(d.fullName || ""),
     phone: String(d.phone || ""),
     nationalId: String(d.nationalId || ""),
@@ -232,12 +232,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
     showToast(`${v.plateNumber} deactivated`, "warning")
   }, [data.vehicles, showToast])
 
-  const addDriver = useCallback((d: Omit<Driver, "id">) => {
+  const addDriver = useCallback((d: Omit<Driver, "id" | "code">) => {
     api.createDriver(d).then((res) => {
       const mapped = dbDriverToMock(res.data as Record<string, unknown>)
       setData((prev) => ({ ...prev, drivers: [...prev.drivers, mapped] }))
     }).catch(() => {
-      setData((prev) => ({ ...prev, drivers: [...prev.drivers, { ...d, id: prev.drivers.length + 1 }] }))
+      setData((prev) => {
+        const maxCode = prev.drivers.reduce((max, dr) => Math.max(max, dr.code), 0)
+        return { ...prev, drivers: [...prev.drivers, { ...d, id: prev.drivers.length + 1, code: maxCode + 1 }] }
+      })
     })
     showToast(`Driver ${d.fullName} added`)
   }, [showToast])
@@ -245,12 +248,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const updateDriver = useCallback((id: number, updates: Partial<Driver>) => {
     const d = data.drivers.find((x) => x.id === id)
     if (!d) return
-    api.updateDriver(d.dbId ?? String(d.id), updates).then((res) => {
-      const mapped = dbDriverToMock(res.data as Record<string, unknown>)
-      setData((prev) => ({ ...prev, drivers: prev.drivers.map((x) => x.id === id ? mapped : x) }))
-    }).catch(() => {
-      setData((prev) => ({ ...prev, drivers: prev.drivers.map((x) => x.id === id ? { ...x, ...updates } : x) }))
-    })
+    setData((prev) => ({ ...prev, drivers: prev.drivers.map((x) => x.id === id ? { ...x, ...updates } : x) }))
+    api.updateDriver(d.dbId ?? String(d.id), updates).catch(() => {})
     showToast(`Driver ${d.fullName} updated`)
   }, [data.drivers, showToast])
 
@@ -448,7 +447,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const toggleDriverActive = useCallback((id: number) => {
     const d = data.drivers.find((x) => x.id === id)
     if (!d) return
-    api.toggleDriverActive(d.dbId ?? String(d.id), d.code).then((res) => {
+    api.toggleDriverActive(d.dbId ?? String(d.id), String(d.code)).then((res) => {
       const mapped = dbDriverToMock(res.data as Record<string, unknown>)
       setData((prev) => ({ ...prev, drivers: prev.drivers.map((x) => x.id === id ? mapped : x) }))
     }).catch(() => {
