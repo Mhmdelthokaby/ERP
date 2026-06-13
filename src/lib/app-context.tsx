@@ -19,6 +19,8 @@ interface AppContextType {
   apiAvailable: boolean
   currentPage: PageName
   setPage: (p: PageName) => void
+  currentSubtitle: string
+  setCurrentSubtitle: (s: string) => void
   sidebarOpen: boolean
   toggleSidebar: () => void
   toasts: Toast[]
@@ -198,7 +200,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const removeToast = useCallback((id: number) => { setToasts((prev) => prev.filter((t) => t.id !== id)) }, [])
   const openModal = useCallback((id: string) => setActiveModal(id), [])
   const closeModal = useCallback(() => setActiveModal(null), [])
-  const setPage = useCallback((p: PageName) => setCurrentPage(p), [])
+  const [currentSubtitle, setCurrentSubtitle] = useState("")
+  const setPage = useCallback((p: PageName) => {
+    setCurrentPage(p); setCurrentSubtitle("")
+  }, [])
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null)
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null)
   const [editingVehicleType, setEditingVehicleType] = useState<VehicleType | null>(null)
@@ -521,7 +526,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   return (
     <AppContext.Provider value={{
-      data, loading, apiAvailable, currentPage, setPage, sidebarOpen, toggleSidebar, toasts, showToast, removeToast,
+      data, loading, apiAvailable, currentPage, setPage, currentSubtitle, setCurrentSubtitle, sidebarOpen, toggleSidebar, toasts, showToast, removeToast,
       activeModal, openModal, closeModal,
       editingVehicle, editingDriver, editingVehicleType, setEditingVehicle, setEditingDriver, setEditingVehicleType,
       editingLicenseGrade, setEditingLicenseGrade,
