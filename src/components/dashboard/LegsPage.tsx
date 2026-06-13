@@ -18,7 +18,7 @@ export function LegsPage() {
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [pendingToggleId, setPendingToggleId] = useState<number | null>(null)
 
-  // server-side filter/sort/pagination state
+  // filter state
   const [searchQuery, setSearchQuery] = useState("")
   const [filterGrade, setFilterGrade] = useState("")
   const [filterActive, setFilterActive] = useState("")
