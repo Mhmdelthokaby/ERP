@@ -7,10 +7,18 @@ import { ar } from "@/lib/ar"
 const f = ar.fleet
 
 export function FleetPage() {
-  const { data, openModal, toggleVehicleActive, fetchVehicleHistory, deleteVehicleType, setEditingVehicle, setEditingVehicleType, pendingVehicleView, setPendingVehicleView } = useApp()
+  const { data, openModal, toggleVehicleActive, fetchVehicleHistory, deleteVehicleType, setEditingVehicle, setEditingVehicleType, pendingVehicleView, setPendingVehicleView, setCurrentSubtitle, toggleSidebar, sidebarOpen } = useApp()
   const [fleetTab, setFleetTab] = useState<"vehicles" | "types">("vehicles")
   const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null)
   const [historyLoading, setHistoryLoading] = useState(false)
+
+  useEffect(() => {
+    setCurrentSubtitle(`/ ${fleetTab === "vehicles" ? f.vehicles : f.types}`)
+  }, [fleetTab, setCurrentSubtitle])
+
+  useEffect(() => {
+    if (sidebarOpen && selectedVehicleId != null) setSelectedVehicleId(null)
+  }, [sidebarOpen])
 
   useEffect(() => {
     if (pendingVehicleView != null) {
@@ -26,6 +34,7 @@ export function FleetPage() {
   const handleVehicleClick = async (id: number) => {
     if (selectedVehicleId === id) { setSelectedVehicleId(null); return }
     setSelectedVehicleId(id)
+    toggleSidebar()
     setHistoryLoading(true)
     await fetchVehicleHistory(id)
     setHistoryLoading(false)
@@ -82,9 +91,14 @@ export function FleetPage() {
 
           {selectedVehicle && (
             <div className="bg-card border border-border rounded-xl overflow-hidden">
-              <div className="p-4 border-b border-border">
-                <h3 className="text-sm font-semibold">{selectedVehicle.plateNumber} — {f.details}</h3>
-                <p className="text-xs text-muted mt-1">{selectedVehicle.model}</p>
+              <div className="p-4 border-b border-border flex items-start justify-between">
+                <div>
+                  <h3 className="text-sm font-semibold">{selectedVehicle.plateNumber} — {f.details}</h3>
+                  <p className="text-xs text-muted mt-1">{selectedVehicle.model}</p>
+                </div>
+                <button className="text-muted hover:text-fg transition-colors" onClick={() => setSelectedVehicleId(null)} title="إغلاق">
+                  <i className="fa-solid fa-xmark text-lg"></i>
+                </button>
               </div>
               <div className="p-4 space-y-3 text-sm">
                 <div className="grid grid-cols-2 gap-2 text-xs">

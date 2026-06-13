@@ -267,7 +267,7 @@ export type PageName = 'dashboard' | 'fleet' | 'trips' | 'expenses' | 'accountin
 
 export const pageTitles: Record<PageName, [string, string]> = {
   dashboard: ['لوحة القيادة', '/ نظرة عامة'],
-  fleet: ['إدارة الأسطول', '/ المركبات والسائقين'],
+  fleet: ['إدارة الأسطول', '/ المركبات'],
   trips: ['العمليات', '/ أوامر التشغيل'],
   expenses: ['المصروفات', '/ مصروفات المركبات والرحلات'],
   accounting: ['المحاسبة', '/ الأستاذ ودليل الحسابات'],

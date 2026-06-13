@@ -46,7 +46,7 @@ export const ar = {
   fleet: {
     vehicles: 'المركبات',
     drivers: 'السائقين',
-    types: 'الأنواع',
+    types: 'أنواع المركبات',
     addVehicle: 'إضافة مركبة',
     addDriver: 'إضافة سائق',
     addType: 'إضافة نوع',
