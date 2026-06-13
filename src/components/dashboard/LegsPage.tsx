@@ -131,10 +131,15 @@ export function LegsPage() {
               <thead>
                 <tr className="text-xs text-muted uppercase tracking-wider border-b border-border bg-surface/50">
                   <th className="text-right p-4 font-medium">{l.code}</th>
-                  <th className="text-right p-4 font-medium">{l.fullName}</th>
+                  <th className="text-right p-4 font-medium cursor-pointer select-none hover:text-fg" onClick={() => handleSort("name")}>
+                    {l.fullName} {sortBy === "name" ? (sortDir === "asc" ? "▲" : "▼") : ""}
+                  </th>
                   <th className="text-right p-4 font-medium">{l.phone}</th>
                   <th className="text-right p-4 font-medium">{l.licenseGrade}</th>
                   <th className="text-right p-4 font-medium">{l.status}</th>
+                  <th className="text-right p-4 font-medium cursor-pointer select-none hover:text-fg" onClick={() => handleSort("salary")}>
+                    {ar.fleetModals.salary} {sortBy === "salary" ? (sortDir === "asc" ? "▲" : "▼") : ""}
+                  </th>
                   <th className="text-right p-4 font-medium">{l.actions}</th>
                 </tr>
               </thead>
@@ -159,6 +164,7 @@ export function LegsPage() {
                         <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${d.isActive ? "translate-x-6" : "translate-x-1"}`} />
                       </button>
                     </td>
+                    <td className="p-4 font-mono text-xs text-muted">{d.salary || "—"}</td>
                     <td className="p-4 text-right" onClick={(e) => e.stopPropagation()}>
                       <button className="text-muted hover:text-accent transition-colors mr-2" title={l.view} onClick={() => selectDriver(d.id)}>
                         <i className="fa-solid fa-eye text-xs"></i>
@@ -171,6 +177,24 @@ export function LegsPage() {
                 ))}
               </tbody>
             </table>
+            <div className="flex items-center justify-between p-3 border-t border-border text-xs text-muted">
+              <div className="flex items-center gap-2">
+                <span>عرض</span>
+                <select value={pageSize} onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1) }} className="!py-1 !text-xs">
+                  <option value={10}>10</option>
+                  <option value={15}>15</option>
+                  <option value={20}>20</option>
+                </select>
+                <span>من {sorted.length}</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <button className="px-2 py-1 rounded hover:bg-surface disabled:opacity-30" disabled={safePage <= 1} onClick={() => setCurrentPage(safePage - 1)}>‹</button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <button key={p} className={`px-2 py-1 rounded ${p === safePage ? "bg-accent text-white" : "hover:bg-surface"}`} onClick={() => setCurrentPage(p)}>{p}</button>
+                ))}
+                <button className="px-2 py-1 rounded hover:bg-surface disabled:opacity-30" disabled={safePage >= totalPages} onClick={() => setCurrentPage(safePage + 1)}>›</button>
+              </div>
+            </div>
           </div>
 
           {selected && (
