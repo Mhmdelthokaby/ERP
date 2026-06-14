@@ -16,9 +16,9 @@
                               ├─ AccountingPage (CoA tree, journal, periods, cost centers)
                               ├─ ArApPage (AR/AP invoices/payments tabs)
                                ├─ ReportsPage (trial balance, income statement, balance sheet)
-                                ├─ SuppliersPage (supplier records table + add/edit/delete)
-                                ├─ MaintenancePage (maintenance records + types tabs, details panel)
-                                └─ SettingsPage (users, outbox, audit log)
+                               ├─ SuppliersPage (supplier records table + add/edit/delete)
+                               ├─ MaintenancePage (maintenance records + types tabs, details panel)
+                               └─ SettingsPage (users, outbox, audit log)
 
 [AppProvider Context] ← [useState<AppData>] ← [all CRUD actions]
    └─ Hybrid data layer: API first → mock fallback
@@ -139,6 +139,6 @@ Items not yet implemented or not wired:
 15. ✅ Button styling: all primary add buttons use p-3 rounded-xl text-white (suppliers, fleet, legs pages)
 16. ✅ Maintenance page: DB schema + migrations 0009/0010, API routes, records+types tabs, detail panel, add/edit modals
 17. Add role-based UI filtering using `session.user.role`
-17. Wire outbox worker to start on server init
-18. Install Font Awesome as npm dependency (remove CDN)
-19. Seed more realistic data (journal entries, AR/AP, outbox messages)
+18. Wire outbox worker to start on server init
+19. Install Font Awesome as npm dependency (remove CDN)
+20. Seed more realistic data (journal entries, AR/AP, outbox messages)
