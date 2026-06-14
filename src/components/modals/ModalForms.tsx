@@ -887,28 +887,28 @@ export function EditMaintenanceTypeModal() {
 
 export function AddMaintenanceModal() {
   const { addMaintenance, closeModal, data } = useApp()
-  const [vehicleId, setVehicleId] = useState<number | string>("")
+  const [vehicleId, setVehicleId] = useState("")
   const [plateNumber, setPlateNumber] = useState("")
   const [vehicleCode, setVehicleCode] = useState<number | null>(null)
   const [maintenanceDate, setMaintenanceDate] = useState("")
-  const [supplierId, setSupplierId] = useState<number | string>("")
+  const [supplierId, setSupplierId] = useState("")
   const [supplierName, setSupplierName] = useState("")
   const [supplierCode, setSupplierCode] = useState<number | null>(null)
   const [invoiceNumber, setInvoiceNumber] = useState("")
-  const [maintenanceTypeId, setMaintenanceTypeId] = useState<number | string>("")
+  const [maintenanceTypeId, setMaintenanceTypeId] = useState("")
   const [notes, setNotes] = useState("")
   const [saving, setSaving] = useState(false)
 
-  const handleVehicleChange = (id: number | string) => {
-    setVehicleId(id)
-    const vehicle = data.vehicles.find((v) => v.id === Number(id))
+  const handleVehicleChange = (dbId: string) => {
+    setVehicleId(dbId)
+    const vehicle = data.vehicles.find((v) => (v.dbId ?? String(v.id)) === dbId)
     setPlateNumber(vehicle?.plateNumber ?? "")
     setVehicleCode(vehicle?.code ?? null)
   }
 
-  const handleSupplierChange = (id: number | string) => {
-    setSupplierId(id)
-    const supplier = data.suppliers.find((s) => s.id === Number(id))
+  const handleSupplierChange = (dbId: string) => {
+    setSupplierId(dbId)
+    const supplier = data.suppliers.find((s) => (s.dbId ?? String(s.id)) === dbId)
     setSupplierName(supplier?.name ?? "")
     setSupplierCode(supplier?.code ?? null)
   }
@@ -919,12 +919,12 @@ export function AddMaintenanceModal() {
     try {
       await addMaintenance({
         plateNumber, maintenanceDate,
-        vehicleId: vehicleId !== "" ? Number(vehicleId) : null,
+        vehicleId: vehicleId || null,
         vehicleCode,
-        supplierId: supplierId !== "" ? Number(supplierId) : null,
+        supplierId: supplierId || null,
         supplierName, supplierCode,
         invoiceNumber,
-        maintenanceTypeId: maintenanceTypeId !== "" ? Number(maintenanceTypeId) : null,
+        maintenanceTypeId: maintenanceTypeId || null,
         notes,
       })
       closeModal()
@@ -941,7 +941,7 @@ export function AddMaintenanceModal() {
           <div><label className="text-xs text-muted mb-1 block">{mt.plateNumber} *</label>
             <select className="p-3 rounded-xl text-white" value={vehicleId} onChange={(e) => handleVehicleChange(e.target.value)}>
               <option value="">-- اختر مركبة --</option>
-              {data.vehicles.map((v) => <option key={v.id} value={v.id}>{v.plateNumber} ({v.code})</option>)}
+              {data.vehicles.map((v) => <option key={v.id} value={v.dbId ?? String(v.id)}>{v.plateNumber} ({v.code})</option>)}
             </select>
           </div>
           <div><label className="text-xs text-muted mb-1 block">{mt.maintenanceDate} *</label><input className="p-3 rounded-xl text-white" type="date" value={maintenanceDate} onChange={(e) => setMaintenanceDate(e.target.value)} /></div>
@@ -949,7 +949,7 @@ export function AddMaintenanceModal() {
         <div><label className="text-xs text-muted mb-1 block">{mt.supplierName} *</label>
           <select className="p-3 rounded-xl text-white" value={supplierId} onChange={(e) => handleSupplierChange(e.target.value)}>
             <option value="">-- اختر مورد --</option>
-            {data.suppliers.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.code})</option>)}
+            {data.suppliers.map((s) => <option key={s.id} value={s.dbId ?? String(s.id)}>{s.name} ({s.code})</option>)}
           </select>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -957,7 +957,7 @@ export function AddMaintenanceModal() {
           <div><label className="text-xs text-muted mb-1 block">{mt.maintenanceType}</label>
             <select className="p-3 rounded-xl text-white" value={maintenanceTypeId} onChange={(e) => setMaintenanceTypeId(e.target.value)}>
               <option value="">-- اختر نوع --</option>
-              {data.maintenanceTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+              {data.maintenanceTypes.map((t) => <option key={t.id} value={t.dbId ?? String(t.id)}>{t.name}</option>)}
             </select>
           </div>
         </div>
@@ -973,30 +973,33 @@ export function AddMaintenanceModal() {
 
 export function EditMaintenanceModal() {
   const { editingMaintenance, updateMaintenance, closeModal, setEditingMaintenance, data } = useApp()
-  const [vehicleId, setVehicleId] = useState<number | string>(editingMaintenance?.vehicleId ?? "")
+  const initVeh = data.vehicles.find((v) => v.id === editingMaintenance?.vehicleId)
+  const [vehicleId, setVehicleId] = useState(initVeh ? (initVeh.dbId ?? String(initVeh.id)) : "")
   const [plateNumber, setPlateNumber] = useState(editingMaintenance?.plateNumber ?? "")
   const [vehicleCode, setVehicleCode] = useState<number | null>(editingMaintenance?.vehicleCode ?? null)
   const [maintenanceDate, setMaintenanceDate] = useState(editingMaintenance?.maintenanceDate ?? "")
-  const [supplierId, setSupplierId] = useState<number | string>(editingMaintenance?.supplierId ?? "")
+  const initSup = data.suppliers.find((s) => s.id === editingMaintenance?.supplierId)
+  const [supplierId, setSupplierId] = useState(initSup ? (initSup.dbId ?? String(initSup.id)) : "")
   const [supplierName, setSupplierName] = useState(editingMaintenance?.supplierName ?? "")
   const [supplierCode, setSupplierCode] = useState<number | null>(editingMaintenance?.supplierCode ?? null)
   const [invoiceNumber, setInvoiceNumber] = useState(editingMaintenance?.invoiceNumber ?? "")
-  const [maintenanceTypeId, setMaintenanceTypeId] = useState<number | string>(editingMaintenance?.maintenanceTypeId ?? "")
+  const initMt = data.maintenanceTypes.find((t) => t.id === editingMaintenance?.maintenanceTypeId)
+  const [maintenanceTypeId, setMaintenanceTypeId] = useState(initMt ? (initMt.dbId ?? String(initMt.id)) : "")
   const [notes, setNotes] = useState(editingMaintenance?.notes ?? "")
   const [saving, setSaving] = useState(false)
 
   if (!editingMaintenance) return null
 
-  const handleVehicleChange = (id: number | string) => {
-    setVehicleId(id)
-    const vehicle = data.vehicles.find((v) => v.id === Number(id))
+  const handleVehicleChange = (dbId: string) => {
+    setVehicleId(dbId)
+    const vehicle = data.vehicles.find((v) => (v.dbId ?? String(v.id)) === dbId)
     setPlateNumber(vehicle?.plateNumber ?? "")
     setVehicleCode(vehicle?.code ?? null)
   }
 
-  const handleSupplierChange = (id: number | string) => {
-    setSupplierId(id)
-    const supplier = data.suppliers.find((s) => s.id === Number(id))
+  const handleSupplierChange = (dbId: string) => {
+    setSupplierId(dbId)
+    const supplier = data.suppliers.find((s) => (s.dbId ?? String(s.id)) === dbId)
     setSupplierName(supplier?.name ?? "")
     setSupplierCode(supplier?.code ?? null)
   }
@@ -1007,12 +1010,12 @@ export function EditMaintenanceModal() {
     try {
       await updateMaintenance(editingMaintenance.id, {
         plateNumber, maintenanceDate,
-        vehicleId: vehicleId !== "" ? Number(vehicleId) : null,
+        vehicleId: vehicleId || null,
         vehicleCode,
-        supplierId: supplierId !== "" ? Number(supplierId) : null,
+        supplierId: supplierId || null,
         supplierName, supplierCode,
         invoiceNumber,
-        maintenanceTypeId: maintenanceTypeId !== "" ? Number(maintenanceTypeId) : null,
+        maintenanceTypeId: maintenanceTypeId || null,
         notes,
       })
       setEditingMaintenance(null); closeModal()
@@ -1029,7 +1032,7 @@ export function EditMaintenanceModal() {
           <div><label className="text-xs text-muted mb-1 block">{mt.plateNumber} *</label>
             <select className="p-3 rounded-xl text-white" value={vehicleId} onChange={(e) => handleVehicleChange(e.target.value)}>
               <option value="">-- اختر مركبة --</option>
-              {data.vehicles.map((v) => <option key={v.id} value={v.id}>{v.plateNumber} ({v.code})</option>)}
+              {data.vehicles.map((v) => <option key={v.id} value={v.dbId ?? String(v.id)}>{v.plateNumber} ({v.code})</option>)}
             </select>
           </div>
           <div><label className="text-xs text-muted mb-1 block">{mt.maintenanceDate} *</label><input className="p-3 rounded-xl text-white" type="date" value={maintenanceDate} onChange={(e) => setMaintenanceDate(e.target.value)} /></div>
@@ -1037,7 +1040,7 @@ export function EditMaintenanceModal() {
         <div><label className="text-xs text-muted mb-1 block">{mt.supplierName} *</label>
           <select className="p-3 rounded-xl text-white" value={supplierId} onChange={(e) => handleSupplierChange(e.target.value)}>
             <option value="">-- اختر مورد --</option>
-            {data.suppliers.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.code})</option>)}
+            {data.suppliers.map((s) => <option key={s.id} value={s.dbId ?? String(s.id)}>{s.name} ({s.code})</option>)}
           </select>
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -1045,7 +1048,7 @@ export function EditMaintenanceModal() {
           <div><label className="text-xs text-muted mb-1 block">{mt.maintenanceType}</label>
             <select className="p-3 rounded-xl text-white" value={maintenanceTypeId} onChange={(e) => setMaintenanceTypeId(e.target.value)}>
               <option value="">-- اختر نوع --</option>
-              {data.maintenanceTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+              {data.maintenanceTypes.map((t) => <option key={t.id} value={t.dbId ?? String(t.id)}>{t.name}</option>)}
             </select>
           </div>
         </div>
