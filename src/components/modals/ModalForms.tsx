@@ -887,7 +887,9 @@ export function EditMaintenanceTypeModal() {
 
 export function AddMaintenanceModal() {
   const { addMaintenance, closeModal, data } = useApp()
+  const [vehicleId, setVehicleId] = useState<number | string>("")
   const [plateNumber, setPlateNumber] = useState("")
+  const [vehicleCode, setVehicleCode] = useState<number | null>(null)
   const [maintenanceDate, setMaintenanceDate] = useState("")
   const [supplierId, setSupplierId] = useState<number | string>("")
   const [supplierName, setSupplierName] = useState("")
@@ -896,6 +898,13 @@ export function AddMaintenanceModal() {
   const [maintenanceTypeId, setMaintenanceTypeId] = useState<number | string>("")
   const [notes, setNotes] = useState("")
   const [saving, setSaving] = useState(false)
+
+  const handleVehicleChange = (id: number | string) => {
+    setVehicleId(id)
+    const vehicle = data.vehicles.find((v) => v.id === Number(id))
+    setPlateNumber(vehicle?.plateNumber ?? "")
+    setVehicleCode(vehicle?.code ?? null)
+  }
 
   const handleSupplierChange = (id: number | string) => {
     setSupplierId(id)
@@ -910,7 +919,8 @@ export function AddMaintenanceModal() {
     try {
       await addMaintenance({
         plateNumber, maintenanceDate,
-        vehicleId: null,
+        vehicleId: vehicleId !== "" ? Number(vehicleId) : null,
+        vehicleCode,
         supplierId: supplierId !== "" ? Number(supplierId) : null,
         supplierName, supplierCode,
         invoiceNumber,
@@ -928,10 +938,12 @@ export function AddMaintenanceModal() {
     <Modal title={mt.add} id="addMaintenanceModal">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">{mt.plateNumber} *</label><input className="p-3 rounded-xl text-white" type="text" list="vehicles-list" value={plateNumber} onChange={(e) => setPlateNumber(e.target.value)} /></div>
-          <datalist id="vehicles-list">
-            {data.vehicles.map((v) => <option key={v.id} value={v.plateNumber} />)}
-          </datalist>
+          <div><label className="text-xs text-muted mb-1 block">{mt.plateNumber} *</label>
+            <select className="p-3 rounded-xl text-white" value={vehicleId} onChange={(e) => handleVehicleChange(e.target.value)}>
+              <option value="">-- اختر مركبة --</option>
+              {data.vehicles.map((v) => <option key={v.id} value={v.id}>{v.plateNumber} ({v.code})</option>)}
+            </select>
+          </div>
           <div><label className="text-xs text-muted mb-1 block">{mt.maintenanceDate} *</label><input className="p-3 rounded-xl text-white" type="date" value={maintenanceDate} onChange={(e) => setMaintenanceDate(e.target.value)} /></div>
         </div>
         <div><label className="text-xs text-muted mb-1 block">{mt.supplierName} *</label>
@@ -961,7 +973,9 @@ export function AddMaintenanceModal() {
 
 export function EditMaintenanceModal() {
   const { editingMaintenance, updateMaintenance, closeModal, setEditingMaintenance, data } = useApp()
+  const [vehicleId, setVehicleId] = useState<number | string>(editingMaintenance?.vehicleId ?? "")
   const [plateNumber, setPlateNumber] = useState(editingMaintenance?.plateNumber ?? "")
+  const [vehicleCode, setVehicleCode] = useState<number | null>(editingMaintenance?.vehicleCode ?? null)
   const [maintenanceDate, setMaintenanceDate] = useState(editingMaintenance?.maintenanceDate ?? "")
   const [supplierId, setSupplierId] = useState<number | string>(editingMaintenance?.supplierId ?? "")
   const [supplierName, setSupplierName] = useState(editingMaintenance?.supplierName ?? "")
@@ -972,6 +986,13 @@ export function EditMaintenanceModal() {
   const [saving, setSaving] = useState(false)
 
   if (!editingMaintenance) return null
+
+  const handleVehicleChange = (id: number | string) => {
+    setVehicleId(id)
+    const vehicle = data.vehicles.find((v) => v.id === Number(id))
+    setPlateNumber(vehicle?.plateNumber ?? "")
+    setVehicleCode(vehicle?.code ?? null)
+  }
 
   const handleSupplierChange = (id: number | string) => {
     setSupplierId(id)
@@ -986,7 +1007,8 @@ export function EditMaintenanceModal() {
     try {
       await updateMaintenance(editingMaintenance.id, {
         plateNumber, maintenanceDate,
-        vehicleId: null,
+        vehicleId: vehicleId !== "" ? Number(vehicleId) : null,
+        vehicleCode,
         supplierId: supplierId !== "" ? Number(supplierId) : null,
         supplierName, supplierCode,
         invoiceNumber,
@@ -1004,10 +1026,12 @@ export function EditMaintenanceModal() {
     <Modal title={mt.edit} id="editMaintenanceModal">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
-          <div><label className="text-xs text-muted mb-1 block">{mt.plateNumber} *</label><input className="p-3 rounded-xl text-white" type="text" list="vehicles-list-edit" value={plateNumber} onChange={(e) => setPlateNumber(e.target.value)} /></div>
-          <datalist id="vehicles-list-edit">
-            {data.vehicles.map((v) => <option key={v.id} value={v.plateNumber} />)}
-          </datalist>
+          <div><label className="text-xs text-muted mb-1 block">{mt.plateNumber} *</label>
+            <select className="p-3 rounded-xl text-white" value={vehicleId} onChange={(e) => handleVehicleChange(e.target.value)}>
+              <option value="">-- اختر مركبة --</option>
+              {data.vehicles.map((v) => <option key={v.id} value={v.id}>{v.plateNumber} ({v.code})</option>)}
+            </select>
+          </div>
           <div><label className="text-xs text-muted mb-1 block">{mt.maintenanceDate} *</label><input className="p-3 rounded-xl text-white" type="date" value={maintenanceDate} onChange={(e) => setMaintenanceDate(e.target.value)} /></div>
         </div>
         <div><label className="text-xs text-muted mb-1 block">{mt.supplierName} *</label>

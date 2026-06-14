@@ -185,6 +185,7 @@ function dbMaintenanceToMock(m: Record<string, unknown>): Maintenance {
     code: Number(m.code) || 0,
     vehicleId: m.vehicleId ? parseInt(String(m.vehicleId).slice(0, 8), 16) || null : null,
     plateNumber: String(m.plateNumber || ""),
+    vehicleCode: m.vehicleCode != null ? Number(m.vehicleCode) : null,
     maintenanceDate: String(m.maintenanceDate || ""),
     supplierId: m.supplierId ? parseInt(String(m.supplierId).slice(0, 8), 16) || null : null,
     supplierName: String(m.supplierName || ""),

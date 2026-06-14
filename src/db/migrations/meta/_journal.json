@@ -78,6 +78,13 @@
       "when": 1755000000001,
       "tag": "0010_add_maintenance",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1756000000000,
+      "tag": "0011_add_maintenance_vehicle_code",
+      "breakpoints": true
     }
   ]
 }

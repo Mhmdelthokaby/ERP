@@ -7,6 +7,7 @@ const MAINTENANCE_FIELDS = {
   id: maintenance.id,
   code: maintenance.code,
   vehicleId: maintenance.vehicleId,
+  vehicleCode: maintenance.vehicleCode,
   plateNumber: maintenance.plateNumber,
   maintenanceDate: maintenance.maintenanceDate,
   supplierId: maintenance.supplierId,

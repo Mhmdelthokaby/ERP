@@ -351,6 +351,7 @@ export const maintenance = pgTable("maintenance", {
   supplierId: uuid("supplier_id").references(() => suppliers.id),
   supplierName: text("supplier_name").notNull(),
   supplierCode: integer("supplier_code"),
+  vehicleCode: integer("vehicle_code"),
   invoiceNumber: text("invoice_number"),
   maintenanceTypeId: uuid("maintenance_type_id").references(() => maintenanceTypes.id),
   notes: text("notes"),

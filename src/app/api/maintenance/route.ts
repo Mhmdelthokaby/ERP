@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server"
 import { db } from "@/db"
-import { maintenance, maintenanceTypes, vehicles, suppliers } from "@/db/schema"
+import { maintenance, maintenanceTypes } from "@/db/schema"
 import { eq, desc } from "drizzle-orm"
 
 const MAINTENANCE_FIELDS = {
   id: maintenance.id,
   code: maintenance.code,
   vehicleId: maintenance.vehicleId,
+  vehicleCode: maintenance.vehicleCode,
   plateNumber: maintenance.plateNumber,
   maintenanceDate: maintenance.maintenanceDate,
   supplierId: maintenance.supplierId,
@@ -39,6 +40,7 @@ export async function POST(request: Request) {
     }
     const [data] = await db.insert(maintenance).values({
       vehicleId: body.vehicleId || null,
+      vehicleCode: body.vehicleCode || null,
       plateNumber: body.plateNumber,
       maintenanceDate: body.maintenanceDate,
       supplierId: body.supplierId || null,

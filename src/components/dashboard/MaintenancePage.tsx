@@ -10,6 +10,7 @@ const s = ar.maintenance
 const columns: { key: keyof Maintenance; label: string; render?: (val: unknown) => string }[] = [
   { key: "code", label: s.code, render: (v) => String(v) },
   { key: "plateNumber", label: s.plateNumber },
+  { key: "vehicleCode", label: s.vehicleCode, render: (v) => v != null ? String(v) : "—" },
   { key: "maintenanceDate", label: s.maintenanceDate },
   { key: "supplierName", label: s.supplierName },
   { key: "invoiceNumber", label: s.invoiceNumber },
@@ -106,6 +107,7 @@ export function MaintenancePage() {
                 {[
                   { label: s.code, value: String(selectedMaintenance.code) },
                   { label: s.plateNumber, value: selectedMaintenance.plateNumber },
+                  { label: s.vehicleCode, value: selectedMaintenance.vehicleCode != null ? String(selectedMaintenance.vehicleCode) : "—" },
                   { label: s.maintenanceDate, value: selectedMaintenance.maintenanceDate },
                   { label: s.supplierName, value: selectedMaintenance.supplierName },
                   { label: s.invoiceNumber, value: selectedMaintenance.invoiceNumber },

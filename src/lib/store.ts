@@ -106,7 +106,7 @@ export interface MaintenanceType {
 }
 
 export interface Maintenance {
-  id: number; code: number; vehicleId: number | null; plateNumber: string
+  id: number; code: number; vehicleId: number | null; plateNumber: string; vehicleCode: number | null
   maintenanceDate: string; supplierId: number | null; supplierName: string
   supplierCode: number | null; invoiceNumber: string; maintenanceTypeId: number | null
   maintenanceType: string; notes: string; dbId?: string

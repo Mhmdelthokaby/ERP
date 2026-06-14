@@ -410,6 +410,7 @@ export const ar = {
     subtitle: 'إدارة سجلات الصيانة',
     code: 'الكود',
     plateNumber: 'رقم اللوحة',
+    vehicleCode: 'كود المركبة',
     maintenanceDate: 'تاريخ الصيانة',
     supplierName: 'المورد',
     invoiceNumber: 'رقم الفاتورة',
