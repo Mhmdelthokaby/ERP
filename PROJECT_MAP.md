@@ -48,7 +48,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Accounting | `src/components/dashboard/AccountingPage.tsx` | CoA recursive tree, journal table with reverse, periods, cost centers |
 | AR/AP | `src/components/dashboard/ArApPage.tsx` | 4-tab layout (AR invoices, payments, AP invoices, payments) |
 | Reports | `src/components/dashboard/ReportsPage.tsx` | Trial balance, income statement, balance sheet grid |
-| Suppliers | `src/components/dashboard/SuppliersPage.tsx` | Suppliers table (code/name/taxNumber/phone/notes), detail panel, add/edit/delete actions |
+| Suppliers | `src/components/dashboard/SuppliersPage.tsx` | Suppliers table (code/name/taxNumber/phone/notes), detail panel with close button, add/edit/delete actions |
 | Settings | `src/components/dashboard/SettingsPage.tsx` | Users CRUD, outbox messages, audit log |
 | Modals | `src/components/modals/ModalForms.tsx` | AddVehicle (+ driver + type selects), EditVehicle, AddDriver (license grade from DB dropdown), EditDriver, AddLicenseGrade, EditLicenseGrade, AddVehicleType, EditVehicleType, AddSupplier, EditSupplier, AddTrip, AddExpense, AddJournal, AddAccount, AddUser form modals |
 | Entry | `src/app/(dashboard)/page.tsx` | Wraps AppProvider → Sidebar + Header + current page (with cross-page vehicle/driver navigation via pendingVehicleView/pendingDriverView) + modals + toasts |

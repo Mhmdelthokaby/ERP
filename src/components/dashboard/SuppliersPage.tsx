@@ -87,7 +87,10 @@ export function SuppliersPage() {
 
         {selectedSupplier && (
           <div className="w-80 bg-surface rounded-xl border border-border p-5 flex-shrink-0 overflow-y-auto">
-            <h3 className="font-display font-bold text-fg text-base mb-4">{selectedSupplier.name}</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-display font-bold text-fg text-base">{selectedSupplier.name}</h3>
+              <button className="text-muted hover:text-fg transition-colors text-lg leading-none" onClick={() => setSelectedSupplier(null)}>&times;</button>
+            </div>
             <div className="space-y-3 text-sm">
               {[
                 { label: s.code, value: String(selectedSupplier.code) },
