@@ -17,6 +17,7 @@ import { ReportsPage } from "@/components/dashboard/ReportsPage"
 import { SettingsPage } from "@/components/dashboard/SettingsPage"
 import { LegsPage } from "@/components/dashboard/LegsPage"
 import { SuppliersPage } from "@/components/dashboard/SuppliersPage"
+import { MaintenancePage } from "@/components/dashboard/MaintenancePage"
 import {
   AddVehicleModal,
   EditVehicleModal,
@@ -33,6 +34,10 @@ import {
   EditLicenseGradeModal,
   AddSupplierModal,
   EditSupplierModal,
+  AddMaintenanceTypeModal,
+  EditMaintenanceTypeModal,
+  AddMaintenanceModal,
+  EditMaintenanceModal,
 } from "@/components/modals/ModalForms"
 
 function DashboardInner() {
@@ -68,6 +73,7 @@ function DashboardInner() {
     settings: <SettingsPage />,
     legs: <LegsPage />,
     suppliers: <SuppliersPage />,
+    maintenance: <MaintenancePage />,
   }
 
   return (
@@ -100,6 +106,10 @@ function DashboardInner() {
       <EditLicenseGradeModal />
       <AddSupplierModal />
       <EditSupplierModal />
+      <AddMaintenanceTypeModal />
+      <EditMaintenanceTypeModal />
+      <AddMaintenanceModal />
+      <EditMaintenanceModal />
       <ToastContainer />
     </div>
   )

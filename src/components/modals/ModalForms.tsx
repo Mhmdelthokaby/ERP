@@ -8,6 +8,7 @@ const m = ar.fleetModals
 const mod = ar.modals
 const l = ar.legs
 const sup = ar.suppliers
+const mt = ar.maintenance
 
 function formatPlate(raw: string) {
   return raw.replace(/\s/g, "").split("").join(" ")
@@ -816,6 +817,218 @@ export function EditVehicleTypeModal() {
         <div className="flex gap-3 pt-2">
           <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.save}</button>
           <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={() => { setEditingVehicleType(null); closeModal() }}>{m.cancel}</button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+export function AddMaintenanceTypeModal() {
+  const { addMaintenanceType, closeModal } = useApp()
+  const [name, setName] = useState("")
+  const [saving, setSaving] = useState(false)
+
+  const handleSubmit = async () => {
+    if (!name || saving) return
+    setSaving(true)
+    try {
+      await addMaintenanceType({ name })
+      closeModal()
+    } catch {
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal title={mt.addType} id="addMaintenanceTypeModal">
+      <div className="space-y-4">
+        <div><label className="text-xs text-muted mb-1 block">{mt.typeName} *</label><input className="p-3 rounded-xl text-white" type="text" value={name} onChange={(e) => setName(e.target.value)} /></div>
+        <div className="flex gap-3 pt-2">
+          <button className="btn-primary flex-1 py-3 rounded-xl text-white text-sm" onClick={handleSubmit} disabled={saving}>{saving ? "..." : mt.addType}</button>
+          <button className="btn-ghost flex-1 py-3 rounded-xl text-sm" onClick={closeModal}>{ar.maintenanceModals.cancel}</button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+export function EditMaintenanceTypeModal() {
+  const { editingMaintenanceType, updateMaintenanceType, closeModal, setEditingMaintenanceType } = useApp()
+  const [name, setName] = useState(editingMaintenanceType?.name ?? "")
+  const [saving, setSaving] = useState(false)
+
+  if (!editingMaintenanceType) return null
+
+  const handleSubmit = async () => {
+    if (!name || saving) return
+    setSaving(true)
+    try {
+      await updateMaintenanceType(editingMaintenanceType.id, { name })
+      setEditingMaintenanceType(null); closeModal()
+    } catch {
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal title={mt.editType} id="editMaintenanceTypeModal">
+      <div className="space-y-4">
+        <div><label className="text-xs text-muted mb-1 block">{mt.typeName} *</label><input className="p-3 rounded-xl text-white" type="text" value={name} onChange={(e) => setName(e.target.value)} /></div>
+        <div className="flex gap-3 pt-2">
+          <button className="btn-primary flex-1 py-3 rounded-xl text-white text-sm" onClick={handleSubmit} disabled={saving}>{saving ? "..." : ar.maintenanceModals.save}</button>
+          <button className="btn-ghost flex-1 py-3 rounded-xl text-sm" onClick={() => { setEditingMaintenanceType(null); closeModal() }}>{ar.maintenanceModals.cancel}</button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+export function AddMaintenanceModal() {
+  const { addMaintenance, closeModal, data } = useApp()
+  const [plateNumber, setPlateNumber] = useState("")
+  const [maintenanceDate, setMaintenanceDate] = useState("")
+  const [supplierId, setSupplierId] = useState<number | string>("")
+  const [supplierName, setSupplierName] = useState("")
+  const [supplierCode, setSupplierCode] = useState<number | null>(null)
+  const [invoiceNumber, setInvoiceNumber] = useState("")
+  const [maintenanceTypeId, setMaintenanceTypeId] = useState<number | string>("")
+  const [notes, setNotes] = useState("")
+  const [saving, setSaving] = useState(false)
+
+  const handleSupplierChange = (id: number | string) => {
+    setSupplierId(id)
+    const supplier = data.suppliers.find((s) => s.id === Number(id))
+    setSupplierName(supplier?.name ?? "")
+    setSupplierCode(supplier?.code ?? null)
+  }
+
+  const handleSubmit = async () => {
+    if (!plateNumber || !maintenanceDate || !supplierName || saving) return
+    setSaving(true)
+    try {
+      await addMaintenance({
+        plateNumber, maintenanceDate,
+        vehicleId: null,
+        supplierId: supplierId !== "" ? Number(supplierId) : null,
+        supplierName, supplierCode,
+        invoiceNumber,
+        maintenanceTypeId: maintenanceTypeId !== "" ? Number(maintenanceTypeId) : null,
+        notes,
+      })
+      closeModal()
+    } catch {
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal title={mt.add} id="addMaintenanceModal">
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">{mt.plateNumber} *</label><input className="p-3 rounded-xl text-white" type="text" list="vehicles-list" value={plateNumber} onChange={(e) => setPlateNumber(e.target.value)} /></div>
+          <datalist id="vehicles-list">
+            {data.vehicles.map((v) => <option key={v.id} value={v.plateNumber} />)}
+          </datalist>
+          <div><label className="text-xs text-muted mb-1 block">{mt.maintenanceDate} *</label><input className="p-3 rounded-xl text-white" type="date" value={maintenanceDate} onChange={(e) => setMaintenanceDate(e.target.value)} /></div>
+        </div>
+        <div><label className="text-xs text-muted mb-1 block">{mt.supplierName} *</label>
+          <select className="p-3 rounded-xl text-white" value={supplierId} onChange={(e) => handleSupplierChange(e.target.value)}>
+            <option value="">-- اختر مورد --</option>
+            {data.suppliers.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.code})</option>)}
+          </select>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">{mt.invoiceNumber}</label><input className="p-3 rounded-xl text-white" type="text" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{mt.maintenanceType}</label>
+            <select className="p-3 rounded-xl text-white" value={maintenanceTypeId} onChange={(e) => setMaintenanceTypeId(e.target.value)}>
+              <option value="">-- اختر نوع --</option>
+              {data.maintenanceTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+          </div>
+        </div>
+        <div><label className="text-xs text-muted mb-1 block">{mt.notes}</label><textarea className="w-full bg-bg border border-border p-3 rounded-xl text-white outline-none focus:border-accent transition-colors resize-none" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
+        <div className="flex gap-3 pt-2">
+          <button className="btn-primary flex-1 py-3 rounded-xl text-white text-sm" onClick={handleSubmit} disabled={saving}>{saving ? "..." : mt.add}</button>
+          <button className="btn-ghost flex-1 py-3 rounded-xl text-sm" onClick={closeModal}>{ar.maintenanceModals.cancel}</button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+export function EditMaintenanceModal() {
+  const { editingMaintenance, updateMaintenance, closeModal, setEditingMaintenance, data } = useApp()
+  const [plateNumber, setPlateNumber] = useState(editingMaintenance?.plateNumber ?? "")
+  const [maintenanceDate, setMaintenanceDate] = useState(editingMaintenance?.maintenanceDate ?? "")
+  const [supplierId, setSupplierId] = useState<number | string>(editingMaintenance?.supplierId ?? "")
+  const [supplierName, setSupplierName] = useState(editingMaintenance?.supplierName ?? "")
+  const [supplierCode, setSupplierCode] = useState<number | null>(editingMaintenance?.supplierCode ?? null)
+  const [invoiceNumber, setInvoiceNumber] = useState(editingMaintenance?.invoiceNumber ?? "")
+  const [maintenanceTypeId, setMaintenanceTypeId] = useState<number | string>(editingMaintenance?.maintenanceTypeId ?? "")
+  const [notes, setNotes] = useState(editingMaintenance?.notes ?? "")
+  const [saving, setSaving] = useState(false)
+
+  if (!editingMaintenance) return null
+
+  const handleSupplierChange = (id: number | string) => {
+    setSupplierId(id)
+    const supplier = data.suppliers.find((s) => s.id === Number(id))
+    setSupplierName(supplier?.name ?? "")
+    setSupplierCode(supplier?.code ?? null)
+  }
+
+  const handleSubmit = async () => {
+    if (!plateNumber || !maintenanceDate || !supplierName || saving) return
+    setSaving(true)
+    try {
+      await updateMaintenance(editingMaintenance.id, {
+        plateNumber, maintenanceDate,
+        vehicleId: null,
+        supplierId: supplierId !== "" ? Number(supplierId) : null,
+        supplierName, supplierCode,
+        invoiceNumber,
+        maintenanceTypeId: maintenanceTypeId !== "" ? Number(maintenanceTypeId) : null,
+        notes,
+      })
+      setEditingMaintenance(null); closeModal()
+    } catch {
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal title={mt.edit} id="editMaintenanceModal">
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">{mt.plateNumber} *</label><input className="p-3 rounded-xl text-white" type="text" list="vehicles-list-edit" value={plateNumber} onChange={(e) => setPlateNumber(e.target.value)} /></div>
+          <datalist id="vehicles-list-edit">
+            {data.vehicles.map((v) => <option key={v.id} value={v.plateNumber} />)}
+          </datalist>
+          <div><label className="text-xs text-muted mb-1 block">{mt.maintenanceDate} *</label><input className="p-3 rounded-xl text-white" type="date" value={maintenanceDate} onChange={(e) => setMaintenanceDate(e.target.value)} /></div>
+        </div>
+        <div><label className="text-xs text-muted mb-1 block">{mt.supplierName} *</label>
+          <select className="p-3 rounded-xl text-white" value={supplierId} onChange={(e) => handleSupplierChange(e.target.value)}>
+            <option value="">-- اختر مورد --</option>
+            {data.suppliers.map((s) => <option key={s.id} value={s.id}>{s.name} ({s.code})</option>)}
+          </select>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">{mt.invoiceNumber}</label><input className="p-3 rounded-xl text-white" type="text" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{mt.maintenanceType}</label>
+            <select className="p-3 rounded-xl text-white" value={maintenanceTypeId} onChange={(e) => setMaintenanceTypeId(e.target.value)}>
+              <option value="">-- اختر نوع --</option>
+              {data.maintenanceTypes.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+            </select>
+          </div>
+        </div>
+        <div><label className="text-xs text-muted mb-1 block">{mt.notes}</label><textarea className="w-full bg-bg border border-border p-3 rounded-xl text-white outline-none focus:border-accent transition-colors resize-none" rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
+        <div className="flex gap-3 pt-2">
+          <button className="btn-primary flex-1 py-3 rounded-xl text-white text-sm" onClick={handleSubmit} disabled={saving}>{saving ? "..." : ar.maintenanceModals.save}</button>
+          <button className="btn-ghost flex-1 py-3 rounded-xl text-sm" onClick={() => { setEditingMaintenance(null); closeModal() }}>{ar.maintenanceModals.cancel}</button>
         </div>
       </div>
     </Modal>

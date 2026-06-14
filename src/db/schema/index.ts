@@ -334,6 +334,30 @@ export const outboxMessages = pgTable("outbox_messages", {
   processedAt: timestamp("processed_at"),
 })
 
+export const maintenanceTypes = pgTable("maintenance_types", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  code: serial("code").notNull().unique(),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+})
+
+export const maintenance = pgTable("maintenance", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  code: serial("code").notNull().unique(),
+  vehicleId: uuid("vehicle_id").references(() => vehicles.id),
+  plateNumber: text("plate_number").notNull(),
+  maintenanceDate: date("maintenance_date").notNull(),
+  supplierId: uuid("supplier_id").references(() => suppliers.id),
+  supplierName: text("supplier_name").notNull(),
+  supplierCode: integer("supplier_code"),
+  invoiceNumber: text("invoice_number"),
+  maintenanceTypeId: uuid("maintenance_type_id").references(() => maintenanceTypes.id),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+})
+
 export const auditLogs = pgTable("audit_logs", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: text("user_id").notNull(),

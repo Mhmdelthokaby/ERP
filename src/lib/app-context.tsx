@@ -7,7 +7,7 @@ import {
   defaultData, type AppData, type Vehicle, type VehicleType, type Driver, type Trip,
   type VehicleExpense, type JournalEntry, type JournalLine,
   type User, type PageName, type CoaNode, type VehicleHistoryEntry, type Leg,
-  type LicenseGrade, type Supplier,
+  type LicenseGrade, type Supplier, type MaintenanceType, type Maintenance,
 } from "./store"
 import { api } from "./api"
 
@@ -45,6 +45,16 @@ interface AppContextType {
   addSupplier: (s: Omit<Supplier, "id" | "code" | "dbId">) => Promise<void>
   updateSupplier: (id: number, updates: Partial<Supplier>) => void
   deleteSupplier: (id: number) => void
+  editingMaintenanceType: MaintenanceType | null
+  setEditingMaintenanceType: (mt: MaintenanceType | null) => void
+  addMaintenanceType: (mt: Omit<MaintenanceType, "id" | "code" | "dbId">) => Promise<void>
+  updateMaintenanceType: (id: number, updates: Partial<MaintenanceType>) => void
+  deleteMaintenanceType: (id: number) => void
+  editingMaintenance: Maintenance | null
+  setEditingMaintenance: (m: Maintenance | null) => void
+  addMaintenance: (m: Omit<Maintenance, "id" | "code" | "dbId" | "maintenanceType">) => Promise<void>
+  updateMaintenance: (id: number, updates: Partial<Maintenance>) => void
+  deleteMaintenance: (id: number) => void
   addVehicleType: (vt: Omit<VehicleType, "id">) => void
   updateVehicleType: (id: number, vt: Partial<VehicleType>) => void
   deleteVehicleType: (id: number) => void
@@ -157,6 +167,35 @@ function dbSupplierToMock(s: Record<string, unknown>): Supplier {
   }
 }
 
+function dbMaintenanceTypeToMock(mt: Record<string, unknown>): MaintenanceType {
+  const rawId = String(mt.id ?? "")
+  return {
+    id: parseInt(rawId.slice(0, 8), 16) || Math.random(),
+    dbId: rawId,
+    code: Number(mt.code) || 0,
+    name: String(mt.name || ""),
+  }
+}
+
+function dbMaintenanceToMock(m: Record<string, unknown>): Maintenance {
+  const rawId = String(m.id ?? "")
+  return {
+    id: parseInt(rawId.slice(0, 8), 16) || Math.random(),
+    dbId: rawId,
+    code: Number(m.code) || 0,
+    vehicleId: m.vehicleId ? parseInt(String(m.vehicleId).slice(0, 8), 16) || null : null,
+    plateNumber: String(m.plateNumber || ""),
+    maintenanceDate: String(m.maintenanceDate || ""),
+    supplierId: m.supplierId ? parseInt(String(m.supplierId).slice(0, 8), 16) || null : null,
+    supplierName: String(m.supplierName || ""),
+    supplierCode: m.supplierCode != null ? Number(m.supplierCode) : null,
+    invoiceNumber: String(m.invoiceNumber || ""),
+    maintenanceTypeId: m.maintenanceTypeId ? parseInt(String(m.maintenanceTypeId).slice(0, 8), 16) || null : null,
+    maintenanceType: String(m.maintenanceTypeName || ""),
+    notes: String(m.notes || ""),
+  }
+}
+
 function dbVehicleTypeToMock(vt: Record<string, unknown>): VehicleType {
   const rawId = String(vt.id ?? "")
   return {
@@ -197,6 +236,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }).catch(() => {})
     api.getSuppliers().then((res) => {
       setData((prev) => ({ ...prev, suppliers: res.data.map((s) => dbSupplierToMock(s as Record<string, unknown>)) }))
+    }).catch(() => {})
+    api.getMaintenanceTypes().then((res) => {
+      setData((prev) => ({ ...prev, maintenanceTypes: res.data.map((mt) => dbMaintenanceTypeToMock(mt as Record<string, unknown>)) }))
+    }).catch(() => {})
+    api.getMaintenance().then((res) => {
+      setData((prev) => ({ ...prev, maintenance: res.data.map((m) => dbMaintenanceToMock(m as Record<string, unknown>)) }))
     }).catch(() => {})
     Promise.all([
       api.getOrders().catch(() => null),
@@ -245,6 +290,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [editingVehicleType, setEditingVehicleType] = useState<VehicleType | null>(null)
   const [editingLicenseGrade, setEditingLicenseGrade] = useState<LicenseGrade | null>(null)
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
+  const [editingMaintenanceType, setEditingMaintenanceType] = useState<MaintenanceType | null>(null)
+  const [editingMaintenance, setEditingMaintenance] = useState<Maintenance | null>(null)
 
   const addVehicle = useCallback((v: Omit<Vehicle, "id" | "status" | "code">) => {
     const vt = v.vehicleTypeId ? data.vehicleTypes.find((t) => t.id === v.vehicleTypeId) : null
@@ -375,6 +422,77 @@ export function AppProvider({ children }: { children: ReactNode }) {
       showToast(`Supplier ${s.name} deleted`, "warning")
     })
   }, [data.suppliers, showToast])
+
+  const addMaintenanceType = useCallback((mt: Omit<MaintenanceType, "id" | "code" | "dbId">) => {
+    return api.createMaintenanceType(mt).then((res) => {
+      const mapped = dbMaintenanceTypeToMock(res.data as Record<string, unknown>)
+      setData((prev) => ({ ...prev, maintenanceTypes: [...prev.maintenanceTypes, mapped] }))
+      showToast(`Maintenance type ${mt.name} added`)
+    }).catch((e) => {
+      showToast(`Failed to add maintenance type: ${e.message}`, "error")
+      throw e
+    })
+  }, [showToast])
+
+  const updateMaintenanceType = useCallback((id: number, updates: Partial<MaintenanceType>) => {
+    const mt = data.maintenanceTypes.find((x) => x.id === id)
+    if (!mt) return
+    return api.updateMaintenanceType(mt.dbId ?? String(mt.id), updates).then((res) => {
+      const mapped = dbMaintenanceTypeToMock(res.data as Record<string, unknown>)
+      setData((prev) => ({ ...prev, maintenanceTypes: prev.maintenanceTypes.map((x) => x.id === id ? mapped : x) }))
+      showToast(`Maintenance type ${mt.name} updated`)
+    }).catch((e) => {
+      showToast(`Failed to update maintenance type: ${e.message}`, "error")
+    })
+  }, [data.maintenanceTypes, showToast])
+
+  const deleteMaintenanceType = useCallback((id: number) => {
+    const mt = data.maintenanceTypes.find((x) => x.id === id)
+    if (!mt) return
+    api.deleteMaintenanceType(mt.dbId ?? String(mt.id)).then(() => {
+      setData((prev) => ({ ...prev, maintenanceTypes: prev.maintenanceTypes.filter((x) => x.id !== id) }))
+      showToast(`Maintenance type ${mt.name} deleted`, "warning")
+    }).catch(() => {
+      setData((prev) => ({ ...prev, maintenanceTypes: prev.maintenanceTypes.filter((x) => x.id !== id) }))
+      showToast(`Maintenance type ${mt.name} deleted`, "warning")
+    })
+  }, [data.maintenanceTypes, showToast])
+
+  const addMaintenance = useCallback((m: Omit<Maintenance, "id" | "code" | "dbId" | "maintenanceType">) => {
+    return api.createMaintenance(m).then((res) => {
+      const mapped = dbMaintenanceToMock(res.data as Record<string, unknown>)
+      setData((prev) => ({ ...prev, maintenance: [...prev.maintenance, mapped] }))
+      showToast(`Maintenance record added for ${m.plateNumber}`)
+    }).catch((e) => {
+      showToast(`Failed to add maintenance: ${e.message}`, "error")
+      throw e
+    })
+  }, [showToast])
+
+  const updateMaintenance = useCallback((id: number, updates: Partial<Maintenance>) => {
+    const m = data.maintenance.find((x) => x.id === id)
+    if (!m) return
+    const { maintenanceType, ...dbUpdates } = updates
+    return api.updateMaintenance(m.dbId ?? String(m.id), dbUpdates).then((res) => {
+      const mapped = dbMaintenanceToMock(res.data as Record<string, unknown>)
+      setData((prev) => ({ ...prev, maintenance: prev.maintenance.map((x) => x.id === id ? mapped : x) }))
+      showToast(`Maintenance record updated`)
+    }).catch((e) => {
+      showToast(`Failed to update maintenance: ${e.message}`, "error")
+    })
+  }, [data.maintenance, showToast])
+
+  const deleteMaintenance = useCallback((id: number) => {
+    const m = data.maintenance.find((x) => x.id === id)
+    if (!m) return
+    api.deleteMaintenance(m.dbId ?? String(m.id)).then(() => {
+      setData((prev) => ({ ...prev, maintenance: prev.maintenance.filter((x) => x.id !== id) }))
+      showToast(`Maintenance record deleted`, "warning")
+    }).catch(() => {
+      setData((prev) => ({ ...prev, maintenance: prev.maintenance.filter((x) => x.id !== id) }))
+      showToast(`Maintenance record deleted`, "warning")
+    })
+  }, [data.maintenance, showToast])
 
   const deleteDriver = useCallback((id: number) => {
     const d = data.drivers.find((x) => x.id === id)
@@ -620,6 +738,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       addLicenseGrade, updateLicenseGrade, deleteLicenseGrade,
       editingSupplier, setEditingSupplier,
       addSupplier, updateSupplier, deleteSupplier,
+      editingMaintenanceType, setEditingMaintenanceType,
+      addMaintenanceType, updateMaintenanceType, deleteMaintenanceType,
+      editingMaintenance, setEditingMaintenance,
+      addMaintenance, updateMaintenance, deleteMaintenance,
       addVehicleType, updateVehicleType, deleteVehicleType,
       addVehicle, updateVehicle, toggleVehicleActive, deactivateVehicle,
       addDriver, updateDriver, deleteDriver, fetchVehicleHistory,

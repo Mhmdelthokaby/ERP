@@ -101,9 +101,22 @@ export interface Leg {
   distanceKm: number; isActive: boolean
 }
 
+export interface MaintenanceType {
+  id: number; code: number; name: string; dbId?: string
+}
+
+export interface Maintenance {
+  id: number; code: number; vehicleId: number | null; plateNumber: string
+  maintenanceDate: string; supplierId: number | null; supplierName: string
+  supplierCode: number | null; invoiceNumber: string; maintenanceTypeId: number | null
+  maintenanceType: string; notes: string; dbId?: string
+}
+
 export interface AppData {
   licenseGrades: LicenseGrade[]
   suppliers: Supplier[]
+  maintenanceTypes: MaintenanceType[]
+  maintenance: Maintenance[]
   vehicleTypes: VehicleType[]
   vehicles: Vehicle[]
   drivers: Driver[]
@@ -130,6 +143,8 @@ export const defaultData: AppData = {
     { id: 4, name: 'رابعة' },
   ],
   suppliers: [],
+  maintenanceTypes: [],
+  maintenance: [],
   vehicleTypes: [
     { id: 1, name: 'Bus', code: 'BUS', model: 'Hiace/Sprinter', modelCode: 'HS' },
     { id: 2, name: 'Van', code: 'VAN', model: 'L300/Transit', modelCode: 'LT' },
@@ -273,7 +288,7 @@ export const costCenters: CostCenter[] = [
   { name: 'Administration', type: 'Admin', active: true },
 ]
 
-export type PageName = 'dashboard' | 'fleet' | 'trips' | 'expenses' | 'accounting' | 'arap' | 'reports' | 'settings' | 'legs' | 'suppliers'
+export type PageName = 'dashboard' | 'fleet' | 'trips' | 'expenses' | 'accounting' | 'arap' | 'reports' | 'settings' | 'legs' | 'suppliers' | 'maintenance'
 
 export const pageTitles: Record<PageName, [string, string]> = {
   dashboard: ['لوحة القيادة', '/ نظرة عامة'],
@@ -286,6 +301,7 @@ export const pageTitles: Record<PageName, [string, string]> = {
   settings: ['الإعدادات', '/ تكوين النظام'],
   legs: ['الساقين', '/ إدارة الساقين'],
   suppliers: ['سجل الموردين', '/ الموردين'],
+  maintenance: ['الصيانة', '/ إدارة الصيانة'],
 }
 
 export function fmt(n: number): string {

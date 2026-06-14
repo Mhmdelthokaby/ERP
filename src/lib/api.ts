@@ -95,4 +95,20 @@ export const api = {
     request<{ data: JsonValue }>(`/api/suppliers/${id}`, { method: "PUT", body: JSON.stringify(body) }),
   deleteSupplier: (id: string) =>
     request<{ data: JsonValue }>(`/api/suppliers/${id}`, { method: "DELETE" }),
+
+  getMaintenanceTypes: () => request<{ data: JsonValue[] }>("/api/maintenance/types"),
+  createMaintenanceType: (body: Record<string, unknown>) =>
+    request<{ data: JsonValue }>("/api/maintenance/types", { method: "POST", body: JSON.stringify(body) }),
+  updateMaintenanceType: (id: string, body: Record<string, unknown>) =>
+    request<{ data: JsonValue }>(`/api/maintenance/types/${id}`, { method: "PUT", body: JSON.stringify(body) }),
+  deleteMaintenanceType: (id: string) =>
+    request<{ data: JsonValue }>(`/api/maintenance/types/${id}`, { method: "DELETE" }),
+
+  getMaintenance: () => request<{ data: JsonValue[] }>("/api/maintenance"),
+  createMaintenance: (body: Record<string, unknown>) =>
+    request<{ data: JsonValue }>("/api/maintenance", { method: "POST", body: JSON.stringify(body) }),
+  updateMaintenance: (id: string, body: Record<string, unknown>) =>
+    request<{ data: JsonValue }>(`/api/maintenance/${id}`, { method: "PUT", body: JSON.stringify(body) }),
+  deleteMaintenance: (id: string) =>
+    request<{ data: JsonValue }>(`/api/maintenance/${id}`, { method: "DELETE" }),
 }

@@ -16,8 +16,9 @@
                               ├─ AccountingPage (CoA tree, journal, periods, cost centers)
                               ├─ ArApPage (AR/AP invoices/payments tabs)
                                ├─ ReportsPage (trial balance, income statement, balance sheet)
-                               ├─ SuppliersPage (supplier records table + add/edit/delete)
-                               └─ SettingsPage (users, outbox, audit log)
+                                ├─ SuppliersPage (supplier records table + add/edit/delete)
+                                ├─ MaintenancePage (maintenance records + types tabs, details panel)
+                                └─ SettingsPage (users, outbox, audit log)
 
 [AppProvider Context] ← [useState<AppData>] ← [all CRUD actions]
    └─ Hybrid data layer: API first → mock fallback
@@ -49,8 +50,9 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | AR/AP | `src/components/dashboard/ArApPage.tsx` | 4-tab layout (AR invoices, payments, AP invoices, payments) |
 | Reports | `src/components/dashboard/ReportsPage.tsx` | Trial balance, income statement, balance sheet grid |
 | Suppliers | `src/components/dashboard/SuppliersPage.tsx` | Suppliers table (code/name/taxNumber/phone/notes), detail panel with close button, add/edit/delete actions |
+| Maintenance | `src/components/dashboard/MaintenancePage.tsx` | Maintenance records + types tabs; records table (code/plate/date/supplier/invoice/type/notes), detail panel with close button, add/edit/delete; types CRUD table with add/edit/delete |
 | Settings | `src/components/dashboard/SettingsPage.tsx` | Users CRUD, outbox messages, audit log |
-| Modals | `src/components/modals/ModalForms.tsx` | AddVehicle (+ driver + type selects), EditVehicle, AddDriver (license grade from DB dropdown), EditDriver, AddLicenseGrade, EditLicenseGrade, AddVehicleType, EditVehicleType, AddSupplier, EditSupplier, AddTrip, AddExpense, AddJournal, AddAccount, AddUser form modals |
+| Modals | `src/components/modals/ModalForms.tsx` | AddVehicle (+ driver + type selects), EditVehicle, AddDriver (license grade from DB dropdown), EditDriver, AddLicenseGrade, EditLicenseGrade, AddVehicleType, EditVehicleType, AddSupplier, EditSupplier, AddMaintenanceType, EditMaintenanceType, AddMaintenance, EditMaintenance, AddTrip, AddExpense, AddJournal, AddAccount, AddUser form modals |
 | Entry | `src/app/(dashboard)/page.tsx` | Wraps AppProvider → Sidebar + Header + current page (with cross-page vehicle/driver navigation via pendingVehicleView/pendingDriverView) + modals + toasts |
 
 ---
@@ -82,15 +84,16 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Settings – Outbox | ✅ | `SettingsPage.tsx` | Outbox messages table |
 | Settings – Audit Log | ✅ | `SettingsPage.tsx` | Audit log table |
 | Suppliers CRUD | ✅ | `SuppliersPage.tsx + ModalForms.tsx + app-context.tsx` | Suppliers table with details panel, add/edit modals (name/taxNumber/phone/notes), delete confirmation; API routes (GET/POST/PUT/DELETE) |
+| Maintenance CRUD | ✅ | `MaintenancePage.tsx + ModalForms.tsx + app-context.tsx` | Records + types tabs; records table with detail panel, add/edit modals (vehicle plate, date, supplier, invoice, type); types CRUD table; API routes (GET/POST/PUT/DELETE) |
 | Toast notifications | ✅ | `ToastContainer.tsx + context` | 4 types with auto-dismiss |
-| Modals | ✅ | `ModalForms.tsx + Modal.tsx` | 14 form modals — add/edit Driver, add/edit Vehicle, add VehicleType, edit VehicleType, add LicenseGrade, edit LicenseGrade, add Supplier, edit Supplier, add Trip, add Expense, add Journal, add Account, add User |
+| Modals | ✅ | `ModalForms.tsx + Modal.tsx` | 18 form modals — add/edit Driver, add/edit Vehicle, add VehicleType, edit VehicleType, add LicenseGrade, edit LicenseGrade, add Supplier, edit Supplier, add MaintenanceType, edit MaintenanceType, add Maintenance, edit Maintenance, add Trip, add Expense, add Journal, add Account, add User |
 | DB – PostgreSQL | ✅ | localhost:5432 | PostgreSQL 17 running, `erp_db` created |
-| DB – Drizzle schema | ✅ | `src/db/schema/index.ts` | 23 tables: suppliers, license_grades, vehicle_types, vehicle_history (incl. owner_name), drivers code→serial; overhauled vehicles/drivers |
+| DB – Drizzle schema | ✅ | `src/db/schema/index.ts` | 25 tables: suppliers, maintenance_types, maintenance, license_grades, vehicle_types, vehicle_history, drivers; overhauled vehicles/drivers |
 | DB – Drizzle relations | ✅ | `src/db/relations.ts` | All relations: auth, vehicle→type, vehicle→history, driver→orders |
 | DB – Connection | ✅ | `src/db/index.ts` | Drizzle + postgres driver wired |
-| DB – Migrations | ✅ | `src/db/migrations/` | Generated + applied (0000–0008); 0005 vehicles.code text→serial; 0006 vehicle_history.owner_name; 0007 vehicles.fuel_consumption; 0008 suppliers table |
+| DB – Migrations | ✅ | `src/db/migrations/` | Generated + applied (0000–0010); 0005 vehicles.code text→serial; 0006 vehicle_history.owner_name; 0007 vehicles.fuel_consumption; 0008 suppliers; 0009 maintenance_types; 0010 maintenance |
 | DB – Seed script | ✅ | `src/db/seed.ts` | Vehicle types, vehicles (new fields), drivers (fullName/nationalId/grade/salary/hireDate), customers, routes, orders, expenses, CoA, periods |
-| API routes (CRUD + fleet) | ✅ | `src/app/api/*` | 35 typed endpoints — vehicles with JOINs (type + driver), toggle, history; vehicle-types CRUD; license-grades CRUD; drivers toggle; suppliers CRUD |
+| API routes (CRUD + fleet) | ✅ | `src/app/api/*` | 43 typed endpoints — vehicles with JOINs (type + driver), toggle, history; vehicle-types CRUD; license-grades CRUD; drivers toggle; suppliers CRUD; maintenance types CRUD; maintenance records CRUD |
 | API client | ✅ | `src/lib/api.ts` | Typed fetch client, all endpoints |
 | Context → API wiring | ✅ | `src/lib/app-context.tsx` | Fetches API on mount, falls back to mock |
 | Services (Outbox) | ⚠️ | `src/services/*` | Exists but not wired to real outbox table |
@@ -134,7 +137,8 @@ Items not yet implemented or not wired:
 13. ✅ Fuel consumption field: DB column, migration 0007, forms, details display
 14. ✅ Suppliers page: DB schema + migration 0008, API routes, table + details panel, add/edit modals
 15. ✅ Button styling: all primary add buttons use p-3 rounded-xl text-white (suppliers, fleet, legs pages)
-16. Add role-based UI filtering using `session.user.role`
+16. ✅ Maintenance page: DB schema + migrations 0009/0010, API routes, records+types tabs, detail panel, add/edit modals
+17. Add role-based UI filtering using `session.user.role`
 17. Wire outbox worker to start on server init
 18. Install Font Awesome as npm dependency (remove CDN)
 19. Seed more realistic data (journal entries, AR/AP, outbox messages)
