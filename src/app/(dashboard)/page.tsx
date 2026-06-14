@@ -16,6 +16,7 @@ import { ArApPage } from "@/components/dashboard/ArApPage"
 import { ReportsPage } from "@/components/dashboard/ReportsPage"
 import { SettingsPage } from "@/components/dashboard/SettingsPage"
 import { LegsPage } from "@/components/dashboard/LegsPage"
+import { SuppliersPage } from "@/components/dashboard/SuppliersPage"
 import {
   AddVehicleModal,
   EditVehicleModal,
@@ -30,6 +31,8 @@ import {
   AddUserModal,
   AddLicenseGradeModal,
   EditLicenseGradeModal,
+  AddSupplierModal,
+  EditSupplierModal,
 } from "@/components/modals/ModalForms"
 
 function DashboardInner() {
@@ -64,6 +67,7 @@ function DashboardInner() {
     reports: <ReportsPage />,
     settings: <SettingsPage />,
     legs: <LegsPage />,
+    suppliers: <SuppliersPage />,
   }
 
   return (
@@ -94,6 +98,8 @@ function DashboardInner() {
       <AddUserModal />
       <AddLicenseGradeModal />
       <EditLicenseGradeModal />
+      <AddSupplierModal />
+      <EditSupplierModal />
       <ToastContainer />
     </div>
   )

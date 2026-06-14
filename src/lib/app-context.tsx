@@ -7,7 +7,7 @@ import {
   defaultData, type AppData, type Vehicle, type VehicleType, type Driver, type Trip,
   type VehicleExpense, type JournalEntry, type JournalLine,
   type User, type PageName, type CoaNode, type VehicleHistoryEntry, type Leg,
-  type LicenseGrade,
+  type LicenseGrade, type Supplier,
 } from "./store"
 import { api } from "./api"
 
@@ -40,6 +40,11 @@ interface AppContextType {
   addLicenseGrade: (lg: Omit<LicenseGrade, "id">) => void
   updateLicenseGrade: (id: number, lg: Partial<LicenseGrade>) => void
   deleteLicenseGrade: (id: number) => void
+  editingSupplier: Supplier | null
+  setEditingSupplier: (s: Supplier | null) => void
+  addSupplier: (s: Omit<Supplier, "id" | "code" | "dbId">) => Promise<void>
+  updateSupplier: (id: number, updates: Partial<Supplier>) => void
+  deleteSupplier: (id: number) => void
   addVehicleType: (vt: Omit<VehicleType, "id">) => void
   updateVehicleType: (id: number, vt: Partial<VehicleType>) => void
   deleteVehicleType: (id: number) => void
@@ -139,6 +144,19 @@ function dbLicenseGradeToMock(lg: Record<string, unknown>): LicenseGrade {
   }
 }
 
+function dbSupplierToMock(s: Record<string, unknown>): Supplier {
+  const rawId = String(s.id ?? "")
+  return {
+    id: parseInt(rawId.slice(0, 8), 16) || Math.random(),
+    dbId: rawId,
+    code: Number(s.code) || 0,
+    name: String(s.name || ""),
+    taxNumber: String(s.taxNumber || ""),
+    phone: String(s.phone || ""),
+    notes: String(s.notes || ""),
+  }
+}
+
 function dbVehicleTypeToMock(vt: Record<string, unknown>): VehicleType {
   const rawId = String(vt.id ?? "")
   return {
@@ -176,6 +194,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }).catch(() => {})
     api.getLicenseGrades().then((res) => {
       setData((prev) => ({ ...prev, licenseGrades: res.data.map((lg) => dbLicenseGradeToMock(lg as Record<string, unknown>)) }))
+    }).catch(() => {})
+    api.getSuppliers().then((res) => {
+      setData((prev) => ({ ...prev, suppliers: res.data.map((s) => dbSupplierToMock(s as Record<string, unknown>)) }))
     }).catch(() => {})
     Promise.all([
       api.getOrders().catch(() => null),
@@ -223,6 +244,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [editingDriver, setEditingDriver] = useState<Driver | null>(null)
   const [editingVehicleType, setEditingVehicleType] = useState<VehicleType | null>(null)
   const [editingLicenseGrade, setEditingLicenseGrade] = useState<LicenseGrade | null>(null)
+  const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null)
 
   const addVehicle = useCallback((v: Omit<Vehicle, "id" | "status" | "code">) => {
     const vt = v.vehicleTypeId ? data.vehicleTypes.find((t) => t.id === v.vehicleTypeId) : null
@@ -318,6 +340,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
       showToast(`Driver ${d.fullName} updated`)
     })
   }, [data.drivers, showToast])
+
+  const addSupplier = useCallback((s: Omit<Supplier, "id" | "code" | "dbId">) => {
+    return api.createSupplier(s).then((res) => {
+      const mapped = dbSupplierToMock(res.data as Record<string, unknown>)
+      setData((prev) => ({ ...prev, suppliers: [...prev.suppliers, mapped] }))
+      showToast(`Supplier ${s.name} added`)
+    }).catch((e) => {
+      showToast(`Failed to add supplier: ${e.message}`, "error")
+      throw e
+    })
+  }, [showToast])
+
+  const updateSupplier = useCallback((id: number, updates: Partial<Supplier>) => {
+    const s = data.suppliers.find((x) => x.id === id)
+    if (!s) return
+    return api.updateSupplier(s.dbId ?? String(s.id), updates).then((res) => {
+      const mapped = dbSupplierToMock(res.data as Record<string, unknown>)
+      setData((prev) => ({ ...prev, suppliers: prev.suppliers.map((x) => x.id === id ? mapped : x) }))
+      showToast(`Supplier ${s.name} updated`)
+    }).catch((e) => {
+      showToast(`Failed to update supplier: ${e.message}`, "error")
+    })
+  }, [data.suppliers, showToast])
+
+  const deleteSupplier = useCallback((id: number) => {
+    const s = data.suppliers.find((x) => x.id === id)
+    if (!s) return
+    api.deleteSupplier(s.dbId ?? String(s.id)).then(() => {
+      setData((prev) => ({ ...prev, suppliers: prev.suppliers.filter((x) => x.id !== id) }))
+      showToast(`Supplier ${s.name} deleted`, "warning")
+    }).catch(() => {
+      setData((prev) => ({ ...prev, suppliers: prev.suppliers.filter((x) => x.id !== id) }))
+      showToast(`Supplier ${s.name} deleted`, "warning")
+    })
+  }, [data.suppliers, showToast])
 
   const deleteDriver = useCallback((id: number) => {
     const d = data.drivers.find((x) => x.id === id)
@@ -561,6 +618,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       editingVehicle, editingDriver, editingVehicleType, setEditingVehicle, setEditingDriver, setEditingVehicleType,
       editingLicenseGrade, setEditingLicenseGrade,
       addLicenseGrade, updateLicenseGrade, deleteLicenseGrade,
+      editingSupplier, setEditingSupplier,
+      addSupplier, updateSupplier, deleteSupplier,
       addVehicleType, updateVehicleType, deleteVehicleType,
       addVehicle, updateVehicle, toggleVehicleActive, deactivateVehicle,
       addDriver, updateDriver, deleteDriver, fetchVehicleHistory,

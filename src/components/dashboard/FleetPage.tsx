@@ -135,7 +135,7 @@ export function FleetPage() {
           >{f.types}</button>
         </div>
         <button
-          className="btn-primary px-4 py-2 rounded-lg text-sm flex items-center gap-2"
+          className="btn-primary p-3 rounded-xl text-white text-sm flex items-center gap-2"
           onClick={() => openModal(fleetTab === "vehicles" ? "addVehicleModal" : "addVehicleTypeModal")}
         >
           <i className="fa-solid fa-plus text-xs"></i> {fleetTab === "vehicles" ? f.addVehicle : f.addType}

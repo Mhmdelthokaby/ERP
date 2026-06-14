@@ -28,6 +28,7 @@ const navSections: { label: string; items: { page: PageName; icon: string; label
   {
     label: s.system,
     items: [
+      { page: "suppliers", icon: "fa-solid fa-handshake", label: s.suppliers },
       { page: "settings", icon: "fa-solid fa-gear", label: s.settings },
     ],
   },

@@ -143,7 +143,7 @@ export function LegsPage() {
           >{l.licenseGradesTab}</button>
         </div>
         <button
-          className="btn-primary px-4 py-2 rounded-lg text-sm flex items-center gap-2"
+          className="btn-primary p-3 rounded-xl text-white text-sm flex items-center gap-2"
           onClick={() => openModal(legsTab === "drivers" ? "addDriverModal" : "addLicenseGradeModal")}
         >
           <i className="fa-solid fa-plus text-xs"></i> {legsTab === "drivers" ? "إضافة سائق" : l.addLicenseGrade}

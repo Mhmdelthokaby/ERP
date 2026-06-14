@@ -1,3 +1,7 @@
+export interface Supplier {
+  id: number; code: number; name: string; taxNumber: string; phone: string; notes: string; dbId?: string
+}
+
 export interface LicenseGrade {
   id: number; name: string; dbId?: string
 }
@@ -99,6 +103,7 @@ export interface Leg {
 
 export interface AppData {
   licenseGrades: LicenseGrade[]
+  suppliers: Supplier[]
   vehicleTypes: VehicleType[]
   vehicles: Vehicle[]
   drivers: Driver[]
@@ -124,6 +129,7 @@ export const defaultData: AppData = {
     { id: 3, name: 'ثالثة' },
     { id: 4, name: 'رابعة' },
   ],
+  suppliers: [],
   vehicleTypes: [
     { id: 1, name: 'Bus', code: 'BUS', model: 'Hiace/Sprinter', modelCode: 'HS' },
     { id: 2, name: 'Van', code: 'VAN', model: 'L300/Transit', modelCode: 'LT' },
@@ -267,7 +273,7 @@ export const costCenters: CostCenter[] = [
   { name: 'Administration', type: 'Admin', active: true },
 ]
 
-export type PageName = 'dashboard' | 'fleet' | 'trips' | 'expenses' | 'accounting' | 'arap' | 'reports' | 'settings' | 'legs'
+export type PageName = 'dashboard' | 'fleet' | 'trips' | 'expenses' | 'accounting' | 'arap' | 'reports' | 'settings' | 'legs' | 'suppliers'
 
 export const pageTitles: Record<PageName, [string, string]> = {
   dashboard: ['لوحة القيادة', '/ نظرة عامة'],
@@ -279,6 +285,7 @@ export const pageTitles: Record<PageName, [string, string]> = {
   reports: ['التقارير المالية', '/ البيانات والتحليل'],
   settings: ['الإعدادات', '/ تكوين النظام'],
   legs: ['الساقين', '/ إدارة الساقين'],
+  suppliers: ['سجل الموردين', '/ الموردين'],
 }
 
 export function fmt(n: number): string {

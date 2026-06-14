@@ -137,6 +137,17 @@ export const drivers = pgTable("drivers", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 })
 
+export const suppliers = pgTable("suppliers", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  code: serial("code").notNull().unique(),
+  name: text("name").notNull(),
+  taxNumber: text("tax_number"),
+  phone: text("phone"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+})
+
 export const licenseGrades = pgTable("license_grades", {
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull().unique(),

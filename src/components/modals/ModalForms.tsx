@@ -7,6 +7,7 @@ import { ar } from "@/lib/ar"
 const m = ar.fleetModals
 const mod = ar.modals
 const l = ar.legs
+const sup = ar.suppliers
 
 function formatPlate(raw: string) {
   return raw.replace(/\s/g, "").split("").join(" ")
@@ -704,6 +705,84 @@ export function EditLicenseGradeModal() {
         <div className="flex gap-3 pt-2">
           <button className="btn-primary flex-1 py-2 rounded-lg text-sm" onClick={handleSubmit}>{m.save}</button>
           <button className="btn-ghost flex-1 py-2 rounded-lg text-sm" onClick={() => { setEditingLicenseGrade(null); closeModal() }}>{m.cancel}</button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+export function AddSupplierModal() {
+  const { addSupplier, closeModal } = useApp()
+  const [name, setName] = useState("")
+  const [taxNumber, setTaxNumber] = useState("")
+  const [phone, setPhone] = useState("")
+  const [notes, setNotes] = useState("")
+  const [saving, setSaving] = useState(false)
+
+  const handleSubmit = async () => {
+    if (!name || saving) return
+    setSaving(true)
+    try {
+      await addSupplier({ name, taxNumber, phone, notes })
+      closeModal()
+    } catch {
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal title={sup.add} id="add-supplier">
+      <div className="space-y-4">
+        <div><label className="text-xs text-muted mb-1 block">{sup.name} *</label><input type="text" className="p-3 rounded-xl text-white" value={name} onChange={(e) => setName(e.target.value)} /></div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">{sup.taxNumber}</label><input type="text" className="p-3 rounded-xl text-white" value={taxNumber} onChange={(e) => setTaxNumber(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{sup.phone}</label><input type="text" className="p-3 rounded-xl text-white" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
+        </div>
+        <div><label className="text-xs text-muted mb-1 block">{sup.notes}</label><textarea className="w-full bg-bg border border-border p-3 rounded-xl text-white outline-none focus:border-accent transition-colors resize-none" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
+        <div className="flex gap-3 pt-2">
+          <button className="btn-primary flex-1 py-3 rounded-xl text-sm text-white" onClick={handleSubmit} disabled={saving}>{saving ? "..." : sup.add}</button>
+          <button className="btn-ghost flex-1 py-3 rounded-xl text-sm" onClick={closeModal}>{m.cancel}</button>
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+export function EditSupplierModal() {
+  const { editingSupplier, updateSupplier, closeModal, setEditingSupplier } = useApp()
+  const [name, setName] = useState(editingSupplier?.name ?? "")
+  const [taxNumber, setTaxNumber] = useState(editingSupplier?.taxNumber ?? "")
+  const [phone, setPhone] = useState(editingSupplier?.phone ?? "")
+  const [notes, setNotes] = useState(editingSupplier?.notes ?? "")
+  const [saving, setSaving] = useState(false)
+
+  if (!editingSupplier) return null
+
+  const handleSubmit = async () => {
+    if (!name || saving) return
+    setSaving(true)
+    try {
+      await updateSupplier(editingSupplier.id, { name, taxNumber, phone, notes })
+      setEditingSupplier(null); closeModal()
+    } catch {
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <Modal title={sup.edit} id="edit-supplier">
+      <div className="space-y-4">
+        <div><label className="text-xs text-muted mb-1 block">{sup.name} *</label><input type="text" className="p-3 rounded-xl text-white" value={name} onChange={(e) => setName(e.target.value)} /></div>
+        <div className="grid grid-cols-2 gap-3">
+          <div><label className="text-xs text-muted mb-1 block">{sup.taxNumber}</label><input type="text" className="p-3 rounded-xl text-white" value={taxNumber} onChange={(e) => setTaxNumber(e.target.value)} /></div>
+          <div><label className="text-xs text-muted mb-1 block">{sup.phone}</label><input type="text" className="p-3 rounded-xl text-white" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
+        </div>
+        <div><label className="text-xs text-muted mb-1 block">{sup.notes}</label><textarea className="w-full bg-bg border border-border p-3 rounded-xl text-white outline-none focus:border-accent transition-colors resize-none" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
+        <div className="flex gap-3 pt-2">
+          <button className="btn-primary flex-1 py-3 rounded-xl text-white text-sm" onClick={handleSubmit} disabled={saving}>{saving ? "..." : sup.edit}</button>
+          <button className="btn-ghost flex-1 py-3 rounded-xl text-sm" onClick={() => { setEditingSupplier(null); closeModal() }}>{m.cancel}</button>
         </div>
       </div>
     </Modal>

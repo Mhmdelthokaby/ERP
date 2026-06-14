@@ -87,4 +87,12 @@ export const api = {
     request<{ data: JsonValue }>(`/api/settings/users/${id}`, { method: "PUT", body: JSON.stringify({ isActive: false }) }),
   getOutboxMessages: () => request<{ data: JsonValue[] }>("/api/settings/outbox"),
   getAuditLogs: () => request<{ data: JsonValue[] }>("/api/settings/audit-logs"),
+
+  getSuppliers: () => request<{ data: JsonValue[] }>("/api/suppliers"),
+  createSupplier: (body: Record<string, unknown>) =>
+    request<{ data: JsonValue }>("/api/suppliers", { method: "POST", body: JSON.stringify(body) }),
+  updateSupplier: (id: string, body: Record<string, unknown>) =>
+    request<{ data: JsonValue }>(`/api/suppliers/${id}`, { method: "PUT", body: JSON.stringify(body) }),
+  deleteSupplier: (id: string) =>
+    request<{ data: JsonValue }>(`/api/suppliers/${id}`, { method: "DELETE" }),
 }
