@@ -62,6 +62,7 @@ export function FleetPage() {
     licenseType: String(v.licenseType || ""),
     purchaseDate: String(v.purchaseDate || ""),
     hasGps: String(v.hasGps) === "true",
+    fuelConsumption: v.fuelConsumption != null ? Number(v.fuelConsumption) : null,
     vehicleTypeId: v.vehicleTypeId ? parseInt(String(v.vehicleTypeId).slice(0, 8), 16) || null : null,
     vehicleType: String(v.vehicleTypeName || ""),
     driverId: v.driverId ? parseInt(String(v.driverId).slice(0, 8), 16) || null : null,
@@ -240,7 +241,8 @@ export function FleetPage() {
                   <div><span className="text-muted">{f.model}:</span> {selectedVehicle.model}</div>
                   <div><span className="text-muted">{f.gps}:</span> <span className={selectedVehicle.hasGps ? "text-success" : "text-muted"}>{selectedVehicle.hasGps ? f.gpsFound : f.gpsNotFound}</span></div>
                   <div><span className="text-muted">{f.yearLabel}</span> {selectedVehicle.year}</div>
-                  <div><span className="text-muted">{f.capacityLabel}</span> {selectedVehicle.capacity} {f.capacityUnit}</div>
+                  <div><span className="text-muted">{f.capacityLabel}</span> {selectedVehicle.capacity}</div>
+                  <div><span className="text-muted">{f.fuelConsumption}:</span> {selectedVehicle.fuelConsumption != null ? `${selectedVehicle.fuelConsumption} L/100KM` : "—"}</div>
                   <div><span className="text-muted">{f.ownerName}:</span> {selectedVehicle.ownerName || "—"}</div>
                   <div><span className="text-muted">{f.licenseDate}:</span> {selectedVehicle.licenseDate || "—"}</div>
                   <div><span className="text-muted">{f.licenseExpiry}:</span> {selectedVehicle.licenseExpiryDate || "—"}</div>
