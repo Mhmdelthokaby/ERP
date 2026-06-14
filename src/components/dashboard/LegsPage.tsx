@@ -264,17 +264,17 @@ export function LegsPage() {
                 </button>
               </div>
               <div className="p-4 text-sm">
-                <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-xs">
-                  <div><span className="text-muted">{l.code}:</span> <span className="font-mono block mt-0.5">{selected.code}</span></div>
-                  <div><span className="text-muted">{l.fullName}:</span> <span className="block mt-0.5 font-medium">{selected.fullName}</span></div>
-                  <div><span className="text-muted">{l.phone}:</span> <span className="font-mono block mt-0.5" dir="ltr">{selected.phone}</span></div>
-                  <div><span className="text-muted">{l.licenseGrade}:</span> <span className="font-mono block mt-0.5">{selected.licenseGrade}</span></div>
-                  <div><span className="text-muted">{l.status}:</span> <span className="block mt-0.5">{selected.isActive ? <StatusBadge status="Active" /> : <StatusBadge status="Inactive" />}</span></div>
-                  <div><span className="text-muted">الرقم القومي:</span> <span className="font-mono block mt-0.5">{selected.nationalId}</span></div>
-                  <div><span className="text-muted">رقم التأمين:</span> <span className="font-mono block mt-0.5">{selected.insuranceNumber || "—"}</span></div>
-                  <div><span className="text-muted">الراتب:</span> <span className="font-mono block mt-0.5">{selected.salary || "—"}</span></div>
-                  <div><span className="text-muted">تاريخ التعيين:</span> <span className="font-mono block mt-0.5">{selected.hireDate || "—"}</span></div>
-                  <div><span className="text-muted">المركبات:</span> {linkedVehicles.length ? linkedVehicles.map((lv) => <button key={lv.id} className="font-mono block mt-0.5 text-accent hover:underline cursor-pointer" onClick={() => goToVehicle(lv.id)}>{lv.code}</button>) : <span className="font-mono block mt-0.5 text-muted">غير مرتبط</span>}</div>
+                <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-xs">
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{l.code}:</span> <span className="font-mono">{selected.code}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{l.fullName}:</span> <span className="font-medium">{selected.fullName}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{l.phone}:</span> <span className="font-mono" dir="ltr">{selected.phone}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{l.licenseGrade}:</span> <span className="font-mono">{selected.licenseGrade}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{l.status}:</span> <span>{selected.isActive ? <StatusBadge status="Active" /> : <StatusBadge status="Inactive" />}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">الرقم القومي:</span> <span className="font-mono">{selected.nationalId}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">رقم التأمين:</span> <span className="font-mono">{selected.insuranceNumber || "—"}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">الراتب:</span> <span className="font-mono">{selected.salary || "—"}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">تاريخ التعيين:</span> <span className="font-mono">{selected.hireDate || "—"}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">المركبات:</span> <span>{linkedVehicles.length ? linkedVehicles.map((lv) => <button key={lv.id} className="font-mono text-accent hover:underline cursor-pointer" onClick={() => goToVehicle(lv.id)}>{lv.code}</button>) : <span className="font-mono text-muted">غير مرتبط</span>}</span></div>
                 </div>
               </div>
             </div>

@@ -94,6 +94,7 @@ function dbVehicleToMock(v: Record<string, unknown>): Vehicle {
     licenseType: String(v.licenseType || ""),
     purchaseDate: String(v.purchaseDate || ""),
     hasGps: String(v.hasGps) === "true",
+    fuelConsumption: v.fuelConsumption != null ? Number(v.fuelConsumption) : null,
   }
 }
 

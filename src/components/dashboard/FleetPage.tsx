@@ -62,6 +62,7 @@ export function FleetPage() {
     licenseType: String(v.licenseType || ""),
     purchaseDate: String(v.purchaseDate || ""),
     hasGps: String(v.hasGps) === "true",
+    fuelConsumption: v.fuelConsumption != null ? Number(v.fuelConsumption) : null,
     vehicleTypeId: v.vehicleTypeId ? parseInt(String(v.vehicleTypeId).slice(0, 8), 16) || null : null,
     vehicleType: String(v.vehicleTypeName || ""),
     driverId: v.driverId ? parseInt(String(v.driverId).slice(0, 8), 16) || null : null,
@@ -232,24 +233,26 @@ export function FleetPage() {
                 </div>
               </div>
               <div className="p-4 space-y-3 text-sm">
-                <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
-                  <div><span className="text-muted">{f.codeLabel}</span> <span className="font-mono">{selectedVehicle.code}</span></div>
-                  <div><span className="text-muted">{f.plateLabel}</span> <span className="font-mono">{selectedVehicle.plateNumber}</span></div>
-                  <div><span className="text-muted">{f.chassisNumber}:</span> <span className="font-mono">{selectedVehicle.chassisNumber || "—"}</span></div>
-                  <div><span className="text-muted">{f.engineNumber}:</span> <span className="font-mono">{selectedVehicle.engineNumber || "—"}</span></div>
-                  <div><span className="text-muted">{f.model}:</span> {selectedVehicle.model}</div>
-                  <div><span className="text-muted">{f.gps}:</span> <span className={selectedVehicle.hasGps ? "text-success" : "text-muted"}>{selectedVehicle.hasGps ? f.gpsFound : f.gpsNotFound}</span></div>
-                  <div><span className="text-muted">{f.yearLabel}</span> {selectedVehicle.year}</div>
-                  <div><span className="text-muted">{f.capacityLabel}</span> {selectedVehicle.capacity} {f.capacityUnit}</div>
-                  <div><span className="text-muted">{f.ownerName}:</span> {selectedVehicle.ownerName || "—"}</div>
-                  <div><span className="text-muted">{f.licenseDate}:</span> {selectedVehicle.licenseDate || "—"}</div>
-                  <div><span className="text-muted">{f.licenseExpiry}:</span> {selectedVehicle.licenseExpiryDate || "—"}</div>
-                  <div><span className="text-muted">{f.licenseTypeLabel}:</span> {selectedVehicle.licenseType || "—"}</div>
-                  <div><span className="text-muted">{f.purchaseDate}:</span> {selectedVehicle.purchaseDate || "—"}</div>
-                  <div><span className="text-muted">{f.driverLabel}</span> {selectedVehicle.driverName ? <button className="text-accent hover:underline" onClick={() => { setPendingDriverView(selectedVehicle.driverId); setPage("legs") }}>{selectedVehicle.driverName}</button> : f.unassigned}</div>
-                  <div><span className="text-muted">{f.statusLabel}</span>
+                <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-xs">
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.codeLabel}</span> <span className="font-mono">{selectedVehicle.code}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.plateLabel}</span> <span className="font-mono">{selectedVehicle.plateNumber}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.chassisNumber}:</span> <span className="font-mono">{selectedVehicle.chassisNumber || "—"}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.engineNumber}:</span> <span className="font-mono">{selectedVehicle.engineNumber || "—"}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.model}:</span> <span>{selectedVehicle.model}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.gps}:</span> <span className={selectedVehicle.hasGps ? "text-success" : "text-muted"}>{selectedVehicle.hasGps ? f.gpsFound : f.gpsNotFound}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.yearLabel}</span> <span>{selectedVehicle.year}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.capacityLabel}</span> <span>{selectedVehicle.capacity}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.fuelConsumption}:</span> <span>{selectedVehicle.fuelConsumption != null ? `${selectedVehicle.fuelConsumption} L/100KM` : "—"}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.ownerName}:</span> <span>{selectedVehicle.ownerName || "—"}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.licenseDate}:</span> <span>{selectedVehicle.licenseDate || "—"}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.licenseExpiry}:</span> <span>{selectedVehicle.licenseExpiryDate || "—"}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.licenseTypeLabel}:</span> <span>{selectedVehicle.licenseType || "—"}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.purchaseDate}:</span> <span>{selectedVehicle.purchaseDate || "—"}</span></div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1"><span className="text-muted shrink-0">{f.driverLabel}</span> {selectedVehicle.driverName ? <button className="text-accent hover:underline" onClick={() => { setPendingDriverView(selectedVehicle.driverId); setPage("legs") }}>{selectedVehicle.driverName}</button> : <span>{f.unassigned}</span>}</div>
+                  <div className="flex justify-between items-center gap-2 border-b border-border/30 pb-1">
+                    <span className="text-muted shrink-0">{f.statusLabel}</span>
                     <button
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors align-middle mr-2 ${selectedVehicle.status === "Active" ? "bg-success" : "bg-danger"}`}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${selectedVehicle.status === "Active" ? "bg-success" : "bg-danger"}`}
                       onClick={() => openToggleConfirm(selectedVehicle.id)}
                     >
                       <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${selectedVehicle.status === "Active" ? "translate-x-6" : "translate-x-1"}`} />

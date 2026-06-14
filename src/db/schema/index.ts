@@ -114,6 +114,7 @@ export const vehicles = pgTable("vehicles", {
   licenseType: text("license_type"),
   purchaseDate: date("purchase_date"),
   hasGps: boolean("has_gps").notNull().default(false),
+  fuelConsumption: numeric("fuel_consumption"),
   vehicleTypeId: uuid("vehicle_type_id").references(() => vehicleTypes.id),
   driverId: uuid("driver_id").references(() => drivers.id),
   isActive: boolean("is_active").notNull().default(true),
