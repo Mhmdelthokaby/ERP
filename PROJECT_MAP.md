@@ -84,7 +84,7 @@ The entire dashboard is a single client component (`page.tsx`) serving as the ro
 | Settings – Outbox | ✅ | `SettingsPage.tsx` | Outbox messages table |
 | Settings – Audit Log | ✅ | `SettingsPage.tsx` | Audit log table |
 | Suppliers CRUD | ✅ | `SuppliersPage.tsx + ModalForms.tsx + app-context.tsx` | Suppliers table with details panel, add/edit modals (name/taxNumber/phone/notes), delete confirmation; API routes (GET/POST/PUT/DELETE) |
-| Maintenance CRUD | ✅ | `MaintenancePage.tsx + ModalForms.tsx + app-context.tsx` | Records + types tabs; records table (code/plate/vehicleCode/date/supplier/invoice/type/notes) with detail panel, add/edit modals (vehicle select showing `plateNumber (code)` with auto-fill vehicleId/vehicleCode); types CRUD table; API routes (GET/POST/PUT/DELETE) |
+| Maintenance CRUD | ✅ | `MaintenancePage.tsx + ModalForms.tsx + app-context.tsx` | Records + types tabs; records table (code/plate/vehicleCode/date/supplier/invoice/type/notes) with detail panel, add/edit modals (vehicle select showing `plateNumber (code)` with auto-fill vehicleId/vehicleCode using `dbId` UUID); server-side UUID FK resolution (lookup vehicle by plateNumber, supplier by name); types CRUD table; API routes (GET/POST/PUT/DELETE) |
 | Toast notifications | ✅ | `ToastContainer.tsx + context` | 4 types with auto-dismiss |
 | Modals | ✅ | `ModalForms.tsx + Modal.tsx` | 18 form modals — add/edit Driver, add/edit Vehicle, add VehicleType, edit VehicleType, add LicenseGrade, edit LicenseGrade, add Supplier, edit Supplier, add MaintenanceType, edit MaintenanceType, add Maintenance, edit Maintenance, add Trip, add Expense, add Journal, add Account, add User |
 | DB – PostgreSQL | ✅ | localhost:5432 | PostgreSQL 17 running, `erp_db` created |
@@ -137,7 +137,7 @@ Items not yet implemented or not wired:
 13. ✅ Fuel consumption field: DB column, migration 0007, forms, details display
 14. ✅ Suppliers page: DB schema + migration 0008, API routes, table + details panel, add/edit modals
 15. ✅ Button styling: all primary add buttons use p-3 rounded-xl text-white (suppliers, fleet, legs pages)
-16. ✅ Maintenance page: DB schema + migrations 0009/0010/0011, API routes, records+types tabs, detail panel, add/edit modals with vehicle select dropdown showing code
+16. ✅ Maintenance page: DB schema + migrations 0009/0010/0011, API routes, records+types tabs, detail panel, add/edit modals with vehicle select dropdown showing code; UUID FK resolution for vehicleId/supplierId
 17. Add role-based UI filtering using `session.user.role`
 18. Wire outbox worker to start on server init
 19. Install Font Awesome as npm dependency (remove CDN)
